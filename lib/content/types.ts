@@ -239,5 +239,8 @@ export type PortfolioContent = {
     ogCardLabel: string;
     /** Text on the pointer label over a project row. */
     cursorViewLabel: string;
+    /** `{current}` and `{total}` are replaced — the section counter that
+     *  rides beside the scroll progress bar. */
+    sectionProgressTemplate: string;
   };
 };

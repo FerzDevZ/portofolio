@@ -480,7 +480,6 @@
   padding: calc(1rem + var(--safe-top)) 1rem calc(1.5rem + var(--safe-bottom));
   background: var(--color-backdrop);
   backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
   animation: lightbox-in 200ms ease both;
 }
 
@@ -490,6 +489,25 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+/* A visitor who asked the system for less transparency gets opaque
+   surfaces instead of blurred ones. The blur is decorative here: the
+   scrim and the nav pill already carry their own translucent fill, so
+   dropping `backdrop-filter` costs nothing but sharpens both. The
+   backdrop colour is also pushed to fully opaque so nothing shows
+   through the scrim. */
+@media (prefers-reduced-transparency: reduce) {
+  .lightbox-overlay,
+  .nav-pill {
+    backdrop-filter: none !important;
+  }
+  .lightbox-overlay {
+    background: var(--color-canvas);
+  }
+  .nav-pill {
+    background: var(--color-panel);
   }
 }
 
@@ -615,6 +633,41 @@
   transition: opacity 220ms ease;
   z-index: 60;
   pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Section counter — rides beside the progress hairline                */
+/*                                                                     */
+/* Hidden until a section is actually active: above the first section  */
+/* there is nothing to count, and an entry animation for a number that */
+/* arrives on first scroll reads as noise. Opacity only.               */
+/* ------------------------------------------------------------------ */
+
+.scroll-section-counter {
+  position: fixed;
+  top: calc(var(--safe-top) + 3.4rem);
+  right: max(1.25rem, calc((100vw - 72rem) / 2 + 2rem));
+  margin: 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+  z-index: 60;
+}
+
+.scroll-section-counter[data-visible="true"] {
+  opacity: 1;
+}
+
+/* The bar is decoration on a phone; the counter would crowd the row. */
+@media (max-width: 767px) {
+  .scroll-section-counter {
+    display: none;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -901,7 +954,6 @@
   border: 1px solid var(--color-line-strong);
   background: var(--color-panel-translucent);
   backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   padding: 0.3rem;
   box-shadow:
     0 8px 24px -12px var(--color-shadow-soft),

@@ -176,7 +176,48 @@ export default async function RootLayout({
                   description: content.site.role,
                   jobTitle: content.site.role,
                   address: content.site.location,
+                  email: content.site.email,
+                  /* The socials are already rendered as links in the contact
+                     section; the same URLs let a crawler connect the profiles
+                     to the person instead of treating them as unrelated. */
+                  sameAs: content.socials
+                    .filter((socialLink) => socialLink.href.startsWith("http"))
+                    .map((socialLink) => socialLink.href),
                 },
+                /* Each published case study, so search results can surface the
+                   individual projects rather than only the home page. */
+                ...content.projects.map((project) => ({
+                  "@type": "CreativeWork",
+                  "@id": `${siteUrl}${localizedPath(lang, project.href)}`,
+                  name: project.title,
+                  description: project.description,
+                  url: `${siteUrl}${localizedPath(lang, project.href)}`,
+                  dateCreated: project.year,
+                  keywords: project.stack.join(", "),
+                  author: { "@id": `${siteUrl}/#person` },
+                  ...(project.repoUrl.startsWith("http")
+                    ? { codeRepository: project.repoUrl }
+                    : {}),
+                })),
+                /* Awards, taken from the real certificates — nothing is
+                   asserted here that the certificates section does not show. */
+                ...content.certificates.items
+                  .filter(
+                    (certificate) =>
+                      certificate.title !== null && certificate.issuer !== null,
+                  )
+                  .map((certificate) => ({
+                    "@type": "Award",
+                    name:
+                      certificate.placement === null
+                        ? certificate.title
+                        : `${certificate.placement} — ${certificate.title}`,
+                    description: certificate.issuer,
+                    ...(certificate.period !== null
+                      ? { dateCreated: certificate.period }
+                      : {}),
+                    recipient: { "@id": `${siteUrl}/#person` },
+                  })),
               ],
             }),
           }}

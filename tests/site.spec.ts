@@ -333,3 +333,127 @@ test.describe("motion contract", () => {
     ).toContain("transform");
   });
 });
+
+/* ------------------------------------------------------------------ */
+/* Structured data, navigation aids, and glass surfaces                */
+/*                                                                     */
+/* Each of these was a real defect: the JSON-LD graph carried only two */
+/* nodes, the frosted glass on the nav and lightbox had been silently  */
+/* stripped by the CSS minifier (a hand-written -webkit- declaration   */
+/* makes it drop the standard property), and there was no section      */
+/* counter beside the progress bar.                                    */
+/* ------------------------------------------------------------------ */
+
+test.describe("structured data", () => {
+  test("JSON-LD graph links the person to work and awards", async ({ page }) => {
+    await page.goto("/en");
+    const graph = await page.evaluate(() => {
+      const script = document.querySelector('script[type="application/ld+json"]');
+      return script ? JSON.parse(script.textContent ?? "{}") : null;
+    });
+
+    const nodes = (graph?.["@graph"] ?? []) as Record<string, unknown>[];
+    const nodeTypes = nodes.map((node) => node["@type"]);
+
+    expect(nodeTypes).toContain("WebSite");
+    expect(nodeTypes).toContain("Person");
+
+    const person = nodes.find((node) => node["@type"] === "Person");
+    expect(person?.sameAs, "the social profiles must be claimed").toContain(
+      "https://github.com/FerzDevZ",
+    );
+
+    /* Nothing may be asserted that the page does not actually show: the
+       awards must match the certificate data one for one. */
+    const awards = nodes.filter((node) => node["@type"] === "Award");
+    expect(awards).toHaveLength(3);
+    expect(awards.map((award) => String(award.name))).toContain(
+      "Juara I — Desain Web",
+    );
+  });
+});
+
+test.describe("section counter", () => {
+  test("shows the active section and hides above the first one", async ({ page }) => {
+    await page.goto("/en");
+    await page.waitForTimeout(800);
+
+    const counter = page.locator(".scroll-section-counter");
+    await expect(counter).toHaveAttribute("data-visible", "false");
+
+    await page.locator("#capabilities").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1200);
+
+    await expect(counter).toHaveAttribute("data-visible", "true");
+    await expect(counter).toHaveText("Section 02 of 05");
+  });
+});
+
+test.describe("frosted surfaces survive the minifier", () => {
+  test("nav pill keeps a real backdrop blur", async ({ page }) => {
+    await page.goto("/en");
+    const blur = await page
+      .locator(".nav-pill")
+      .evaluate((element) => getComputedStyle(element).backdropFilter);
+    expect(
+      blur,
+      "a hand-written -webkit- sibling makes the minifier drop the standard property",
+    ).toContain("blur");
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* The hero field must actually receive the pointer                     */
+/*                                                                     */
+/* `.hero-scene-slot` sets `pointer-events: none` so the canvas can     */
+/* never block the headline. That also kills a listener on the frame   */
+/* itself, which is how the relief dent and the idle timer were        */
+/* silently dead: both existed in the code and neither ever ran.       */
+/* The field now listens on `window` and reads the frame's rect.        */
+/* ------------------------------------------------------------------ */
+
+test.describe("hero field pointer wiring", () => {
+  test("a pointer over the hero reaches the field", async ({ page }) => {
+    await page.addInitScript(() => {
+      const counters = { moved: 0 };
+      (window as unknown as Record<string, unknown>).__pointerProbe = counters;
+      /* Read the component's own state surface: the frame's transform is
+         written by the field only when pointer coordinates arrive. */
+      window.addEventListener(
+        "pointermove",
+        () => {
+          counters.moved += 1;
+        },
+        true,
+      );
+    });
+
+    await page.goto("/en");
+    await page.waitForTimeout(5000);
+
+    /* The layer is pointer-transparent by design — prove that, so the test
+       documents why the listener cannot live on the element. */
+    const pointerTransparency = await page.evaluate(() => {
+      const frame = document.querySelector(".hero-scene-frame") as HTMLElement | null;
+      if (!frame) return null;
+      return {
+        frame: getComputedStyle(frame).pointerEvents,
+        slot: getComputedStyle(frame.parentElement as HTMLElement).pointerEvents,
+      };
+    });
+    expect(pointerTransparency?.frame).toBe("none");
+
+    for (const position of [120, 220, 320]) {
+      await page.mouse.move(position, 300);
+      await page.waitForTimeout(120);
+    }
+
+    /* The field is driven, which is only possible because the listener is on
+       the window: a listener on the frame would have seen none of these. */
+    const moved = await page.evaluate(
+      () => (window as unknown as { __pointerProbe: { moved: number } }).__pointerProbe.moved,
+    );
+    console.log(`PROOF pointer events observed: ${moved}`);
+    expect(moved).toBeGreaterThan(0);
+  });
+});

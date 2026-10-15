@@ -533,5 +533,6 @@ export const content: PortfolioContent = {
     clockLabel: "Local time in Jakarta",
     ogCardLabel: "Portfolio",
     cursorViewLabel: "View",
+    sectionProgressTemplate: "Section {current} of {total}",
   },
 };

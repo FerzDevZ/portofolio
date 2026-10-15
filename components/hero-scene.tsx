@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import {
+  calmWave,
+  kineticWave,
+  blendIdle,
+  IDLE_AFTER_S,
+  FIELD_COLUMNS,
+  FIELD_ROWS,
+  CELL_SPACING,
+  RELIEF_AMPLITUDE,
+} from "@/lib/hero-relief";
 
 /**
  * "Capabilities field" — the hero's interactive 3D relief.
@@ -21,17 +31,23 @@ import * as THREE from "three";
  *   R3F state, already normalized to NDC — no manual listeners.
  */
 
-/* Field cell size and spacing — 24×14 grid ≈ 336 instances, one draw call. */
-const FIELD_COLUMNS = 24;
-const FIELD_ROWS = 14;
-const CELL_SPACING = 0.42;
-const RELIEF_AMPLITUDE = 0.16;
+/* Field geometry and the wave functions live in `lib/hero-relief` so the
+   maths can be tested as arithmetic; this file only renders it. */
 
 type FieldPointer = { x: number; y: number; active: boolean };
 
-function ReliefField({ pointer }: { pointer: React.RefObject<FieldPointer> }) {
+function ReliefField({
+  pointer,
+  lastPointerMoveAt,
+}: {
+  pointer: React.RefObject<FieldPointer>;
+  lastPointerMoveAt: React.RefObject<number>;
+}) {
   const fieldRef = useRef<THREE.InstancedMesh>(null);
   const smoothedPointer = useRef({ x: 0.5, y: 0.5, strength: 0 });
+  /* 0 = calm ambient sweep, 1 = idle interference pattern. Lerped per frame so
+     the two states dissolve into each other rather than snapping. */
+  const idleBlend = useRef(0);
   /* One matrix reused by every frame and every instance: the per-frame loop
      must not allocate, or the garbage collector pauses the animation. */
   const workingMatrix = useMemo(() => new THREE.Matrix4(), []);
@@ -68,15 +84,30 @@ function ReliefField({ pointer }: { pointer: React.RefObject<FieldPointer> }) {
     smoothedPointer.current.y +=
       (pointerState.y - smoothedPointer.current.y) * 0.1;
 
+    /* Idle breathing: once the pointer has been still for a few seconds the
+       ambient wave swaps its slow two-phase sine for a tighter, faster
+       interference pattern — the field reads as alive and thinking rather
+       than frozen. The blend is a lerp against the same smoothed pointer
+       signal, so returning the cursor dissolves it instead of snapping.
+
+       Both sides of this comparison use `performance.now()`: the pointer
+       handler writes that clock, and `clock.elapsedTime` is a different
+       origin (R3F starts it at mount), so mixing them would make the field
+       look idle the moment it mounted. */
+    const nowSeconds = performance.now() / 1000;
+    const pointerIsIdle = nowSeconds - lastPointerMoveAt.current > IDLE_AFTER_S;
+    idleBlend.current = blendIdle(idleBlend.current, pointerIsIdle);
+    const idleAmount = idleBlend.current;
+
     for (let cellIndex = 0; cellIndex < fieldCells.length; cellIndex += 1) {
       const fieldCell = fieldCells[cellIndex];
       if (!fieldCell) continue;
       const { cellX, cellY } = fieldCell;
 
       /* Ambient relief: two-phase sine travelling slowly across the field. */
-      const wave =
-        Math.sin(cellX * 5.2 + elapsed * 0.55) * 0.62 +
-        Math.sin(cellY * 4.1 - elapsed * 0.4) * 0.38;
+      const slowWave = calmWave(cellX, cellY, elapsed);
+
+      const wave = slowWave * (1 - idleAmount) + kineticWave(cellX, cellY, elapsed) * idleAmount;
 
       /* Pointer dent: radial falloff around the smoothed pointer pos. */
       const pointerDistance = Math.hypot(
@@ -117,16 +148,48 @@ function ReliefField({ pointer }: { pointer: React.RefObject<FieldPointer> }) {
   );
 }
 
-/** Camera drifts a fraction of the pointer for depth-cue parallax. */
+/** Camera drifts a fraction of the pointer for depth-cue parallax, and sinks
+ *  slightly as the hero scrolls away so the relief field reads as receding
+ *  under the page rather than sitting flat behind it. Both are pure position
+ *  writes on the existing frame loop — one extra read per frame, no listener,
+ *  no reflow. */
 function DriftingCamera({ pointer }: { pointer: React.RefObject<FieldPointer> }) {
   const cameraRef = useThree((fiberState) => fiberState.camera);
+  const scrollDepth = useRef(0);
+
+  useEffect(() => {
+    /* Reuse the parent's single scroll source: a passive listener that only
+       records a number. The frame loop below consumes it. */
+    let frameId: number | null = null;
+    const readScrollDepth = () => {
+      frameId = null;
+      /* 0 at the top, 1 once the hero has been scrolled past. */
+      const heroHeight = window.innerHeight;
+      scrollDepth.current = Math.min(Math.max(window.scrollY / heroHeight, 0), 1);
+    };
+    const scheduleScrollDepth = () => {
+      if (frameId !== null) return;
+      frameId = window.requestAnimationFrame(readScrollDepth);
+    };
+
+    readScrollDepth();
+    window.addEventListener("scroll", scheduleScrollDepth, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", scheduleScrollDepth);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+    };
+  }, []);
 
   useFrame(() => {
     const pointerState = pointer.current;
     const targetX = (pointerState.x - 0.5) * 0.6;
     const targetY = 0.35 + (0.5 - pointerState.y) * 0.35;
+    /* The camera pulls back a little and drops as the hero leaves: enough to
+       feel the relief recede, small enough that the field never leaves frame. */
+    const targetZ = 3.4 + scrollDepth.current * 0.9;
     cameraRef.position.x += (targetX - cameraRef.position.x) * 0.04;
     cameraRef.position.y += (targetY - cameraRef.position.y) * 0.04;
+    cameraRef.position.z += (targetZ - cameraRef.position.z) * 0.06;
     cameraRef.lookAt(0, 0, 0);
   });
 
@@ -184,24 +247,46 @@ function CadenceTicker() {
 
 export default function HeroScene() {
   const pointerRef = useRef<FieldPointer>({ x: 0.5, y: 0.5, active: false });
+  /* Written by the pointer listener, read by the frame loop: the relief field
+     needs its own elapsed time, and it must not allocate or re-render. */
+  const lastPointerMoveAtRef = useRef(0);
+  const frameRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const frameElement = frameRef.current;
+    if (!frameElement) return;
+
+    const followPointer = (pointerEvent: PointerEvent) => {
+      const frameRect = frameElement.getBoundingClientRect();
+      pointerRef.current = {
+        x: (pointerEvent.clientX - frameRect.left) / frameRect.width,
+        y: (pointerEvent.clientY - frameRect.top) / frameRect.height,
+        active: true,
+      };
+      lastPointerMoveAtRef.current = performance.now() / 1000;
+    };
+
+    const releasePointer = () => {
+      pointerRef.current.active = false;
+    };
+
+    window.addEventListener("pointermove", followPointer, { passive: true });
+    /* Leaving the window entirely counts as leaving the field. */
+    document.addEventListener("pointerleave", releasePointer);
+    return () => {
+      window.removeEventListener("pointermove", followPointer);
+      document.removeEventListener("pointerleave", releasePointer);
+    };
+  }, []);
 
   return (
-    <div
-      className="hero-scene-frame"
-      aria-hidden="true"
-      onPointerMove={(pointerEvent) => {
-        const frameRect =
-          pointerEvent.currentTarget.getBoundingClientRect();
-        pointerRef.current = {
-          x: (pointerEvent.clientX - frameRect.left) / frameRect.width,
-          y: (pointerEvent.clientY - frameRect.top) / frameRect.height,
-          active: true,
-        };
-      }}
-      onPointerLeave={() => {
-        pointerRef.current.active = false;
-      }}
-    >
+    /* Listens on `window`, not on this element. `.hero-scene-slot` sets
+      `pointer-events: none` so the canvas can never block the headline, and
+      that kills `onPointerMove` here — the whole layer, children included,
+      is transparent to the pointer. Reading the frame's own rect from a
+      window listener keeps the coordinates honest while letting the field
+      react to the pointer anywhere over the hero. */
+    <div ref={frameRef} className="hero-scene-frame" aria-hidden="true">
       <Canvas
         camera={{ position: [0, 0.35, 3.4], fov: 42 }}
         dpr={[1, 1.5]}
@@ -211,7 +296,10 @@ export default function HeroScene() {
         <ambientLight intensity={0.5} />
         <directionalLight position={[3, 4, 5]} intensity={0.7} />
         <directionalLight position={[-4, -2, 2]} intensity={0.25} color="#5a7bd8" />
-        <ReliefField pointer={pointerRef} />
+        <ReliefField
+          pointer={pointerRef}
+          lastPointerMoveAt={lastPointerMoveAtRef}
+        />
         <DriftingCamera pointer={pointerRef} />
         <CadenceTicker />
       </Canvas>

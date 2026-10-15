@@ -12,6 +12,7 @@ import { OfflineIndicator } from "@/components/offline-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitch } from "@/components/language-switch";
 import { SkipLink } from "@/components/skip-link";
+import { ScrollSectionCounter } from "@/components/scroll-section-counter";
 
 /**
  * The slice of the dictionary the header actually renders.
@@ -198,12 +199,20 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
       />
 
       <header
+        data-active-section={activeSectionId ?? ""}
         className={`safe-area-header fixed inset-x-0 top-0 z-50 ${
           /* The open menu needs to block out the page behind it — the header
              and the panel share one background so it reads as one sheet. */
           menuOpen ? "bg-canvas" : ""
         }`}
       >
+        {/* Rides just under the bar, aligned with the progress hairline. Reads
+            the active section from this header's data attribute rather than
+            measuring scroll again. */}
+        <ScrollSectionCounter
+          nav={nav}
+          template={ui.sectionProgressTemplate}
+        />
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 sm:px-8">
           <a
             href="#top"

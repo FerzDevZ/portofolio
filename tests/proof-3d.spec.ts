@@ -7,8 +7,16 @@ import { test, expect, type Page, type CDPSession } from "@playwright/test";
 
 async function instrumentWebGL(page: Page) {
   await page.addInitScript(() => {
-    const counters = { draws: 0 };
+    const counters = {
+      draws: 0,
+      /* The relief field's z values, one entry per rendered frame — used to compare
+         the calm sweep against the idle pattern. */
+      fieldFrames: [] as number[][],
+      /* |camera z| read from the view-projection matrix translation. */
+      cameraDepth: null as number | null,
+    };
     (window as unknown as { __gl: typeof counters }).__gl = counters;
+
     for (const proto of [WebGLRenderingContext.prototype, WebGL2RenderingContext.prototype]) {
       for (const method of ["drawElements", "drawArrays", "drawElementsInstanced", "drawArraysInstanced"] as const) {
         const original = (proto as unknown as Record<string, Function>)[method];
@@ -19,6 +27,44 @@ async function instrumentWebGL(page: Page) {
         };
       }
     }
+
+    /* The InstancedMesh uploads 336 × 16 floats; summing every z (offset 14)
+       gives one number for the whole relief surface per frame. */
+    const FIELD_FLOAT_COUNT = 336 * 16;
+    const recordField = (data: Float32Array) => {
+      const zValues: number[] = [];
+      for (let index = 14; index < data.length; index += 16) zValues.push(data[index] ?? 0);
+      counters.fieldFrames.push(zValues);
+      if (counters.fieldFrames.length > 300) counters.fieldFrames.shift();
+    };
+    const originalBufferData = WebGL2RenderingContext.prototype.bufferData;
+    WebGL2RenderingContext.prototype.bufferData = function (this: WebGL2RenderingContext, ...args: unknown[]) {
+      const data = args[1];
+      if (data instanceof Float32Array && data.length === FIELD_FLOAT_COUNT) recordField(data);
+      return (originalBufferData as unknown as (...a: unknown[]) => unknown).apply(this, args);
+    } as typeof originalBufferData;
+
+    const originalBufferSubData = WebGL2RenderingContext.prototype.bufferSubData;
+    WebGL2RenderingContext.prototype.bufferSubData = function (this: WebGL2RenderingContext, ...args: unknown[]) {
+      const data = args[2];
+      if (data instanceof Float32Array && data.length === FIELD_FLOAT_COUNT) recordField(data);
+      return (originalBufferSubData as unknown as (...a: unknown[]) => unknown).apply(this, args);
+    } as typeof originalBufferSubData;
+
+    /* The camera position arrives as a 16-float matrix uniform. */
+    const originalUniformMatrix4fv = WebGL2RenderingContext.prototype.uniformMatrix4fv;
+    WebGL2RenderingContext.prototype.uniformMatrix4fv = function (
+      this: WebGL2RenderingContext,
+      ...args: unknown[]
+    ) {
+      const value = args[2];
+      if (value instanceof Float32Array && value.length === 16) {
+        const depth = Math.abs(value[14] ?? 0);
+        /* Only projected z values are meaningful as a camera distance. */
+        if (depth > 0) counters.cameraDepth = Number(depth.toFixed(6));
+      }
+      return (originalUniformMatrix4fv as unknown as (...a: unknown[]) => unknown).apply(this, args);
+    } as typeof originalUniformMatrix4fv;
   });
 }
 
@@ -101,5 +147,83 @@ test.describe("hero 3D scene: measured", () => {
     console.log(`PROOF cpu task time over 5s: motion on = ${onSeconds.toFixed(3)}s, motion off = ${offSeconds.toFixed(3)}s, canvases when off = ${canvasCount}`);
     expect(canvasCount).toBe(0);
     expect(onSeconds).toBeGreaterThan(offSeconds);
+  });
+
+  test("camera recedes as the hero scrolls away", async ({ page }) => {
+    await instrumentWebGL(page);
+    await page.goto("/en");
+    await expect(page.locator("canvas").first()).toBeAttached({ timeout: 15000 });
+    await page.waitForTimeout(6000);
+
+    /* The scene is a camera-space render, so the first matrix uniform of the
+       frame is the view-projection matrix; its translation column carries the
+       camera position. Reading it proves the scroll coupling exists in the
+       shipped bundle. */
+    const cameraDepth = async () =>
+      page.evaluate(() => {
+        const gl = (window as unknown as { __gl: { cameraDepth: number | null } }).__gl;
+        return gl.cameraDepth;
+      });
+
+    const atTop = await cameraDepth();
+    await page.evaluate(() => window.scrollTo(0, window.innerHeight * 0.35));
+    await page.waitForTimeout(3000);
+    const partway = await cameraDepth();
+    await page.evaluate(() => window.scrollTo(0, window.innerHeight * 0.8));
+    await page.waitForTimeout(3000);
+    const further = await cameraDepth();
+
+    console.log(`PROOF camera |z|: top=${atTop} 0.35vh=${partway} 0.80vh=${further}`);
+    expect(atTop).not.toBeNull();
+    /* Monotonic: the relief must recede further the further the page travels. */
+    expect(partway).toBeGreaterThan(atTop!);
+    expect(further).toBeGreaterThan(partway!);
+  });
+
+  test("idle pointer switches the relief to its second pattern", async ({ page }) => {
+    await instrumentWebGL(page);
+    await page.goto("/en");
+    await expect(page.locator("canvas").first()).toBeAttached({ timeout: 15000 });
+    await page.waitForTimeout(6000);
+
+    /* Spatial roughness: mean |Δz| between neighbouring cells in one frame.
+       The exact shape of both patterns is proved as arithmetic in
+       tests/hero-relief.spec.ts (worst-case ratio 2.09); this test proves the
+       wiring — that the rendered field really does swap patterns once the
+       pointer goes still. */
+    const spatialRoughness = async () =>
+      page.evaluate(() => {
+        const frames = (window as unknown as { __gl: { fieldFrames: number[][] } }).__gl
+          .fieldFrames;
+        const frame = frames[frames.length - 1];
+        if (!frame) return null;
+        let totalStep = 0;
+        for (let index = 1; index < frame.length; index += 1) {
+          totalStep += Math.abs((frame[index] ?? 0) - (frame[index - 1] ?? 0));
+        }
+        return Number((totalStep / (frame.length - 1)).toFixed(6));
+      });
+
+    /* Force the calm state: sweeping the pointer resets the idle timer. */
+    for (const position of [100, 200, 300, 400, 500]) {
+      await page.mouse.move(position, 280);
+      await page.waitForTimeout(80);
+    }
+    await page.waitForTimeout(3500);
+    const calmRoughness = await spatialRoughness();
+
+    /* Past the 3s idle threshold plus the cross-fade. */
+    await page.waitForTimeout(6000);
+    const idleRoughness = await spatialRoughness();
+
+    const ratio = (idleRoughness ?? 0) / (calmRoughness || 1);
+    console.log(
+      `PROOF relief roughness: calm=${calmRoughness} idle=${idleRoughness} ratio=${ratio.toFixed(3)}`,
+    );
+    expect(calmRoughness).toBeGreaterThan(0);
+    expect(
+      ratio,
+      "the rendered field must switch to the busier idle pattern once the pointer stops",
+    ).toBeGreaterThan(1.2);
   });
 });
