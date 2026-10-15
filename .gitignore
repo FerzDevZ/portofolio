@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+.DS_Store
+.env*
+!.env.example
+
+# Local agent tooling for this workspace (skill library, ~9 MB). It is not part
+# of the site and nothing the app imports lives here.
+.freebuff/

@@ -1,0 +1,183 @@
+import type { Metadata, Viewport } from "next";
+import { notFound } from "next/navigation";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { appleSplashScreens } from "@/lib/apple-splash-screens";
+import {
+  defaultLocale,
+  formatTemplate,
+  getContent,
+  isLocale,
+  locales,
+  localizedPath,
+  type Locale,
+} from "@/lib/content";
+import { ServiceWorkerRegistrar } from "@/components/service-worker-registrar";
+import "../globals.css";
+
+/**
+ * The root layout lives inside `[lang]` on purpose: every page on this site is
+ * locale-prefixed, so this is the only layout that has to exist, and it can
+ * therefore set `<html lang>` from the segment itself. Unsupported locale
+ * values 404 at build time instead of rendering a half-translated page.
+ */
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return locales.map((lang) => ({ lang }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  const content = getContent(lang);
+
+  const homeTitle = formatTemplate(content.meta.homeTitleTemplate, {
+    name: content.site.name,
+    role: content.site.role,
+  });
+
+  return {
+    metadataBase: new URL(content.site.url),
+    title: {
+      default: homeTitle,
+      template: `%s ${formatTemplate(content.meta.caseTitleSuffix, {
+        name: content.site.name,
+      })}`,
+    },
+    description: content.site.description,
+    authors: [{ name: content.site.name }],
+    openGraph: {
+      type: "website",
+      locale: lang === "id" ? "id_ID" : "en_US",
+      title: homeTitle,
+      description: content.site.description,
+      url: localizedPath(lang),
+      siteName: content.site.name,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: homeTitle,
+      description: content.site.description,
+    },
+    robots: { index: true, follow: true },
+    applicationName: content.site.name,
+    // Every locale gets a canonical URL of its own plus the reciprocal
+    // alternates, so a search engine can pair them instead of treating the
+    // translations as duplicates.
+    alternates: {
+      canonical: localizedPath(lang),
+      languages: {
+        en: localizedPath("en"),
+        id: localizedPath("id"),
+        "x-default": localizedPath(defaultLocale),
+      },
+    },
+    // Next emits the standardised `mobile-web-app-capable` for `appleWebApp`,
+    // but iOS below 15.4 only understands the prefixed spelling.
+    other: { "apple-mobile-web-app-capable": "yes" },
+    appleWebApp: {
+      capable: true,
+      title: content.site.homeScreenName,
+      statusBarStyle: "black-translucent",
+    },
+  };
+}
+
+export const viewport: Viewport = {
+  // One hex per scheme, each the resolved sRGB value of --color-canvas in that
+  // scheme. Both were sampled in the browser: Chromium keeps `oklch()` verbatim
+  // in getComputedStyle, so the canvas has to be told to paint the token.
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#050709" },
+    { media: "(prefers-color-scheme: light)", color: "#f1f4f8" },
+  ],
+  colorScheme: "light dark",
+  viewportFit: "cover",
+};
+
+export default async function RootLayout({
+  children,
+  params,
+}: Readonly<{ children: React.ReactNode; params: Promise<{ lang: string }> }>) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+
+  const content = getContent(lang as Locale);
+
+  return (
+    <html
+      lang={lang}
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Resolves the stored theme before the first paint, so the page never
+            flashes the wrong palette. Kept as a plain string: it must run
+            before React hydrates, and it must survive a JS error. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(() => {
+  try {
+    const key = 'portfolio-theme';
+    const stored = localStorage.getItem(key);
+    const theme = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+    const resolved = theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
+    const root = document.documentElement;
+    root.setAttribute('data-theme', resolved);
+    root.setAttribute('data-theme-preference', theme);
+  } catch (e) {}
+})();
+`,
+          }}
+        />
+      </head>
+      <body className="min-h-screen bg-canvas text-ink">
+        {/* React hoists these into <head>; iOS matches exactly one by device
+            metrics when it builds the launch screen. */}
+        {appleSplashScreens.map((splashScreen) => (
+          <link
+            key={splashScreen.href}
+            rel="apple-touch-startup-image"
+            href={splashScreen.href}
+            media={splashScreen.media}
+          />
+        ))}
+        {children}
+        <ServiceWorkerRegistrar />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": `${content.site.url}/#website`,
+                  url: content.site.url,
+                  name: content.site.name,
+                  description: content.site.description,
+                  inLanguage: lang === "id" ? "id-ID" : "en-US",
+                },
+                {
+                  "@type": "Person",
+                  "@id": `${content.site.url}/#person`,
+                  name: content.site.name,
+                  url: content.site.url,
+                  description: content.site.role,
+                  jobTitle: content.site.role,
+                  address: content.site.location,
+                },
+              ],
+            }),
+          }}
+        />
+      </body>
+    </html>
+  );
+}

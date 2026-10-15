@@ -1,0 +1,704 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/* Atelier foundation — Vercel/Linear school, dark and light           */
+/* Tinted neutrals only (min chroma 0.005), one accent, hairline rules */
+/*                                                                     */
+/* Every colour on the site is a token here. The dark values are the    */
+/* defaults; the single `prefers-color-scheme: light` block below       */
+/* re-points the ones that must invert, and nothing else in the         */
+/* stylesheet or in a component may hard-code a colour.                 */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+
+  /* Surfaces — layered lightness, never muddy */
+  --color-canvas: oklch(0.125 0.006 258);
+  --color-panel: oklch(0.158 0.008 258);
+  --color-raised: oklch(0.198 0.01 258);
+
+  /* Hairlines */
+  --color-line: oklch(0.999 0.001 258 / 0.08);
+  --color-line-strong: oklch(0.999 0.001 258 / 0.17);
+
+  /* Ink ramp */
+  --color-ink: oklch(0.935 0.003 258);
+  --color-ink-muted: oklch(0.72 0.01 258);
+  /* 0.585 rather than the 0.545 this started at: the faint ramp carries 10–12px
+     uppercase labels, and 0.545 measured 4.06:1 on the canvas — below the 4.5:1
+     AA floor. The step is small enough to keep the ramp's hierarchy intact. */
+  --color-ink-faint: oklch(0.585 0.012 258);
+
+  /* Accent — footprint stays under 5% of any viewport. `mid` is the middle
+     stop of the scroll-progress ramp, between accent and live. */
+  --color-accent: oklch(0.735 0.135 248);
+  --color-accent-strong: oklch(0.8 0.13 248);
+  --color-accent-mid: oklch(0.8 0.09 195);
+  --color-live: oklch(0.78 0.155 158);
+
+  /* Signal — the dropped-connection state. Amber, so it never reads as the
+     blue accent or the green availability dot. */
+  --color-signal: oklch(0.8 0.14 75);
+
+  /* Endpoints of the primary button. The button is ink on canvas, so it
+     inverts with the theme and its hover/active steps invert with it. */
+  --color-ink-hover: oklch(0.86 0.003 258);
+  --color-ink-active: oklch(0.78 0.003 258);
+
+  /* Veil stack — light laid over the surface. In the light theme every one
+     of these roles becomes ink laid over paper; the alphas are what change. */
+  --color-veil-soft: oklch(0.999 0.001 258 / 0.05);
+  --color-veil: oklch(0.999 0.001 258 / 0.08);
+  --color-veil-ring: oklch(0.999 0.001 258 / 0.09);
+  --color-line-hover: oklch(0.999 0.001 258 / 0.34);
+  --color-grid-line: oklch(0.999 0.001 258 / 0.055);
+  --color-glare: oklch(0.999 0.001 258 / 0.12);
+
+  /* Surfaces that deliberately let the page show through them. */
+  --color-panel-translucent: oklch(0.158 0.008 258 / 0.72);
+  --color-backdrop: oklch(0.09 0.006 258 / 0.92);
+
+  /* Shadows — never pure black, always the canvas hue, so the light theme
+     can trade a deep dark spread for a wide grey one. */
+  --color-shadow-soft: oklch(0.05 0.01 258 / 0.5);
+  --color-shadow-deep: oklch(0.02 0.005 258 / 0.9);
+
+  /* Text selection. */
+  --color-selection-bg: oklch(0.35 0.06 250);
+  --color-selection-ink: oklch(0.98 0 0);
+
+  /* Fluid type scale */
+  --text-display: clamp(2.6rem, 1.15rem + 5.6vw, 5.25rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.04em;
+
+  --text-title: clamp(1.75rem, 1.05rem + 2.4vw, 2.75rem);
+  --text-title--line-height: 1.1;
+  --text-title--letter-spacing: -0.03em;
+
+  --text-lede: clamp(1.05rem, 0.96rem + 0.35vw, 1.25rem);
+  --text-lede--line-height: 1.65;
+
+  --text-row: clamp(1.3rem, 1rem + 1.1vw, 1.9rem);
+  --text-row--line-height: 1.2;
+  --text-row--letter-spacing: -0.02em;
+
+  /* The address is a single 33-character token, so it needs its own scale:
+     the floor keeps `ferdinandderosaputra1` inside the column on a 320px
+     phone so the preferred break at `@` survives, and it still saturates at
+     the title size on desktop. */
+  --text-email: clamp(1.375rem, 0.6rem + 3.4vw, 2.75rem);
+  --text-email--line-height: 1.15;
+  --text-email--letter-spacing: -0.03em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Light mode — the whole theme, in one block                          */
+/*                                                                     */
+/* Written outside every `@layer`: unlayered rules beat layered ones   */
+/* regardless of order, so these declarations override the `@theme`     */
+/* variables that Tailwind emits into `@layer theme` no matter where    */
+/* the bundler places either block.                                     */
+/*                                                                     */
+/* Nothing here changes type, spacing, or motion — surface and ink are  */
+/* re-pointed and every component follows, because none of them name a  */
+/* colour of its own.                                                   */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-color-scheme: light) {
+  /* Only when nothing has claimed the theme: the head script always sets
+     `data-theme` once it runs, so this block serves the no-script case and
+     the instant before the script executes. */
+  :root:not([data-theme]) {
+    /* Surfaces — paper for the page, white for raised content, so a card
+       still reads as lifted rather than pressed in. */
+    --color-canvas: oklch(0.965 0.006 258);
+    --color-panel: oklch(0.995 0.006 258);
+    --color-raised: oklch(0.999 0.007 258);
+
+    /* Hairlines flip from white alpha to ink alpha, or they vanish. */
+    --color-line: oklch(0.19 0.02 258 / 0.13);
+    --color-line-strong: oklch(0.19 0.02 258 / 0.26);
+    --color-line-hover: oklch(0.19 0.02 258 / 0.44);
+
+    /* Ink ramp. `ink-faint` carries 11px uppercase labels, so its floor is
+       set by 4.5:1 against the canvas rather than by taste. */
+    --color-ink: oklch(0.21 0.02 258);
+    --color-ink-muted: oklch(0.44 0.02 258);
+    --color-ink-faint: oklch(0.52 0.016 258);
+
+    /* Accent ramp — the dark values are tuned for a near-black surface and
+       lose their contrast on paper, so each one steps down in lightness.
+       `accent` is also the 11px "featured" label, where 0.55 measured 4.38:1
+       against the canvas; 0.53 clears the 4.5:1 AA floor for small text. */
+    --color-accent: oklch(0.53 0.16 250);
+    --color-accent-strong: oklch(0.48 0.17 250);
+    --color-accent-mid: oklch(0.58 0.1 205);
+    --color-live: oklch(0.55 0.15 158);
+    --color-signal: oklch(0.55 0.13 65);
+
+    /* Veil stack, inverted to ink alphas. */
+    --color-veil-soft: oklch(0.19 0.02 258 / 0.05);
+    --color-veil: oklch(0.19 0.02 258 / 0.07);
+    --color-veil-ring: oklch(0.19 0.02 258 / 0.1);
+    --color-grid-line: oklch(0.19 0.02 258 / 0.07);
+    /* A white specular glare is invisible on white paper, so light mode
+       reads the same highlight as a faint shade instead. */
+    --color-glare: oklch(0.19 0.02 258 / 0.06);
+
+    /* Blur backdrops. The nav pill becomes frosted paper, but the lightbox
+       cannot: a white certificate on a near-white scrim has nothing to sit
+       against (backdrop vs canvas measured 1.03:1), so the light-mode scrim
+       is a grey veil that the photo and its shadow read as lifted on. */
+    --color-panel-translucent: oklch(0.995 0.006 258 / 0.82);
+    --color-backdrop: oklch(0.9 0.008 258 / 0.92);
+
+    /* Shadows turn into a wide, weak grey spread: same geometry, no black. */
+    --color-shadow-soft: oklch(0.45 0.03 258 / 0.18);
+    --color-shadow-deep: oklch(0.45 0.03 258 / 0.26);
+
+    /* The primary button inverts to ink-on-paper, so hovering walks it
+       darker — toward more ink, not more light. */
+    --color-ink-hover: oklch(0.3 0.02 258);
+    --color-ink-active: oklch(0.38 0.02 258);
+
+    /* Selection inverts with the page: ink text on a pale accent wash. */
+    --color-selection-bg: oklch(0.86 0.06 250);
+    --color-selection-ink: oklch(0.2 0.02 258);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Explicit theme choice — the manual toggle                           */
+/*                                                                     */
+/* The head script resolves `system` to a concrete value and always     */
+/* writes `data-theme`, so once scripting runs every visitor carries an  */
+/* attribute and these blocks decide. `dark` needs no block: the        */
+/* `@theme` defaults are the dark palette and nothing above repaints    */
+/* them once the media block is excluded.                               */
+/*                                                                     */
+/* MAINTENANCE SEAM: the light values below are the same 27 tokens as   */
+/* the media block above — a change to either palette must land in both. */
+/* ------------------------------------------------------------------ */
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  /* Surfaces */
+  --color-canvas: oklch(0.965 0.006 258);
+  --color-panel: oklch(0.995 0.006 258);
+  --color-raised: oklch(0.999 0.007 258);
+  /* Hairlines */
+  --color-line: oklch(0.19 0.02 258 / 0.13);
+  --color-line-strong: oklch(0.19 0.02 258 / 0.26);
+  --color-line-hover: oklch(0.19 0.02 258 / 0.44);
+  /* Ink ramp */
+  --color-ink: oklch(0.21 0.02 258);
+  --color-ink-muted: oklch(0.44 0.02 258);
+  --color-ink-faint: oklch(0.52 0.016 258);
+  /* Accent ramp */
+  --color-accent: oklch(0.53 0.16 250);
+  --color-accent-strong: oklch(0.48 0.17 250);
+  --color-accent-mid: oklch(0.58 0.1 205);
+  --color-live: oklch(0.55 0.15 158);
+  --color-signal: oklch(0.55 0.13 65);
+  /* Veil stack */
+  --color-veil-soft: oklch(0.19 0.02 258 / 0.05);
+  --color-veil: oklch(0.19 0.02 258 / 0.07);
+  --color-veil-ring: oklch(0.19 0.02 258 / 0.1);
+  --color-grid-line: oklch(0.19 0.02 258 / 0.07);
+  --color-glare: oklch(0.19 0.02 258 / 0.06);
+  /* Blur backdrops */
+  --color-panel-translucent: oklch(0.995 0.006 258 / 0.82);
+  --color-backdrop: oklch(0.9 0.008 258 / 0.92);
+  /* Shadows */
+  --color-shadow-soft: oklch(0.45 0.03 258 / 0.18);
+  --color-shadow-deep: oklch(0.45 0.03 258 / 0.26);
+  /* Button endpoints */
+  --color-ink-hover: oklch(0.3 0.02 258);
+  --color-ink-active: oklch(0.38 0.02 258);
+  /* Selection */
+  --color-selection-bg: oklch(0.86 0.06 250);
+  --color-selection-ink: oklch(0.2 0.02 258);
+}
+
+/* An explicit dark choice must also flip the UA's own controls, scrollbars
+   and overscroll surface; without this they would keep following the system
+   preference while the page paints dark. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    /* Both schemes are supported, so the UA paints scrollbars, form controls
+       and the canvas behind the page from the user's own preference. */
+    color-scheme: light dark;
+    scroll-behavior: smooth;
+
+    /* Installed launches are edge to edge (`viewport-fit=cover`), so the
+       layout owns the space the OS would otherwise reserve for the notch, the
+       rounded corners, and the home indicator. Every inset resolves to 0px in
+       a normal browser tab and on devices without cutouts. */
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+
+    /* Anchor jumps must land below the header, which itself grew by the
+       status-bar inset. */
+    scroll-padding-top: calc(6rem + var(--safe-top));
+
+    /* Stop iOS/Android from inflating type in landscape. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Safety net for decorative bleed on narrow viewports. `clip` rather than
+       `hidden` so `position: sticky` keeps working. */
+    overflow-x: clip;
+
+    /* The one place the horizontal and gesture-bar insets are reserved. The
+       fixed header sits outside this box, so it carries its own copy. */
+    padding-left: var(--safe-left);
+    padding-right: var(--safe-right);
+    padding-bottom: var(--safe-bottom);
+  }
+
+  /* Mobile browsers paint a grey flash on tap; the component states already
+     cover feedback, so the highlight only muddies the surface. */
+  a,
+  button,
+  [role="button"],
+  summary,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: var(--color-selection-bg);
+    color: var(--color-selection-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons — explicit transition properties, 8 states in CSS          */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  padding: 0.625rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.btn-primary {
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+}
+.btn-primary:hover {
+  background-color: var(--color-ink-hover);
+}
+.btn-primary:active {
+  background-color: var(--color-ink-active);
+}
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-ink);
+  background-color: transparent;
+}
+.btn-ghost:hover {
+  border-color: var(--color-line-hover);
+  background-color: var(--color-veil-soft);
+}
+.btn-ghost:active {
+  background-color: var(--color-veil);
+}
+.btn-ghost:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------ */
+/* PWA chrome — safe areas                                            */
+/* ------------------------------------------------------------------ */
+
+/* The header is `position: fixed`, so body padding cannot reach it: it claims
+   the top and side insets itself, and grows to cover the status bar. */
+.safe-area-header {
+  padding-top: var(--safe-top);
+  padding-right: var(--safe-right);
+  padding-left: var(--safe-left);
+}
+
+/* The header grows by the status-bar inset, so the hero has to clear it by the
+   same amount or the opening line slides underneath. */
+.hero-top-space {
+  padding-top: calc(8rem + var(--safe-top));
+}
+
+/* ------------------------------------------------------------------ */
+/* Signature details                                                   */
+/* ------------------------------------------------------------------ */
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--color-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid-line) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 90% 70% at 62% 0%, black 30%, transparent 100%);
+}
+
+/* Underline sweep — animates only background-size, never layout */
+.link-sweep {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 260ms cubic-bezier(0.22, 0.7, 0.3, 1);
+}
+.link-sweep:hover,
+.link-sweep:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Section reveal — IntersectionObserver-driven, transform/opacity only.
+   Base state is fully visible (no-JS safe); "armed" hides it only after
+   hydration, and "in" plays the entrance once and stays. */
+.reveal-section {
+  opacity: 1;
+}
+
+.reveal-section--armed {
+  opacity: 0;
+  transform: translateY(22px);
+  will-change: transform, opacity;
+}
+
+.reveal-section--in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 680ms cubic-bezier(0.22, 0.7, 0.3, 1),
+    transform 680ms cubic-bezier(0.22, 0.7, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Pointer-tracking tilt only where hover exists; taps should not trigger it. */
+@media (hover: none) {
+  .tilt-card {
+    transform: none !important;
+  }
+  .tilt-glare {
+    display: none;
+  }
+}
+
+/*
+ * Certificate lightbox — full-screen credential viewer.
+ * opacity/backdrop-filter only; the image itself scales with a transform so
+ * the entrance never touches layout.
+ */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  padding: calc(1rem + var(--safe-top)) 1rem calc(1.5rem + var(--safe-bottom));
+  background: var(--color-backdrop);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: lightbox-in 200ms ease both;
+}
+
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightbox-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 88rem;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 0.875rem;
+}
+
+/* The caption is the credential's identity, not a decorative label: it sits
+   on the light-mode scrim, where `ink-faint` measured 4.14:1 — under the 4.5
+   floor. It takes the full ink ramp instead, with the issuer in `ink-muted`. */
+.lightbox-caption {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-ink);
+}
+
+.lightbox-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-ink-muted);
+  background: var(--color-panel);
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+.lightbox-close:hover {
+  color: var(--color-ink);
+  border-color: var(--color-line-hover);
+}
+
+.lightbox-figure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  flex: 1;
+  animation: lightbox-figure-in 340ms cubic-bezier(0.22, 0.7, 0.3, 1) both;
+}
+
+@keyframes lightbox-figure-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.lightbox-image {
+  max-height: 100%;
+  max-width: 88rem;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 32px 96px -40px var(--color-shadow-deep);
+}
+
+/* Parallax and progress bar follow `prefers-reduced-motion` via the global
+   0.01ms rule; transform writes still apply but animations settle instantly. */
+
+/* A concise keyboard affordance: the focused nav pill is visible against the
+   blurred backdrop. */
+.nav-link:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.enter {
+  animation: enter 620ms cubic-bezier(0.22, 0.7, 0.3, 1) both;
+  animation-delay: var(--enter-delay, 0ms);
+}
+
+/* ------------------------------------------------------------------ */
+/* Scroll progress — compositor-only, zero layout cost                 */
+/* ------------------------------------------------------------------ */
+
+/* One hairline at the very top of the viewport. `scaleX` on a fixed element
+   repaints nothing and reflows nothing; the value is driven from a rAF-throttled
+   scroll listener in the header component. */
+.scroll-progress {
+  position: fixed;
+  top: calc(var(--safe-top) + 3.4rem);
+  left: 0;
+  height: 2px;
+  width: 100%;
+  transform-origin: 0 50%;
+  background: linear-gradient(
+    to right,
+    var(--color-accent)
+    0%,
+    var(--color-accent-mid) 60%,
+    var(--color-live) 100%
+  );
+  transform: scaleX(0);
+  opacity: 0;
+  transition: opacity 220ms ease;
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Floating pill nav — desktop                                          */
+/* ------------------------------------------------------------------ */
+
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-panel-translucent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 0.3rem;
+  box-shadow:
+    0 8px 24px -12px var(--color-shadow-soft),
+    inset 0 1px 0 var(--color-veil-soft);
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+.nav-link:hover {
+  color: var(--color-ink);
+  background-color: var(--color-veil-soft);
+}
+
+/* The active section's link — the sliding background is a real element
+   positioned by the component, so no JS-driven class swaps between links. */
+.nav-link[data-active="true"] {
+  color: var(--color-ink);
+}
+
+.nav-active-pill {
+  position: absolute;
+  top: 0.3rem;
+  bottom: 0.3rem;
+  left: 0;
+  border-radius: 999px;
+  background: var(--color-veil);
+  box-shadow: inset 0 0 0 1px var(--color-veil-ring);
+  /* Position/left/width are set inline from measured geometry; only these
+     three properties animate. */
+  transition:
+    transform 280ms cubic-bezier(0.22, 0.7, 0.3, 1),
+    width 280ms cubic-bezier(0.22, 0.7, 0.3, 1),
+    opacity 200ms ease;
+  /* scaleX-free: the width itself animates, so text never smears. */
+  transform: translateX(var(--nav-pill-x, 0px));
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Parallax hero — background drifts on scroll only when JS is live     */
+/* ------------------------------------------------------------------ */
+
+.parallax-grid {
+  will-change: transform;
+}
+
+/* Without JS (or before hydration) the grid sits still — layout is correct
+   either way, motion is an enhancement. */
+
+/* Portrait gets a slow counter-drift so the two planes separate: */
+.parallax-portrait {
+  will-change: transform;
+}
+
+/* ------------------------------------------------------------------ */
+/* Certificate tilting — 3D hover, transform-only                        */
+/* ------------------------------------------------------------------ */
+
+.tilt-frame {
+  perspective: 1100px;
+}
+
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 340ms cubic-bezier(0.22, 0.7, 0.3, 1);
+  will-change: transform;
+}
+
+.tilt-card img {
+  transform: translateZ(0);
+}
+
+/* Specular highlight that follows the pointer, clipped to the frame. */
+.tilt-frame {
+  position: relative;
+}
+
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    240px circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    var(--color-glare),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 260ms ease;
+  pointer-events: none;
+}
+
+.tilt-frame:hover .tilt-glare,
+.tilt-frame:focus-within .tilt-glare {
+  opacity: 1;
+}
