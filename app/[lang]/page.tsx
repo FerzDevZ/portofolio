@@ -6,7 +6,7 @@ import { Work } from "@/components/work";
 import { Capabilities, Experience } from "@/components/capabilities";
 import { Certificates } from "@/components/certificates";
 import { Contact, Footer } from "@/components/contact";
-import { CursorSpotlight, MagneticAction } from "@/components/cursor-spotlight";
+import { CursorLabel } from "@/components/cursor-label";
 
 export default async function Home({
   params,
@@ -27,7 +27,7 @@ export default async function Home({
         ui={content.ui}
       />
       <main id="main">
-        <CursorSpotlight />
+        <CursorLabel label={content.ui.cursorViewLabel} />
         <Hero content={content} />
         <Work content={content} />
         <Capabilities content={content} />

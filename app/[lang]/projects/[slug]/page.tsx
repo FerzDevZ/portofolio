@@ -13,6 +13,7 @@ import { Footer } from "@/components/contact";
 import { LanguageSwitch } from "@/components/language-switch";
 import { SkipLink } from "@/components/skip-link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AnimatedMetric } from "@/components/animated-metric";
 
 /** Every case study exists in every locale, so both are known at build time. */
 export const dynamicParams = false;
@@ -135,7 +136,10 @@ export default async function ProjectCaseStudyPage({
                 index: project.index,
               })}
             </p>
-            <h1 className="mt-6 max-w-3xl text-display text-ink">
+            <h1
+              className="case-title-rise mt-6 max-w-3xl text-display text-ink"
+              style={{ viewTransitionName: `project-title-${project.id}` }}
+            >
               {project.title}
             </h1>
             <p className="mt-7 max-w-xl text-lede text-ink-muted">
@@ -227,12 +231,54 @@ export default async function ProjectCaseStudyPage({
                     {caseMetric.label}
                   </dt>
                   <dd className="font-mono text-title tracking-tight text-ink">
-                    {caseMetric.value}
+                    <AnimatedMetric value={caseMetric.value} />
                   </dd>
                 </div>
               ))}
             </dl>
           </section>
+
+          <nav
+            aria-label={labels.repoLabel}
+            className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-line pt-8"
+          >
+            <a
+              href={project.repoUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="link-sweep inline-flex min-h-6 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted transition-colors duration-150 hover:text-ink"
+            >
+              {labels.repoLabel}
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path
+                  d="M3.5 8.5L8.5 3.5M4.5 3.5h4v4"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+            {project.liveUrl ? (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="link-sweep inline-flex min-h-6 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted transition-colors duration-150 hover:text-ink"
+              >
+                {labels.liveLabel}
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path
+                    d="M3.5 8.5L8.5 3.5M4.5 3.5h4v4"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </a>
+            ) : null}
+          </nav>
 
           {/* Linear, never wrapping: a case study that loops from the last
               project back to the first reads as an infinite carousel. */}

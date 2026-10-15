@@ -21,7 +21,7 @@ export const content: PortfolioContent = {
     location: "Pangkalpinang, Indonesia",
     timezone: "Asia/Jakarta",
     email: "ferdinandderosaputra1@gmail.com",
-    url: "https://ferzdevz.vercel.app",
+    url: "https://portofolio-one-xi-42.vercel.app",
     availability: "Terbuka untuk proyek terpilih",
     shippingSince: "2021",
     portrait: "/profile/portrait.webp",
@@ -46,7 +46,7 @@ export const content: PortfolioContent = {
   heroMeta: [
     { label: "Berbasis di", value: "Pangkalpinang, ID · UTC+7" },
     { label: "Fokus", value: "Design system, aplikasi web" },
-    { label: "Pengalaman", value: "5 tahun merilis" },
+    { label: "Pengalaman", value: "Full-stack, dari Indonesia" },
     { label: "Status", value: "Terbuka untuk freelance" },
   ],
 
@@ -77,238 +77,261 @@ export const content: PortfolioContent = {
   },
 
   featuredProject: {
-    id: "northwind",
+    id: "jasakite",
     index: "01",
-    title: "Northwind Commerce",
-    role: "Lead frontend · 2026",
+    title: "JASAKITE",
+    role: "Full-stack · proyek pribadi",
     description:
-      "Storefront headless untuk katalog 40 ribu SKU. Server component memangkas bundel klien 61%, dan alur checkout yang dibangun ulang menaikkan konversi 18% pada kuartal pertama.",
+      "Marketplace jasa lokal untuk Indonesia: katalog dengan filter, checkout multi-item, papan pesanan untuk penyedia, dan konsol admin — di atas Next.js 15 dan Prisma.",
     year: "2026",
-    stack: ["Next.js 15", "Stripe", "Sanity", "Turbo"],
-    href: "/projects/northwind",
+    stack: ["Next.js 15", "Prisma", "MongoDB", "NextAuth v5"],
+    href: "/projects/jasakite",
+    repoUrl: "https://github.com/FerzDevZ/jasakite",
+    liveUrl: null,
+    preview: null,
     caseStudy: {
       context:
-        "Katalog 40 ribu SKU di storefront yang dirender di klien mengirim seluruh payload hidrasi di setiap halaman produk. Di ponsel Android kelas menengah halaman butuh lebih dari empat detik untuk bisa diinteraksi, dan pengguna pergi tepat di tempat yang paling bernilai — halaman produk dan checkout.",
+        "Pembeli dan penyedia jasa lokal butuh satu tempat untuk mencari, memesan, dan membayar. Sebuah pesanan melewati beberapa orang sebelum selesai, jadi setiap peran harus melihat langkah berikutnya dari pesanan itu.",
       approach: [
         {
-          title: "Server component sebagai default",
+          title: "Tiga peran, satu model pesanan",
           detail:
-            "Rute katalog, produk, dan pencarian dipindahkan ke server; hanya keranjang, pemilih varian, dan langkah pembayaran yang tetap menjadi pulau klien.",
+            "Pelanggan, penyedia, dan admin memakai siklus pesanan yang sama — diterima, dikerjakan, selesai, dibatalkan — dengan linimasa berstempel waktu untuk setiap langkah.",
         },
         {
-          title: "Halaman katalog yang di-stream",
+          title: "Checkout tiga langkah",
           detail:
-            "Deretan kategori dirender di balik Suspense, sehingga kerangka halaman tampil sebelum data produk tiba dan cat terbesar tidak pernah menunggu kueri paling lambat.",
+            "Alamat, jadwal, lalu pembayaran, menghasilkan satu grup pesanan dari keranjang multi-item. Potongan voucher dihitung ulang di server, tidak pernah diambil dari klien.",
         },
         {
-          title: "Checkout dibangun ulang",
+          title: "Diuji di dua lapisan",
           detail:
-            "Alur satu halaman dengan validasi inline dan Stripe Elements yang dipasang saat interaksi pertama, bukan saat halaman dimuat.",
+            "Vitest menguji logika unit, dan Playwright menjalankan alur end-to-end di Chromium serta profil mobile 320px.",
         },
       ],
       outcome:
-        "Bundel klien turun 61% dan checkout baru menaikkan konversi 18% pada kuartal pertamanya. Largest contentful paint di ponsel kelas menengah berthrottle berhenti di 1,1 detik.",
+        "Alur lengkap dari katalog sampai ulasan berjalan di repositori, dengan akun demo untuk setiap peran. Pembayaran berupa langkah simulasi, dan README menyebut batas itu dengan jelas.",
       metrics: [
-        { value: "61%", label: "bundel klien dipangkas" },
-        { value: "+18%", label: "konversi checkout" },
-        { value: "1,1s", label: "LCP di 4G berthrottle" },
+        { value: "3", label: "peran dalam satu aplikasi" },
+        { value: "6", label: "langkah dari katalog ke ulasan" },
+        { value: "320px", label: "profil E2E mobile" },
       ],
     },
   },
 
   projects: [
     {
-      id: "atlas",
+      id: "aegisx",
       index: "02",
-      title: "Atlas Design System",
-      role: "Design engineer",
+      title: "AegisX-Mini",
+      role: "Machine learning · proyek pribadi",
       description:
-        "Pustaka 120 komponen dengan token OKLCH, mode gelap, dan audit WCAG 2.2 AA — dipakai enam tim produk.",
-      year: "2025",
-      stack: ["React", "TypeScript", "Storybook"],
-      href: "/projects/atlas",
+        "Model keamanan siber ±30M parameter yang dilatih dari nol; hanya menjawab dari korpusnya sendiri dan jujur saat tidak ada dukungan.",
+      year: "2026",
+      stack: ["Python", "Gradio", "BM25"],
+      href: "/projects/aegisx",
+      repoUrl: "https://github.com/FerzDevZ/AegisX",
+      liveUrl: null,
+    preview: null,
       caseStudy: {
         context:
-          "Enam tim produk mengirim enam tombol yang sedikit berbeda. Setiap karyawan baru menghabiskan sepekan membaca tangkapan layar untuk menebak aturannya, dan mode gelap bergantung pada ingatan masing-masing tim.",
+          "Chatbot keamanan kecil sering menjawab dengan yakin dari ingatannya. Untuk belajar bug bounty, jawaban yang salah lebih mahal daripada tidak menjawab, jadi model harus berpijak pada korpus dan jujur tentang celahnya.",
         approach: [
           {
-            title: "Satu palet perseptual",
+            title: "Dilatih dari nol",
             detail:
-              "Token OKLCH yang disusun bertingkat berdasarkan lightness, sehingga kontras bertahan di kedua skema tanpa memilih nilai hex satu per satu.",
+              "Tokenizer byte-level BPE berukuran 8.192 token dan transformer decoder-only, dijalankan lewat pre-training, supervised fine-tuning, dan DPO dalam satu notebook Colab.",
           },
           {
-            title: "State terdokumentasi, bukan diasumsikan",
+            title: "Retrieval tanpa dependensi",
             detail:
-              "Setiap komponen membawa seluruh state-nya — rest, hover, focus, active, disabled, loading, error, empty — sehingga tidak ada halaman yang mengarang sendiri.",
+              "BM25 atas potongan per bagian menyediakan jawaban. Setiap jawaban mencantumkan sumbernya; pertanyaan di luar korpus dijawab dengan \"tidak tahu\".",
           },
           {
-            title: "Kontras diaudit di CI",
+            title: "Lapisan agent dengan gerbang manusia",
             detail:
-              "Rasio WCAG 2.2 AA yang gagal memblokir merge, dan itu satu-satunya cara sebuah aturan bertahan melewati tenggat.",
+              "Loop ReAct dibungkus gerbang otorisasi dan log audit, dan setiap tindakan menunggu konfirmasi manual.",
           },
         ],
         outcome:
-          "Enam tim mengadopsi pustaka ini. Halaman baru dimulai dari token, bukan tangkapan layar, dan tinjauan aksesibilitas berpindah dari proyek triwulanan menjadi langkah build.",
+          "Pipeline berjalan dari ujung ke ujung dari satu notebook. Suite tes lulus 133 dari 133, dan model disajikan sebagai aplikasi Gradio di Hugging Face Space dengan kuantisasi int8 dan output streaming.",
         metrics: [
-          { value: "120", label: "komponen dirilis" },
-          { value: "6", label: "tim mengadopsi" },
-          { value: "AA", label: "diaudit di setiap pull request" },
+          { value: "~30M", label: "parameter, dilatih dari nol" },
+          { value: "133/133", label: "tes lulus" },
+          { value: "768", label: "token konteks" },
         ],
       },
     },
     {
-      id: "pulse",
+      id: "ftrack",
       index: "03",
-      title: "Pulse Analytics",
-      role: "Frontend lead",
+      title: "ftrack",
+      role: "Tool sistem · proyek pribadi",
       description:
-        "Dasbor realtime yang mengalirkan 12 ribu peristiwa per detik ke dalam grafik interaktif tanpa kehilangan satu frame pun.",
-      year: "2025",
-      stack: ["Next.js", "WebSockets", "ClickHouse"],
-      href: "/projects/pulse",
+        "Pengarsip web berbasis Rust yang merayapi URL secara paralel, menulis arsip WARC, dan menandai rahasia serta endpoint API yang bocor.",
+      year: "2026",
+      stack: ["Rust", "Tokio", "SQLite", "Chromium"],
+      href: "/projects/ftrack",
+      repoUrl: "https://github.com/FerzDevZ/ftrack",
+      liveUrl: null,
+    preview: null,
       caseStudy: {
         context:
-          "Tim operasi butuh pandangan langsung atas 12.000 peristiwa per detik di halaman yang sama yang merender grafik, tabel, dan peringatan. Prototipe pertama mendorong setiap peristiwa lewat state React dan mulai kehilangan frame begitu trafik memuncak.",
+          "Mengarsipkan situs untuk audit atau preservasi lebih dari sekadar unduhan rekursif. Situs modern dirender dengan JavaScript, dan hasilnya harus mengikuti standar yang bisa dibaca alat preservasi lain.",
         approach: [
           {
-            title: "Dibatch di edge",
+            title: "Perayapan paralel dengan batas",
             detail:
-              "Peristiwa digabung menjadi frame 100ms sebelum sampai ke browser, jadi klien hanya merender sepuluh pembaruan per detik, bukan dua belas ribu.",
+              "Task Tokio berjalan di bawah JoinSet dan Semaphore, sehingga banyak URL diproses sekaligus tanpa membebani mesin.",
           },
           {
-            title: "Canvas untuk timeseries",
+            title: "Chromium headless untuk SPA",
             detail:
-              "Grafik digambar ke canvas dengan loop rAF; hanya label sumbu dan tooltip yang hidup di DOM.",
+              "Halaman menjalankan JavaScript sebelum ditangkap, sehingga aplikasi single-page diarsipkan dengan konten yang benar-benar dilihat pengunjung.",
           },
           {
-            title: "Backpressure sejak desain",
+            title: "Aturan deteksi sebagai data",
             detail:
-              "Tab yang tidak aktif hanya menerima frame tersampel dan memutar ringkasan saat kembali, bukan membanjiri antrean.",
+              "Signature rahasia dan endpoint disimpan di berkas YAML, sehingga bisa diubah tanpa mengompilasi ulang.",
           },
         ],
         outcome:
-          "Dasbor bertahan di 60fps dengan seluruh aliran berjalan, dan memori tetap datar sepanjang shift delapan jam — mode kegagalan yang mematikan prototipe sebelumnya.",
+          "Arsip mengikuti ISO 28500 (WARC) agar bisa dipakai bersama alat preservasi lain. Status perayapan disimpan di SQLite, sehingga eksekusi berikutnya berjalan inkremental.",
         metrics: [
-          { value: "12rb", label: "peristiwa per detik" },
-          { value: "60fps", label: "bertahan di beban puncak" },
-          { value: "8 jam", label: "memori datar satu shift" },
+          { value: "WARC", label: "format arsip ISO 28500" },
+          { value: "Tokio", label: "perayapan async paralel" },
+          { value: "YAML", label: "aturan deteksi yang bisa diedit" },
         ],
       },
     },
     {
-      id: "kopinusa",
+      id: "dhybrid",
       index: "04",
-      title: "Kopi Nusantara",
-      role: "Dibangun sendiri",
+      title: "dhybrid-agent",
+      role: "Tool CLI · proyek pribadi",
       description:
-        "E-commerce roastery dengan langganan, pembayaran lokal, dan skor Lighthouse 98 di jaringan 3G.",
-      year: "2024",
-      stack: ["Next.js", "Tailwind", "Midtrans"],
-      href: "/projects/kopinusa",
+        "Agent coding di terminal yang mengirim langkah rutin ke model murah dan penalaran berat ke model besar, dengan mode plan yang memblokir setiap penulisan.",
+      year: "2026",
+      stack: ["Python 3.12", "CLI", "LLM routing"],
+      href: "/projects/dhybrid",
+      repoUrl: "https://github.com/FerzDevZ/dhybrid-agent",
+      liveUrl: null,
+    preview: null,
       caseStudy: {
         context:
-          "Roastery yang menjual ke seluruh Indonesia butuh langganan dan jalur pembayaran lokal tanpa biaya platform yang memakan margin — dan sebagian besar pelanggannya memakai ponsel di wilayah yang membuat 3G terasa cepat.",
+          "Agent coding yang memakai satu model besar untuk setiap langkah menghabiskan anggaran untuk membaca berkas dan menjalankan tes. Penggunanya juga perlu tahu apa yang boleh diubah sebelum agent mengubah apa pun.",
         approach: [
           {
-            title: "Langganan sebagai state machine",
+            title: "Routing per langkah",
             detail:
-              "Setiap paket melewati state yang eksplisit — aktif, dijeda, menunggak, dibatalkan — sehingga kasus tepi perpanjangan dirancang sekali, bukan ditemukan di produksi.",
+              "Pekerjaan rutin — membaca berkas, menjalankan tes, edit kecil — masuk ke model cepat. Perencanaan dan debugging sulit dinaikkan ke model besar, dan eskalasi harus disetujui.",
           },
           {
-            title: "Satu pipeline, tiga jalur bayar",
+            title: "Mode plan hanya baca",
             detail:
-              "Kartu, dompet digital, dan transfer bank semuanya masuk ke satu model pesanan dengan penanganan webhook yang idempoten.",
+              "Di mode plan setiap write, patch, commit, serta aksi issue atau PR diblokir, dan perintah terminal dibatasi ke perintah baca saja.",
           },
           {
-            title: "Dianggarkan untuk 3G",
+            title: "Data tetap lokal",
             detail:
-              "Pemecahan kode per rute dan disiplin gambar menjaga muatan pertama di bawah 180KB.",
+              "Semua data disimpan di ~/.dhybrid/, tanpa server dan tanpa telemetri.",
           },
         ],
         outcome:
-          "Toko ini mencetak 98 di Lighthouse pada 3G berthrottle dan menjalankan 400+ langganan berulang tanpa staf operasional di belakangnya.",
+          "Bisa dipasang lewat pip, berlisensi MIT, dan berstatus Beta. Biaya token diukur per sesi lewat perintah /tokens.",
         metrics: [
-          { value: "98", label: "Lighthouse di 3G" },
-          { value: "180KB", label: "muatan pertama" },
-          { value: "400+", label: "pelanggan berlangganan" },
+          { value: "2", label: "mode: plan dan build" },
+          { value: "0", label: "telemetri yang dikirim" },
+          { value: "MIT", label: "lisensi, status Beta" },
         ],
       },
     },
     {
-      id: "ledgerly",
+      id: "oauth",
       index: "05",
-      title: "Ledgerly",
-      role: "Dibangun sendiri",
+      title: "Sistem OAuth",
+      role: "Autentikasi · proyek pribadi",
       description:
-        "PWA keuangan pribadi yang mengutamakan offline — setiap ketukan tersimpan ke IndexedDB, tetap jalan tanpa koneksi.",
-      year: "2024",
-      stack: ["React", "IndexedDB", "Workbox"],
-      href: "/projects/ledgerly",
+        "Login Google dan GitHub yang ditulis tangan di Next.js — PKCE, sesi yang bisa dicabut, rate limit, dan log audit, tanpa library auth.",
+      year: "2026",
+      stack: ["Next.js", "SQLite", "PKCE"],
+      href: "/projects/oauth",
+      repoUrl: "https://github.com/FerzDevZ/oauth-system",
+      liveUrl: null,
+    preview: null,
       caseStudy: {
         context:
-          "Aplikasi pencatat keuangan kehilangan kepercayaan saat pertama kali satu ketukan tidak tersimpan. Brambangnya adalah aplikasi yang tetap bekerja di zona mati sinyal dan tidak pernah menyuruh pengguna menunggu jaringan.",
+          "Library auth menyembunyikan keputusan yang penting: di mana verifier PKCE disimpan, bagaimana sesi dicabut, dan di mana login gagal dicatat. Menulis alurnya sendiri membuat keputusan itu terlihat.",
         approach: [
           {
-            title: "IndexedDB sebagai sumber kebenaran",
+            title: "PKCE untuk Google",
             detail:
-              "Setiap penulisan mendarat secara lokal lebih dulu; antarmuka tidak pernah menunggu jaringan.",
+              "Alur Google memakai authorization code grant dengan code challenge S256.",
           },
           {
-            title: "Penggabungan per field",
+            title: "Sesi yang bisa dicabut",
             detail:
-              "Catatan membawa stempel waktu monotonik dan digabung per field, sehingga dua penyuntingan pada satu baris tidak saling menghapus.",
+              "Sesi disimpan di SQLite. Logout mengakhiri perangkat saat ini, dan logout dari semua perangkat mencabut sisanya.",
           },
           {
-            title: "Offline sebagai default",
+            title: "Batas dan log",
             detail:
-              "Service worker mem-precache kerangka aplikasi; aplikasi terbuka dan mencatat dengan radio dimatikan.",
+              "Endpoint auth dibatasi rate-nya, dan setiap kejadian auth ditulis ke berkas log.",
           },
         ],
         outcome:
-          "Setiap ketukan bertahan melewati muat ulang dalam mode pesawat, dan sepertiga pengunjung yang kembali memasang aplikasi ini di layar utama.",
+          "Unit test berjalan dengan Vitest dan alur end-to-end dengan Playwright. README mencantumkan redirect URI yang dibutuhkan untuk pengembangan lokal.",
         metrics: [
-          { value: "0ms", label: "latensi penulisan" },
-          { value: "100%", label: "alur bekerja offline" },
-          { value: "33%", label: "pengunjung kembali memasang" },
+          { value: "2", label: "penyedia: Google, GitHub" },
+          { value: "S256", label: "metode PKCE challenge" },
+          { value: "E2E", label: "alur Playwright" },
         ],
       },
     },
     {
-      id: "meridian",
+      id: "fcopier",
       index: "06",
-      title: "Meridian Docs",
-      role: "Frontend engineer",
+      title: "FCopier",
+      role: "Tooling · proyek pribadi",
       description:
-        "Platform dokumentasi dengan penulisan MDX dan pencarian instan di 2.300 halaman.",
-      year: "2023",
-      stack: ["Next.js", "MDX", "Algolia"],
-      href: "/projects/meridian",
+        "Penyalin situs berbasis Playwright dengan ekspor offline, rekaman API, dan pemindai rahasia pada aset yang disimpan.",
+      year: "2026",
+      stack: ["JavaScript", "Playwright"],
+      href: "/projects/fcopier",
+      repoUrl: "https://github.com/FerzDevZ/fcopier",
+      liveUrl: "https://ferzdevz.github.io/fcopier/",
+      preview: {
+        src: "/projects/fcopier-preview.png",
+        alt: "Beranda dokumentasi FCopier, diambil dari demo langsung",
+        width: 1280,
+        height: 577,
+      },
       caseStudy: {
         context:
-          "2.300 halaman dokumentasi, kotak pencarian yang butuh 900ms per kueri, dan alur penerbitan yang memerlukan engineer hanya untuk memperbaiki satu salah ketik.",
+          "Situs dinamis lebih sulit disimpan untuk dibaca offline atau ditinjau keamanannya dibanding situs statis. Asetnya dimuat lewat skrip, dan salinan yang tersimpan bisa membawa kredensial yang bocor di halaman.",
         approach: [
           {
-            title: "MDX dengan build yang memvalidasi",
+            title: "Path aset yang ditulis ulang",
             detail:
-              "Penulis menyusun Markdown dengan komponen; build gagal saat menemukan tautan rusak dan frontmatter cacat sebelum apa pun terbit.",
+              "Referensi di JavaScript, CSS, dan gambar yang diunduh ditulis ulang, sehingga salinannya bisa berjalan offline.",
           },
           {
-            title: "Indeks dibangun saat deploy",
+            title: "Rekam dan putar ulang API",
             detail:
-              "Pencarian berjalan di atas indeks statis yang ikut terkirim bersama situs, jadi kueri dijawab lokal tanpa menyeberangi API.",
+              "Permintaan jaringan direkam lalu dilayani kembali lewat server lokal.",
           },
           {
-            title: "URL ber-versi",
+            title: "Pemindaian rahasia",
             detail:
-              "Setiap versi dokumentasi punya jalurnya sendiri, sehingga tautan lama tetap hidup setelah rilis.",
+              "Aset yang disimpan dipindai dari API key dan token sebelum salinan disimpan.",
           },
         ],
         outcome:
-          "Pencarian dijawab dalam 28ms tanpa perjalanan ke API, dan tim dokumentasi bisa menerbitkan tanpa membuka tiket.",
+          "Ekspor ke PDF, PNG, atau satu berkas HTML mandiri. Dokumentasinya dipublikasikan di GitHub Pages.",
         metrics: [
-          { value: "28ms", label: "respons pencarian" },
-          { value: "2.300", label: "halaman terindeks" },
-          { value: "0", label: "serah terima ke engineer" },
+          { value: "3", label: "format ekspor" },
+          { value: "ETag", label: "sinkronisasi melewati berkas tak berubah" },
+          { value: "Live", label: "dokumentasi di GitHub Pages" },
         ],
       },
     },
@@ -326,7 +349,7 @@ export const content: PortfolioContent = {
         title: "Rekayasa antarmuka",
         description:
           "Arsitektur komponen yang tetap terbaca saat skala membesar: server component sebagai default, batas klien didorong ke daun pohon, animasi dibatasi pada transform dan opacity.",
-        tools: ["React 19", "Next.js 15", "TypeScript", "Framer Motion"],
+        tools: ["React 19", "Next.js 15", "TypeScript", "CSS transitions"],
       },
       {
         id: "systems",
@@ -334,15 +357,15 @@ export const content: PortfolioContent = {
         title: "Design system",
         description:
           "Token OKLCH yang perseptual, skala tipografi fluid, dan state yang terdokumentasi — sehingga tombol terlihat sama di tangan siapa pun, di layar apa pun.",
-        tools: ["Tailwind CSS", "Storybook", "Radix UI", "Figma"],
+        tools: ["Tailwind CSS v4", "OKLCH", "CSS custom properties", "Kontras WCAG"],
       },
       {
         id: "performance",
         index: "03",
         title: "Performa",
         description:
-          "Anggaran yang ditegakkan di CI: LCP di bawah 1,2 detik, nol pergeseran tata letak, diff bundel di setiap pull request. Kecepatan itu fitur, bukan audit yang dijalankan belakangan.",
-        tools: ["Core Web Vitals", "Lighthouse CI", "Analisis bundel"],
+          "Lighthouse berjalan di setiap push dan menggagalkan build di bawah ambang yang ada di lighthouserc.json. Kecepatan dicek di CI, bukan di audit berbulan-bulan kemudian.",
+        tools: ["Lighthouse CI", "Core Web Vitals", "output next build"],
       },
       {
         id: "delivery",
@@ -350,7 +373,7 @@ export const content: PortfolioContent = {
         title: "Pengiriman",
         description:
           "Tes yang menangkap regresi sebelum pengguna menemukannya, pratinjau di setiap cabang, dan rollback satu perintah.",
-        tools: ["Playwright", "Vitest", "GitHub Actions", "Vercel"],
+        tools: ["Playwright", "axe-core", "ESLint", "GitHub Actions"],
       },
     ],
   },
@@ -464,6 +487,9 @@ export const content: PortfolioContent = {
   footer: {
     copyrightTemplate: "© {year} {name} — dibangun dengan Next.js & Tailwind",
     backToTop: "Kembali ke atas ↑",
+    motionToggleLabel: "Gerak 3D",
+    motionOn: "aktif",
+    motionOff: "nonaktif",
   },
 
   caseStudyPage: {
@@ -476,6 +502,8 @@ export const content: PortfolioContent = {
     roleLabel: "Peran",
     yearLabel: "Tahun",
     stackLabel: "Stack",
+    repoLabel: "Kode di GitHub",
+    liveLabel: "Demo langsung",
     moreLabel: "Studi kasus lain",
     previousLabel: "Sebelumnya",
     nextLabel: "Berikutnya",
@@ -505,5 +533,6 @@ export const content: PortfolioContent = {
     offlineAnnouncement: "Luring — halaman ini disajikan dari cache offline.",
     clockLabel: "Waktu lokal Jakarta",
     ogCardLabel: "Portofolio",
+    cursorViewLabel: "Lihat",
   },
 };

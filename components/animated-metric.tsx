@@ -47,7 +47,9 @@ export function AnimatedMetric({
     }
 
     let frameId: number | null = null;
-    const startedAt = performance.now();
+    /* Set when the counter actually starts (on intersection), not at mount:
+       a metric scrolled into view later must still get its full duration. */
+    let startedAt = 0;
     const durationMs = 1100;
 
     const renderMetric = (progressRatio: number) => {
@@ -67,6 +69,7 @@ export function AnimatedMetric({
     };
 
     const startCounter = () => {
+      startedAt = performance.now();
       frameId = window.requestAnimationFrame(tickCounter);
     };
 
@@ -135,8 +138,10 @@ export function TiltPanel({
       const clampedX = Math.min(Math.max(xRatio, 0), 1);
       const clampedY = Math.min(Math.max(yRatio, 0), 1);
 
-      panelElement.style.setProperty("--tilt-x", `${(0.5 - clampedY) * 4}`);
-      panelElement.style.setProperty("--tilt-y", `${(clampedX - 0.5) * 6}`);
+      /* Amplitude is deliberately small (±2° / ±3°): the hero carries the
+         motion budget, so the panel only acknowledges the pointer. */
+      panelElement.style.setProperty("--tilt-x", `${(0.5 - clampedY) * 2.5}`);
+      panelElement.style.setProperty("--tilt-y", `${(clampedX - 0.5) * 3.5}`);
       panelElement.style.setProperty("--tilt-gx", `${(clampedX * 100).toFixed(1)}%`);
       panelElement.style.setProperty("--tilt-gy", `${(clampedY * 100).toFixed(1)}%`);
     };

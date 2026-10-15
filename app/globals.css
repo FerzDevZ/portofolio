@@ -72,7 +72,6 @@
   /* The cursor halo. It is a wash, not a readable layer: alpha stays near
      the visibility floor (3–5%) so text above it keeps full AA contrast in
      both themes. Light mode re-points it to ink, not white. */
-  --color-spotlight: oklch(0.735 0.135 248 / 0.05);
 
   /* Fluid type scale */
   --text-display: clamp(2.6rem, 1.15rem + 5.6vw, 5.25rem);
@@ -85,6 +84,12 @@
 
   --text-lede: clamp(1.05rem, 0.96rem + 0.35vw, 1.25rem);
   --text-lede--line-height: 1.65;
+
+  /* Certificate headings sit below the featured-work title so the section
+     reads as supporting evidence, not as a second hero. */
+  --text-section: clamp(1.4rem, 1.05rem + 1.4vw, 2rem);
+  --text-section--line-height: 1.15;
+  --text-section--letter-spacing: -0.025em;
 
   --text-row: clamp(1.3rem, 1rem + 1.1vw, 1.9rem);
   --text-row--line-height: 1.2;
@@ -175,7 +180,6 @@
 
     /* The halo turns into an ink wash on paper — white light on white
        paper is invisible, and the accent blue would overstate. */
-    --color-spotlight: oklch(0.19 0.02 258 / 0.04);
   }
 }
 
@@ -231,7 +235,6 @@
   --color-selection-bg: oklch(0.86 0.06 250);
   --color-selection-ink: oklch(0.2 0.02 258);
   /* Spotlight (light theme twin) */
-  --color-spotlight: oklch(0.19 0.02 258 / 0.04);
 }
 
 /* An explicit dark choice must also flip the UA's own controls, scrollbars
@@ -644,45 +647,46 @@
 /* which frees the event from per-frame raycast cost.                    */
 
 /* ------------------------------------------------------------------ */
-/* Cursor spotlight — pointer halo, hover-capable devices only          */
+/* Cursor label — contextual pill over project rows, hover devices only */
 /*                                                                      */
-/* Display is gated by media queries, so the element never appears on   */
-/* touch screens or for users who asked for reduced motion (the query   */
-/* gates stay in CSS so a JS change of mind at runtime cannot repaint   */
-/* them). The blob is translated by the rAF loop in the component;      */
-/* here it only owns its shape, colour and catch-up-free placement.     */
+/* Display is gated by media queries, so the label never appears on     */
+/* touch screens or for users who asked for reduced motion. The label   */
+/* is positioned by the rAF loop in the component; here it only owns    */
+/* its shape. Visibility follows the hovered row via data-visible.      */
 /* ------------------------------------------------------------------ */
 
-.cursor-spotlight {
+.cursor-label {
   display: none;
   position: fixed;
   top: 0;
   left: 0;
-  width: 520px;
-  height: 520px;
+  padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: radial-gradient(
-    circle,
-    var(--color-spotlight),
-    transparent 62%
-  );
-  /* The centre of the blob sits on the pointer: offset by half its size.  */
-  margin-left: -260px;
-  margin-top: -260px;
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-panel);
+  color: var(--color-ink);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   pointer-events: none;
-  z-index: 1;
+  z-index: 60;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.cursor-label[data-visible="true"] {
+  opacity: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .cursor-spotlight {
+  .cursor-label {
     display: block;
   }
 }
 
-/* Reduced-motion users never see the halo: it is a motion effect, and no
-   pointer-driven atmosphere is worth a dizzy reading session. */
 @media (prefers-reduced-motion: reduce) {
-  .cursor-spotlight {
+  .cursor-label {
     display: none !important;
   }
 }
@@ -826,7 +830,7 @@
   transform: rotateX(calc(var(--tilt-x, 0) * 1deg))
     rotateY(calc(var(--tilt-y, 0) * 1deg));
   transform-style: preserve-3d;
-  transition: transform 380ms cubic-bezier(0.22, 0.7, 0.3, 1);
+  transition: transform 520ms cubic-bezier(0.22, 0.7, 0.3, 1);
   will-change: transform;
 }
 
@@ -983,4 +987,120 @@
 .tilt-frame:hover .tilt-glare,
 .tilt-frame:focus-within .tilt-glare {
   opacity: 1;
+}
+
+/* Print: recruiters export this page to PDF. Hide the interactive chrome
+   and render the content in black on white, with links shown by URL. */
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .cursor-label,
+  .stack-marquee,
+  .parallax-grid,
+  .bg-grid,
+  .tilt-glare,
+  .tilt-depth-grid,
+  .tilt-panel-glare,
+  .safe-area-header,
+  .nav-pill,
+  .scroll-progress,
+  .lightbox-overlay,
+  .skip-link {
+    display: none !important;
+  }
+  .reveal-section,
+  .enter {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  section {
+    break-inside: avoid;
+  }
+  a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+  a[href^="http"]::after,
+  a[href^="mailto:"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+  }
+  img {
+    max-width: 100% !important;
+    break-inside: avoid;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Case-study headline: the title's block rises into place as it      */
+/* enters the viewport. The base state is fully visible; the scroll-  */
+/* timeline animation is only attached where the browser supports it. */
+/* ------------------------------------------------------------------ */
+
+@keyframes title-rise {
+  from {
+    opacity: 0.001;
+    transform: translateY(0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .case-title-rise {
+    animation: title-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case-title-rise {
+    animation: none !important;
+  }
+}
+
+/* Row preview: a real screenshot beside a project row under a fine pointer.
+   Opacity and a short transform only; reduced motion keeps the fade and
+   drops the drift. Touch devices never receive the element. */
+.row-preview {
+  display: none;
+  opacity: 0;
+  transform: translateY(-50%) translateX(8px);
+  transition:
+    opacity 220ms ease,
+    transform 320ms cubic-bezier(0.22, 0.7, 0.3, 1);
+}
+
+/* The 1152px column is centred, so each side has (vw - 1152) / 2 of gutter.
+   The card needs 320px (288px width plus the 32px offset) on that side, so
+   the threshold is 1152 + 2 * 320 = 1792px. 1800px is the first size that
+   fits it without horizontal overflow. */
+@media (hover: hover) and (pointer: fine) and (min-width: 1800px) {
+  .row-preview {
+    display: block;
+  }
+  li:hover > a > .row-preview,
+  li:focus-within > a > .row-preview {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row-preview {
+    transform: translateY(-50%) !important;
+    transition: opacity 120ms ease !important;
+  }
+}
+
+/* Visitor switched the 3D relief off in the footer: the poster stays, and any
+   canvas that is somehow mounted is hidden rather than left running. */
+.motion-3d-off .hero-scene-frame {
+  display: none;
 }

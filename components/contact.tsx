@@ -1,6 +1,7 @@
 import { formatTemplate, type PortfolioContent } from "@/lib/content";
 import { LocalClock } from "@/components/local-clock";
 import { RevealSection } from "@/components/reveal-section";
+import { MotionToggle } from "@/components/motion-toggle";
 
 /**
  * The address is wider than its display column, so it is split at the `@`.
@@ -115,9 +116,14 @@ export function Footer({ content }: { content: PortfolioContent }) {
             label={content.ui.clockLabel}
             timeZone={content.site.timezone}
           />
+          <MotionToggle
+            label={content.footer.motionToggleLabel}
+            onLabel={content.footer.motionOn}
+            offLabel={content.footer.motionOff}
+          />
           <a
             href="#top"
-            className="inline-flex min-h-6 items-center font-mono text-[11px] text-ink-faint transition-colors duration-150 hover:text-ink"
+            className="link-sweep inline-flex min-h-6 items-center font-mono text-[11px] text-ink-faint transition-colors duration-150 hover:text-ink"
           >
             {content.footer.backToTop}
           </a>

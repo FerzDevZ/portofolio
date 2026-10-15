@@ -133,7 +133,12 @@ P0.1 riset repo GitHub → P0.2–3 rewrite konten → gate build
   untuk memilih bahasa dari `Accept-Language`/cookie, `hreflang` + canonical
   per locale, sitemap dua bahasa, dan shell offline v2 yang menyimpan kedua
   dokumen.
-- **Masih terbuka, tetap P0**: proyek, pengalaman, dan klaim "5 years
-  shipping" belum diganti dengan karya asli — terjemahan Indonesia sekarang
-  membuat klaim placeholder itu terbaca dua kali, jadi urutan P0.1–3 belum
-  berubah.
+- **P0.1 selesai**: proyek diambil dari repo GitHub nyata, dengan tautan
+  repo dan metrik yang bisa ditelusuri ke README-nya. Klaim "5 years" dan
+  metrik fiktif dihapus.
+- **Masih terbuka di P0**: pengalaman kerja, berkas CV, dan screenshot per
+  proyek. Ketiganya butuh data dari pemilik situs.
+- **Kualitas yang sekarang diverifikasi**: tes Playwright (routing, metadata,
+  overflow 320px, lightbox, count-up, pratinjau), axe pada beranda, ESLint,
+  dan Lighthouse dengan ambang di `lighthouserc.json`.
+

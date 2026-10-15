@@ -11,4 +11,13 @@ next-env.d.ts
 # Local agent tooling for this workspace (skill library, ~9 MB). It is not part
 # of the site and nothing the app imports lives here.
 .freebuff/
+.freebuff-snapshots/
 .vercel
+
+# Environment-generated pnpm config, not part of the project
+pnpm-workspace.yaml
+
+# Lighthouse CI output and Playwright artefacts (generated, never committed)
+.lighthouseci/
+playwright-report/
+test-results/

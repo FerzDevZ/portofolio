@@ -57,7 +57,33 @@ npx next build     # exit 0, tanpa rute dinamis kecuali middleware
 
 ## Status konten
 
-Enam proyek, riwayat pengalaman, dan klaim "5 years shipping" di halaman ini
-**masih placeholder** dari template; yang sudah nyata adalah tiga sertifikat
-(Juara I OTN VI, Juara II LKS Provinsi Babel, Juara 2 E-MOSTFET 11). Rencana
-menggantinya ada di `docs/roadmap-ui-ux.md` (bagian P0).
+Enam proyek di halaman ini diambil dari repositori GitHub `FerzDevZ`, dan
+deskripsi serta metriknya mengikuti README masing-masing repo. Metrik yang
+tidak bisa dibuktikan dari repo sudah dihapus.
+
+Yang **belum** bisa dibuktikan dan sengaja belum diisi:
+
+- Pengalaman kerja (Northlight Studio, Kreasi Digital, Freelance). Tidak
+  ada sumber yang bisa diverifikasi di repo.
+- Berkas CV. Belum ada tautan unduh.
+- Screenshot per proyek. Hanya FCopier yang punya pratinjau, dan itu
+  dokumentasi FCopier, bukan karya desain.
+
+Rencana P0 ada di `docs/roadmap-ui-ux.md`.
+
+## Verifikasi
+
+```bash
+pnpm run verify   # typecheck, lint, build, lalu Playwright
+pnpm run test     # hanya Playwright (butuh `pnpm run test:install` sekali)
+```
+
+Lighthouse dijalankan oleh CI dengan ambang di `lighthouserc.json`. Untuk
+menjalankannya secara lokal:
+
+```bash
+npx @lhci/cli@0.15.1 autorun --config=lighthouserc.json
+```
+
+CI ada di `.github/workflows/ci.yml`: verifikasi di setiap push dan pull
+request, lalu Lighthouse setelah verifikasi berhasil.

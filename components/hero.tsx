@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { PortfolioContent } from "@/lib/content";
 import { HeroParallax } from "@/components/parallax";
-import { MagneticAction } from "@/components/cursor-spotlight";
+import { MagneticAction } from "@/components/magnetic-action";
 import { HeroSceneLoader } from "@/components/hero-scene-loader";
 
 /**

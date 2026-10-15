@@ -4,6 +4,7 @@ import {
   type PortfolioContent,
   type Project,
 } from "@/lib/content";
+import Image from "next/image";
 import { RevealSection } from "@/components/reveal-section";
 import {
   AnimatedMetric,
@@ -18,9 +19,10 @@ function ProjectRow({
   content: PortfolioContent;
 }) {
   return (
-    <li>
+    <li className="relative">
       <a
         href={localizedPath(content.locale, project.href)}
+        data-cursor-label=""
         className="group grid grid-cols-1 items-baseline gap-x-6 gap-y-2 border-b border-line py-6 transition-colors duration-150 hover:bg-ink/[0.02] sm:grid-cols-12 sm:px-2"
       >
         <span className="font-mono text-xs text-ink-faint sm:col-span-1">
@@ -28,7 +30,10 @@ function ProjectRow({
         </span>
 
         <span className="sm:col-span-4">
-          <span className="text-row text-ink transition-transform duration-200 ease-out group-hover:translate-x-1 inline-block">
+          <span
+            className="text-row text-ink transition-transform duration-200 ease-out group-hover:translate-x-1 inline-block"
+            style={{ viewTransitionName: `project-title-${project.id}` }}
+          >
             {project.title}
           </span>
           <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
@@ -72,6 +77,25 @@ function ProjectRow({
             />
           </svg>
         </span>
+        {project.preview ? (
+          /* Hover preview: a real screenshot, shown only where a fine pointer
+             hovers. Absolutely placed, so the row never reflows; hidden from
+             the accessibility tree because the title already names the
+             project. */
+          <span
+            aria-hidden="true"
+            className="row-preview pointer-events-none absolute left-full top-1/2 ml-8 w-72 overflow-hidden rounded-lg border border-line-strong bg-panel shadow-[0_16px_48px_-24px_var(--color-shadow-soft)]"
+          >
+            <Image
+              src={project.preview.src}
+              alt=""
+              width={project.preview.width}
+              height={project.preview.height}
+              sizes="288px"
+              className="h-auto w-full"
+            />
+          </span>
+        ) : null}
       </a>
     </li>
   );
@@ -108,7 +132,11 @@ export function Work({ content }: { content: PortfolioContent }) {
             {work.featuredLabel}
           </p>
           <h3 className="text-title text-ink">
-            <a href={featuredHref} className="link-sweep decoration-transparent">
+            <a
+              href={featuredHref}
+              className="link-sweep decoration-transparent"
+              style={{ viewTransitionName: `project-title-${featuredProject.id}` }}
+            >
               {featuredProject.title}
             </a>
           </h3>

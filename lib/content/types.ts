@@ -54,6 +54,12 @@ export type Project = {
   stack: string[];
   /** In-site case study route, without the locale prefix. */
   href: string;
+  /** Source repository, shown as an outbound link. */
+  repoUrl: string;
+  /** Live demo, or null when the project has none. */
+  liveUrl: string | null;
+  /** Real screenshot under /public, or null — no preview is shown without one. */
+  preview: { src: string; alt: string; width: number; height: number } | null;
   caseStudy: CaseStudy;
 };
 
@@ -177,6 +183,10 @@ export type PortfolioContent = {
     /** `{year}` and `{name}` are replaced. */
     copyrightTemplate: string;
     backToTop: string;
+    /** Label for the switch that turns the 3D hero scene off and on. */
+    motionToggleLabel: string;
+    motionOn: string;
+    motionOff: string;
   };
 
   caseStudyPage: {
@@ -191,6 +201,8 @@ export type PortfolioContent = {
     roleLabel: string;
     yearLabel: string;
     stackLabel: string;
+    repoLabel: string;
+    liveLabel: string;
     moreLabel: string;
     previousLabel: string;
     nextLabel: string;
@@ -225,5 +237,7 @@ export type PortfolioContent = {
     clockLabel: string;
     /** Eyebrow on the generated share card. */
     ogCardLabel: string;
+    /** Text on the pointer label over a project row. */
+    cursorViewLabel: string;
   };
 };

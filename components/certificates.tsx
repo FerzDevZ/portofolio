@@ -119,7 +119,7 @@ function FilledCertificate({
     <article className="grid grid-cols-1 gap-8 border-b border-line py-10 lg:grid-cols-12 lg:gap-12">
       <div className="lg:col-span-5">
         <p className="font-mono text-xs text-ink-faint">{certificate.index}</p>
-        <h3 className="mt-3 text-title text-ink">
+        <h3 className="mt-3 text-section text-ink">
           {placement}{" "}
           <span className="text-ink-faint">{title}</span>
         </h3>

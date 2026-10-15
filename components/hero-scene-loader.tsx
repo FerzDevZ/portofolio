@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { MOTION_OFF_CLASS, MOTION_STORAGE_KEY } from "@/components/motion-toggle";
 
 /**
  * Loads the hero WebGL scene only where it should exist:
@@ -23,6 +24,11 @@ type SceneDecision = "loading" | "active" | "poster";
 
 function decideSceneSupport(): boolean {
   if (typeof window === "undefined") return false;
+  /* The visitor switched 3D off in the footer: keep the poster. */
+  if (document.documentElement.classList.contains(MOTION_OFF_CLASS)) {
+    return false;
+  }
+  if (window.localStorage.getItem(MOTION_STORAGE_KEY) === "off") return false;
   if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
     return false;
   }
@@ -52,32 +58,32 @@ export function HeroSceneLoader() {
   const [heroVisible, setHeroVisible] = useState(true);
 
   useEffect(() => {
-    const mountIdleLoader = (idleId: number) => {
-      window.cancelIdleCallback?.(idleId);
+    /* Keep the handle of whichever idle callback was scheduled, so an unmount
+       before it fires cancels it. Without this, a scene can switch on after
+       the component is gone. */
+    let idleHandle: number | null = null;
+    let timeoutHandle: number | null = null;
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: () => void) => number;
+      cancelIdleCallback?: (handle: number) => void;
     };
 
-    const scheduleScene = () => {
-      if (!decideSceneSupport()) {
-        setSceneState("poster");
-        return;
-      }
+    if (!decideSceneSupport()) {
+      setSceneState("poster");
+      return;
+    }
 
-      /* requestIdleCallback where the browser has it; a small timeout as the
-         portable fallback. Either way: never during the initial paint. */
-      const idleWindow = window as Window & {
-        requestIdleCallback?: (callback: () => void) => number;
-      };
-      if (typeof idleWindow.requestIdleCallback === "function") {
-        idleWindow.requestIdleCallback(() => setSceneState("active"));
-      } else {
-        window.setTimeout(() => setSceneState("active"), 350);
-      }
-    };
-
-    scheduleScene();
+    /* requestIdleCallback where the browser has it; a small timeout as the
+       portable fallback. Either way: never during the initial paint. */
+    if (typeof idleWindow.requestIdleCallback === "function") {
+      idleHandle = idleWindow.requestIdleCallback(() => setSceneState("active"));
+    } else {
+      timeoutHandle = window.setTimeout(() => setSceneState("active"), 350);
+    }
 
     return () => {
-      mountIdleLoader(0);
+      if (idleHandle !== null) idleWindow.cancelIdleCallback?.(idleHandle);
+      if (timeoutHandle !== null) window.clearTimeout(timeoutHandle);
     };
   }, []);
 

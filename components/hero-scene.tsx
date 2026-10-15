@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -32,6 +32,9 @@ type FieldPointer = { x: number; y: number; active: boolean };
 function ReliefField({ pointer }: { pointer: React.RefObject<FieldPointer> }) {
   const fieldRef = useRef<THREE.InstancedMesh>(null);
   const smoothedPointer = useRef({ x: 0.5, y: 0.5, strength: 0 });
+  /* One matrix reused by every frame and every instance: the per-frame loop
+     must not allocate, or the garbage collector pauses the animation. */
+  const workingMatrix = useMemo(() => new THREE.Matrix4(), []);
 
   /* Column/row unit coords precomputed once — the per-frame loop only reads
      them; no per-frame allocation. */
@@ -65,7 +68,6 @@ function ReliefField({ pointer }: { pointer: React.RefObject<FieldPointer> }) {
     smoothedPointer.current.y +=
       (pointerState.y - smoothedPointer.current.y) * 0.1;
 
-    const workingMatrix = new THREE.Matrix4();
     for (let cellIndex = 0; cellIndex < fieldCells.length; cellIndex += 1) {
       const fieldCell = fieldCells[cellIndex];
       if (!fieldCell) continue;
@@ -131,6 +133,55 @@ function DriftingCamera({ pointer }: { pointer: React.RefObject<FieldPointer> })
   return null;
 }
 
+/* Calmer cadence: the relief is a slow sine, so 30 fps reads identically to
+   60 while halving GPU work. The canvas runs in `demand` mode and this ticker
+   requests a frame every 1000/30 ms, so no frame is ever rendered for nothing. */
+const TARGET_FRAME_MS = 1000 / 30;
+
+function CadenceTicker() {
+  const invalidateFrame = useThree((fiberState) => fiberState.invalidate);
+  const setFrameloop = useThree((fiberState) => fiberState.setFrameloop);
+
+  useEffect(() => {
+    let tickId: number | null = null;
+    let lastTickAt = 0;
+
+    const tick = (now: number) => {
+      if (now - lastTickAt >= TARGET_FRAME_MS) {
+        lastTickAt = now;
+        invalidateFrame();
+      }
+      tickId = window.requestAnimationFrame(tick);
+    };
+
+    const start = () => {
+      if (tickId === null) tickId = window.requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      if (tickId !== null) window.cancelAnimationFrame(tickId);
+      tickId = null;
+    };
+
+    /* A hidden tab renders nothing: no one can see the frame, and the browser
+       otherwise keeps the WebGL work alive in the background. */
+    const handleVisibility = () => {
+      if (document.hidden) stop();
+      else start();
+    };
+
+    setFrameloop("demand");
+    invalidateFrame();
+    start();
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [invalidateFrame, setFrameloop]);
+
+  return null;
+}
+
 export default function HeroScene() {
   const pointerRef = useRef<FieldPointer>({ x: 0.5, y: 0.5, active: false });
 
@@ -162,6 +213,7 @@ export default function HeroScene() {
         <directionalLight position={[-4, -2, 2]} intensity={0.25} color="#5a7bd8" />
         <ReliefField pointer={pointerRef} />
         <DriftingCamera pointer={pointerRef} />
+        <CadenceTicker />
       </Canvas>
     </div>
   );

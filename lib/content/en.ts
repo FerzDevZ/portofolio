@@ -20,7 +20,7 @@ export const content: PortfolioContent = {
     location: "Pangkalpinang, Indonesia",
     timezone: "Asia/Jakarta",
     email: "ferdinandderosaputra1@gmail.com",
-    url: "https://ferzdevz.vercel.app",
+    url: "https://portofolio-one-xi-42.vercel.app",
     availability: "Available for select projects",
     shippingSince: "2021",
     portrait: "/profile/portrait.webp",
@@ -45,7 +45,7 @@ export const content: PortfolioContent = {
   heroMeta: [
     { label: "Based in", value: "Pangkalpinang, ID · UTC+7" },
     { label: "Focus", value: "Design systems, web apps" },
-    { label: "Experience", value: "5 years shipping" },
+    { label: "Experience", value: "Full-stack, from Indonesia" },
     { label: "Status", value: "Open to freelance" },
   ],
 
@@ -76,238 +76,261 @@ export const content: PortfolioContent = {
   },
 
   featuredProject: {
-    id: "northwind",
+    id: "jasakite",
     index: "01",
-    title: "Northwind Commerce",
-    role: "Lead frontend · 2026",
+    title: "JASAKITE",
+    role: "Full-stack build · personal project",
     description:
-      "Headless storefront for a 40k-SKU catalog. Server components cut the client bundle by 61%, and a rebuilt checkout flow lifted conversion by 18% in the first quarter.",
+      "Local services marketplace for Indonesia: a filterable catalog, multi-item checkout, a provider order board, and an admin console — on Next.js 15 and Prisma.",
     year: "2026",
-    stack: ["Next.js 15", "Stripe", "Sanity", "Turbo"],
-    href: "/projects/northwind",
+    stack: ["Next.js 15", "Prisma", "MongoDB", "NextAuth v5"],
+    href: "/projects/jasakite",
+    repoUrl: "https://github.com/FerzDevZ/jasakite",
+    liveUrl: null,
+    preview: null,
     caseStudy: {
       context:
-        "A 40k-SKU catalog on a client-rendered storefront shipped its whole hydration payload on every product page. On mid-range Android phones the page took over four seconds to become interactive, and the drop-off concentrated exactly where the money is — the product page and the checkout.",
+        "Buyers and local service providers need one place to find, book, and pay for work. An order passes through several people before it is finished, so every role has to see that order's next step.",
       approach: [
         {
-          title: "Server components by default",
+          title: "Three roles, one order model",
           detail:
-            "Catalog, product, and search routes moved to the server; only the cart, the variant picker, and the payment step stayed as client islands.",
+            "Customer, provider, and admin share one order lifecycle — received, in progress, completed, cancelled — with a timestamped timeline for each step.",
         },
         {
-          title: "Streamed catalog pages",
+          title: "Checkout in three steps",
           detail:
-            "Category rails render behind Suspense, so the shell paints before the product data lands and the largest paint never waits on the slowest query.",
+            "Address, schedule, then payment, producing one order group from a multi-item cart. Voucher discounts are recalculated on the server, never taken from the client.",
         },
         {
-          title: "Rebuilt checkout",
+          title: "Tested in two layers",
           detail:
-            "A single-page flow with inline validation and Stripe Elements mounted on first interaction rather than on load.",
+            "Vitest covers the unit logic, and Playwright runs the end-to-end flows in Chromium plus a 320px mobile profile.",
         },
       ],
       outcome:
-        "The client bundle fell by 61% and the rebuilt checkout converted 18% better in its first quarter. Largest contentful paint on a throttled mid-range phone settled at 1.1 seconds.",
+        "The full flow from catalog to review runs in the repository, with seeded demo accounts for each role. Payment is a simulated step, and the README states that limit plainly.",
       metrics: [
-        { value: "61%", label: "client bundle removed" },
-        { value: "+18%", label: "checkout conversion" },
-        { value: "1.1s", label: "LCP on throttled 4G" },
+        { value: "3", label: "roles in one application" },
+        { value: "6", label: "steps from catalog to review" },
+        { value: "320px", label: "mobile E2E profile" },
       ],
     },
   },
 
   projects: [
     {
-      id: "atlas",
+      id: "aegisx",
       index: "02",
-      title: "Atlas Design System",
-      role: "Design engineer",
+      title: "AegisX-Mini",
+      role: "Machine learning · personal project",
       description:
-        "120-component library with OKLCH tokens, dark mode, and WCAG 2.2 AA audits — adopted by six product teams.",
-      year: "2025",
-      stack: ["React", "TypeScript", "Storybook"],
-      href: "/projects/atlas",
+        "A ~30M-parameter security model trained from scratch, answering only from its own corpus and saying so when it has no support.",
+      year: "2026",
+      stack: ["Python", "Gradio", "BM25"],
+      href: "/projects/aegisx",
+      repoUrl: "https://github.com/FerzDevZ/AegisX",
+      liveUrl: null,
+    preview: null,
       caseStudy: {
         context:
-          "Six product teams were shipping six slightly different buttons. Every new hire spent a week reading screenshots to guess the rules, and dark mode was whatever each team remembered to do.",
+          "Small security chatbots answer confidently from memory. For bug-bounty study a wrong answer costs more than no answer, so the model had to be grounded in a corpus and honest about its gaps.",
         approach: [
           {
-            title: "One perceptual palette",
+            title: "Trained from zero",
             detail:
-              "OKLCH tokens stepped by lightness, so contrast survives both schemes without hand-picking a hex value per component.",
+              "A byte-level BPE tokenizer with 8,192 tokens and a decoder-only transformer, run through pre-training, supervised fine-tuning, and DPO alignment in one Colab notebook.",
           },
           {
-            title: "States documented, not assumed",
+            title: "Retrieval without dependencies",
             detail:
-              "Each component ships its full state set — rest, hover, focus, active, disabled, loading, error, empty — so no page invents its own.",
+              "BM25 over per-section chunks supplies the answer. Each answer cites its source, and a question the corpus does not cover gets an honest \"I don't know\".",
           },
           {
-            title: "Contrast audited in CI",
+            title: "Agent layer with a human gate",
             detail:
-              "A failing WCAG 2.2 AA ratio blocks the merge, which is the only way a rule survives a deadline.",
+              "A ReAct loop wraps the model behind an authorization gate and an audit log, and any action waits for manual confirmation.",
           },
         ],
         outcome:
-          "Six teams adopted the library. New screens start from tokens instead of screenshots, and accessibility review moved from a quarterly project to a build step.",
+          "The pipeline runs end to end from one notebook. The test suite passes 133 of 133, and the model is served as a Gradio app on a Hugging Face Space with int8 quantization and streaming output.",
         metrics: [
-          { value: "120", label: "components shipped" },
-          { value: "6", label: "teams adopted" },
-          { value: "AA", label: "audited on every pull request" },
+          { value: "~30M", label: "parameters, trained from scratch" },
+          { value: "133/133", label: "tests passing" },
+          { value: "768", label: "token context window" },
         ],
       },
     },
     {
-      id: "pulse",
+      id: "ftrack",
       index: "03",
-      title: "Pulse Analytics",
-      role: "Frontend lead",
+      title: "ftrack",
+      role: "Systems tool · personal project",
       description:
-        "Realtime dashboard streaming 12k events per second into interactive charts without dropping a frame.",
-      year: "2025",
-      stack: ["Next.js", "WebSockets", "ClickHouse"],
-      href: "/projects/pulse",
+        "A web archiver in Rust that crawls URLs in parallel, writes WARC archives, and flags leaked secrets and API endpoints.",
+      year: "2026",
+      stack: ["Rust", "Tokio", "SQLite", "Chromium"],
+      href: "/projects/ftrack",
+      repoUrl: "https://github.com/FerzDevZ/ftrack",
+      liveUrl: null,
+    preview: null,
       caseStudy: {
         context:
-          "Operations needed a live view of 12,000 events per second on the same page that renders charts, tables, and alerts. The first prototype pushed every event through React state and dropped frames the moment traffic peaked.",
+          "Archiving a site for audit or preservation takes more than a recursive download. Modern sites render in JavaScript, and the output has to follow a standard other preservation tools can read.",
         approach: [
           {
-            title: "Batched at the edge",
+            title: "Parallel crawl under a bound",
             detail:
-              "Events coalesce into 100ms frames before they reach the browser, so the client renders ten updates a second instead of twelve thousand.",
+              "Tokio tasks run under a JoinSet and a Semaphore, so many URLs are processed at once without overwhelming the machine.",
           },
           {
-            title: "Canvas for the timeseries",
+            title: "Headless Chromium for SPAs",
             detail:
-              "Charts draw to a canvas driven by a rAF loop; only axis labels and tooltips live in the DOM.",
+              "Pages run their JavaScript before capture, so single-page apps are archived with the content a visitor actually sees.",
           },
           {
-            title: "Backpressure by design",
+            title: "Detection rules as data",
             detail:
-              "A backgrounded tab receives sampled frames only and replays a summary on return instead of flooding the queue.",
+              "Secret and endpoint signatures live in YAML files, so they can change without recompiling the tool.",
           },
         ],
         outcome:
-          "The dashboard holds 60fps with the full stream running, and memory stays flat across an eight-hour shift — the failure mode that killed the prototype.",
+          "Archives follow ISO 28500 (WARC) for interoperability with other preservation tools. Crawl state is kept in SQLite, so later runs proceed incrementally.",
         metrics: [
-          { value: "12k", label: "events per second" },
-          { value: "60fps", label: "held under peak load" },
-          { value: "8h", label: "flat memory over a shift" },
+          { value: "WARC", label: "ISO 28500 archive format" },
+          { value: "Tokio", label: "async parallel crawling" },
+          { value: "YAML", label: "editable detection rules" },
         ],
       },
     },
     {
-      id: "kopinusa",
+      id: "dhybrid",
       index: "04",
-      title: "Kopi Nusantara",
-      role: "Solo build",
+      title: "dhybrid-agent",
+      role: "CLI tool · personal project",
       description:
-        "Roastery e-commerce with subscriptions, local payments, and a 98 Lighthouse score on 3G.",
-      year: "2024",
-      stack: ["Next.js", "Tailwind", "Midtrans"],
-      href: "/projects/kopinusa",
+        "A terminal coding agent that sends routine steps to a cheap model and hard reasoning to a large one, with a plan mode that blocks every write.",
+      year: "2026",
+      stack: ["Python 3.12", "CLI", "LLM routing"],
+      href: "/projects/dhybrid",
+      repoUrl: "https://github.com/FerzDevZ/dhybrid-agent",
+      liveUrl: null,
+    preview: null,
       caseStudy: {
         context:
-          "A roastery selling across Indonesia needed subscriptions and local payment rails without a platform fee eating the margin — and most of its customers are on phones where 3G is the fast option.",
+          "A coding agent that uses one large model for every step spends budget on file reads and test runs. Its user also needs to know what it may change before it changes anything.",
         approach: [
           {
-            title: "Subscriptions as state machines",
+            title: "Routing per step",
             detail:
-              "Every plan moves through explicit states — active, paused, past due, cancelled — so renewal edge cases are designed once rather than discovered in production.",
+              "Routine work — reading files, running tests, small edits — goes to a fast model. Planning and hard debugging escalate to a large one, and escalation needs explicit approval.",
           },
           {
-            title: "One pipeline, three payment rails",
+            title: "Plan mode is read-only",
             detail:
-              "Cards, e-wallets, and bank transfers all land in a single order model with idempotent webhook handling.",
+              "In plan mode every write, patch, commit, and issue or PR action is blocked, and terminal commands are limited to read-only ones.",
           },
           {
-            title: "Budgeted for 3G",
+            title: "State stays local",
             detail:
-              "Route-level code splitting and strict image discipline keep the first load under 180KB.",
+              "All data is kept in ~/.dhybrid/, with no server and no telemetry.",
           },
         ],
         outcome:
-          "The store scores 98 on Lighthouse over throttled 3G and runs 400+ recurring subscriptions with no operational staff behind it.",
+          "Installable with pip, released under the MIT license, and marked Beta. Token cost is measured per session through a /tokens command.",
         metrics: [
-          { value: "98", label: "Lighthouse over 3G" },
-          { value: "180KB", label: "first load" },
-          { value: "400+", label: "recurring subscribers" },
+          { value: "2", label: "modes: plan and build" },
+          { value: "0", label: "telemetry sent" },
+          { value: "MIT", label: "license, Beta status" },
         ],
       },
     },
     {
-      id: "ledgerly",
+      id: "oauth",
       index: "05",
-      title: "Ledgerly",
-      role: "Solo build",
+      title: "OAuth system",
+      role: "Authentication · personal project",
       description:
-        "Offline-first personal finance PWA — every keystroke saved to IndexedDB, works with no connection.",
-      year: "2024",
-      stack: ["React", "IndexedDB", "Workbox"],
-      href: "/projects/ledgerly",
+        "Google and GitHub sign-in written by hand in Next.js — PKCE, revocable sessions, rate limits, and an audit log, with no auth library.",
+      year: "2026",
+      stack: ["Next.js", "SQLite", "PKCE"],
+      href: "/projects/oauth",
+      repoUrl: "https://github.com/FerzDevZ/oauth-system",
+      liveUrl: null,
+    preview: null,
       caseStudy: {
         context:
-          "A finance tracker loses trust the first time a keystroke does not persist. The brief was an app that works in a dead zone and never asks the user to wait for a network round trip.",
+          "Auth libraries hide the decisions that matter: where the PKCE verifier lives, how a session is revoked, and where a failed login is recorded. Writing the flow by hand makes those decisions visible.",
         approach: [
           {
-            title: "IndexedDB as the source of truth",
+            title: "PKCE for Google",
             detail:
-              "Every write lands locally first; the interface never blocks on the network.",
+              "The Google flow uses the authorization code grant with an S256 code challenge.",
           },
           {
-            title: "Field-level merge",
+            title: "Sessions you can revoke",
             detail:
-              "Records carry monotonic timestamps and merge per field, so two edits to one row do not discard each other.",
+              "Sessions live in SQLite. Logout ends the current device, and logout-everywhere revokes the rest.",
           },
           {
-            title: "Offline by default",
+            title: "Limits and a log",
             detail:
-              "A service worker precaches the shell; the app opens and records with the radio off.",
+              "The auth endpoints are rate limited, and every auth event is written to a log file.",
           },
         ],
         outcome:
-          "Every keystroke survives a reload in airplane mode, and a third of returning visitors install the app to their home screen.",
+          "Unit tests run with Vitest and end-to-end flows with Playwright. The README lists the exact redirect URIs needed for local development.",
         metrics: [
-          { value: "0ms", label: "write latency" },
-          { value: "100%", label: "of flows work offline" },
-          { value: "33%", label: "of returning visitors install" },
+          { value: "2", label: "providers: Google, GitHub" },
+          { value: "S256", label: "PKCE challenge method" },
+          { value: "E2E", label: "Playwright flows" },
         ],
       },
     },
     {
-      id: "meridian",
+      id: "fcopier",
       index: "06",
-      title: "Meridian Docs",
-      role: "Frontend engineer",
+      title: "FCopier",
+      role: "Tooling · personal project",
       description:
-        "Documentation platform with MDX authoring and instant search across 2,300 pages.",
-      year: "2023",
-      stack: ["Next.js", "MDX", "Algolia"],
-      href: "/projects/meridian",
+        "A Playwright-based website cloner with offline export, API recording, and a secret scanner over the assets it saves.",
+      year: "2026",
+      stack: ["JavaScript", "Playwright"],
+      href: "/projects/fcopier",
+      repoUrl: "https://github.com/FerzDevZ/fcopier",
+      liveUrl: "https://ferzdevz.github.io/fcopier/",
+      preview: {
+        src: "/projects/fcopier-preview.png",
+        alt: "FCopier documentation homepage, captured from the live demo",
+        width: 1280,
+        height: 577,
+      },
       caseStudy: {
         context:
-          "2,300 pages of documentation, a search box that took 900ms per query, and a publishing flow that needed an engineer for a one-line typo fix.",
+          "A dynamic site is harder to save for offline reading or security review than a static one. Its assets load through scripts, and the saved copy can carry credentials the page leaked.",
         approach: [
           {
-            title: "MDX with a validating build",
+            title: "Rewritten asset paths",
             detail:
-              "Writers author Markdown with components; the build fails on broken links and malformed frontmatter before anything ships.",
+              "Downloaded JavaScript, CSS, and images have their references rewritten, so the copy works offline.",
           },
           {
-            title: "Index built at deploy time",
+            title: "API recording and replay",
             detail:
-              "Search runs against a static index that ships with the site, so queries answer locally instead of crossing an API.",
+              "Network requests are recorded and then served back through a local server.",
           },
           {
-            title: "Versioned URLs",
+            title: "Secret scanning",
             detail:
-              "Each docs version lives at its own path, so old links keep resolving after a release.",
+              "Saved assets are scanned for API keys and tokens before the copy is kept.",
           },
         ],
         outcome:
-          "Search answers in 28ms without an API round trip, and the docs team publishes without opening a ticket.",
+          "Exports to PDF, PNG, or a single self-contained HTML file. The documentation is published on GitHub Pages.",
         metrics: [
-          { value: "28ms", label: "search response" },
-          { value: "2,300", label: "pages indexed" },
-          { value: "0", label: "engineer handoffs to publish" },
+          { value: "3", label: "export formats" },
+          { value: "ETag", label: "sync skips unchanged files" },
+          { value: "Live", label: "documentation on GitHub Pages" },
         ],
       },
     },
@@ -325,23 +348,23 @@ export const content: PortfolioContent = {
         title: "Interface engineering",
         description:
           "Component architectures that stay legible at scale: server components by default, client boundaries pushed to leaves, motion limited to transform and opacity.",
-        tools: ["React 19", "Next.js 15", "TypeScript", "Framer Motion"],
+        tools: ["React 19", "Next.js 15", "TypeScript", "CSS transitions"],
       },
       {
         id: "systems",
         index: "02",
         title: "Design systems",
         description:
-          "Perceptual OKLCH tokens, fluid type ramps, and documented states — so a button looks the same in every hands, on every screen.",
-        tools: ["Tailwind CSS", "Storybook", "Radix UI", "Figma"],
+          "Perceptual OKLCH tokens, fluid type ramps, and one palette per role. Every colour lives in a single token block, so a theme change is one edit.",
+        tools: ["Tailwind CSS v4", "OKLCH", "CSS custom properties", "WCAG contrast"],
       },
       {
         id: "performance",
         index: "03",
         title: "Performance",
         description:
-          "Budgets enforced in CI: LCP under 1.2s, zero layout shift, bundle diffs on every pull request. Speed is a feature, not an audit you run later.",
-        tools: ["Core Web Vitals", "Lighthouse CI", "Bundle analysis"],
+          "Lighthouse runs on every push and fails the build below the thresholds in lighthouserc.json. Speed is checked in CI, not in an audit months later.",
+        tools: ["Lighthouse CI", "Core Web Vitals", "next build output"],
       },
       {
         id: "delivery",
@@ -349,7 +372,7 @@ export const content: PortfolioContent = {
         title: "Delivery",
         description:
           "Tests that catch regressions before users do, previews on every branch, and one-command rollbacks.",
-        tools: ["Playwright", "Vitest", "GitHub Actions", "Vercel"],
+        tools: ["Playwright", "axe-core", "ESLint", "GitHub Actions"],
       },
     ],
   },
@@ -463,6 +486,9 @@ export const content: PortfolioContent = {
   footer: {
     copyrightTemplate: "© {year} {name} — built in Next.js & Tailwind",
     backToTop: "Back to top ↑",
+    motionToggleLabel: "3D motion",
+    motionOn: "on",
+    motionOff: "off",
   },
 
   caseStudyPage: {
@@ -475,6 +501,8 @@ export const content: PortfolioContent = {
     roleLabel: "Role",
     yearLabel: "Year",
     stackLabel: "Stack",
+    repoLabel: "Source on GitHub",
+    liveLabel: "Live demo",
     moreLabel: "More case studies",
     previousLabel: "Previous",
     nextLabel: "Next",
@@ -504,5 +532,6 @@ export const content: PortfolioContent = {
     offlineAnnouncement: "Offline — this page is being served from the offline cache.",
     clockLabel: "Local time in Jakarta",
     ogCardLabel: "Portfolio",
+    cursorViewLabel: "View",
   },
 };
