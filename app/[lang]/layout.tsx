@@ -10,6 +10,7 @@ import {
   isLocale,
   locales,
   localizedPath,
+  resolveSiteUrl,
   type Locale,
 } from "@/lib/content";
 import { ServiceWorkerRegistrar } from "@/components/service-worker-registrar";
@@ -42,7 +43,7 @@ export async function generateMetadata({
   });
 
   return {
-    metadataBase: new URL(content.site.url),
+    metadataBase: new URL(resolveSiteUrl(content.site.url)),
     title: {
       default: homeTitle,
       template: `%s ${formatTemplate(content.meta.caseTitleSuffix, {
@@ -108,6 +109,9 @@ export default async function RootLayout({
   if (!isLocale(lang)) notFound();
 
   const content = getContent(lang as Locale);
+  /* Resolved once here so the JSON-LD graph and the metadata agree on the
+     origin the site claims, whatever domain the host assigned. */
+  const siteUrl = resolveSiteUrl(content.site.url);
 
   return (
     <html
@@ -158,17 +162,17 @@ export default async function RootLayout({
               "@graph": [
                 {
                   "@type": "WebSite",
-                  "@id": `${content.site.url}/#website`,
-                  url: content.site.url,
+                  "@id": `${siteUrl}/#website`,
+                  url: siteUrl,
                   name: content.site.name,
                   description: content.site.description,
                   inLanguage: lang === "id" ? "id-ID" : "en-US",
                 },
                 {
                   "@type": "Person",
-                  "@id": `${content.site.url}/#person`,
+                  "@id": `${siteUrl}/#person`,
                   name: content.site.name,
-                  url: content.site.url,
+                  url: siteUrl,
                   description: content.site.role,
                   jobTitle: content.site.role,
                   address: content.site.location,

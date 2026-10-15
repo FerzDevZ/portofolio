@@ -7,6 +7,7 @@ import {
   isLocale,
   locales,
   localizedPath,
+  resolveSiteUrl,
 } from "@/lib/content";
 import { Footer } from "@/components/contact";
 import { LanguageSwitch } from "@/components/language-switch";
@@ -56,7 +57,7 @@ export async function generateMetadata({
       type: "article",
       title: caseTitle,
       description: project.description,
-      url: `${content.site.url}${localizedPath(lang, project.href)}`,
+      url: `${resolveSiteUrl(content.site.url)}${localizedPath(lang, project.href)}`,
       siteName: content.site.name,
       locale: lang === "id" ? "id_ID" : "en_US",
     },

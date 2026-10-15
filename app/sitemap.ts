@@ -4,6 +4,7 @@ import {
   getContent,
   locales,
   localizedPath,
+  resolveSiteUrl,
   type Locale,
 } from "@/lib/content";
 
@@ -41,7 +42,7 @@ function buildEntry(
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const siteUrl = getContent(defaultLocale).site.url;
+  const siteUrl = resolveSiteUrl(getContent(defaultLocale).site.url);
   /* The case-study routes are identical in both dictionaries, so the default
      locale is the single source of truth for which paths exist. The featured
      project lives outside `projects` and is the site's most-linked case study,
