@@ -318,6 +318,24 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+
+    /* Scroll-driven animations must be removed, not just shortened.
+       `animation-duration: 0.01ms` does nothing to a view() timeline: the
+       progress comes from the scroll position, so the section stays frozen
+       at its `from` state and the content never appears.
+
+       Removing the animation is not enough either: `.reveal-section--armed`
+       carries `opacity: 0` as a plain declaration, and in a view()-capable
+       browser it is the animation (not the class) that reveals the section.
+       With the animation gone that rule wins and every section below the fold
+       stays invisible. So the armed hiding state is neutralised here, the
+       same way the print stylesheet does it. */
+    .reveal-section--armed,
+    .case-title-rise {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
 }
 

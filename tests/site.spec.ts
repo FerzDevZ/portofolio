@@ -283,3 +283,53 @@ test.describe("3D motion switch", () => {
     await expect(page.locator("canvas")).toHaveCount(0);
   });
 });
+
+/* ------------------------------------------------------------------ */
+/* Motion contract                                                     */
+/*                                                                     */
+/* Both cases below were real defects caught by measurement, not by    */
+/* reading the code: the reduced-motion path left nine sections at     */
+/* opacity 0 (the view() timeline cannot be shortened by a duration,   */
+/* and the armed class still declared opacity: 0), and the magnetic    */
+/* CTA had a transform spring in CSS that no element ever carried.     */
+/* ------------------------------------------------------------------ */
+
+test.describe("motion contract", () => {
+  test("reduced motion never hides content", async ({ browser }) => {
+    const reducedContext = await browser.newContext({
+      viewport: { width: 1280, height: 720 },
+      reducedMotion: "reduce",
+    });
+    const reducedPage = await reducedContext.newPage();
+    await reducedPage.goto("/en");
+    await reducedPage.waitForTimeout(2500);
+
+    const invisibleSections = await reducedPage.evaluate(() =>
+      [...document.querySelectorAll(".reveal-section")].filter((section) => {
+        const computed = getComputedStyle(section);
+        return Number(computed.opacity) < 0.99 || computed.transform !== "none";
+      }).length,
+    );
+
+    expect(
+      invisibleSections,
+      "every reveal section must be visible when reduced motion is requested",
+    ).toBe(0);
+    await reducedContext.close();
+  });
+
+  test("magnetic CTA transitions its transform", async ({ page }) => {
+    await page.goto("/en");
+    const magneticButton = page.locator(".magnetic-action").first();
+    await expect(magneticButton).toBeAttached();
+
+    const transitionProperty = await magneticButton.evaluate(
+      (element) => getComputedStyle(element).transitionProperty,
+    );
+
+    expect(
+      transitionProperty,
+      "the magnet leans via transform, so the transition must cover it",
+    ).toContain("transform");
+  });
+});

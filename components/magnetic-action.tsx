@@ -77,7 +77,11 @@ export function MagneticAction({
   }, []);
 
   return (
-    <a ref={magnetRef} href={href} className={className}>
+    <a
+      ref={magnetRef}
+      href={href}
+      className={`magnetic-action ${className ?? ""}`.trim()}
+    >
       {children}
     </a>
   );
