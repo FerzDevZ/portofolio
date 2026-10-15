@@ -5,6 +5,10 @@ import {
   type Project,
 } from "@/lib/content";
 import { RevealSection } from "@/components/reveal-section";
+import {
+  AnimatedMetric,
+  TiltPanel,
+} from "@/components/animated-metric";
 
 function ProjectRow({
   project,
@@ -149,30 +153,36 @@ export function Work({ content }: { content: PortfolioContent }) {
 
         {/* Abstract case panel — mono grid, no stock imagery. Its figure is the
             headline metric of the featured case study, from the same data the
-            case study page renders, so the two can never disagree. */}
-        <div className="relative flex min-h-56 items-end overflow-hidden rounded-lg border border-line bg-panel p-5 lg:col-span-5">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 opacity-70"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right, var(--color-grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--color-grid-line) 1px, transparent 1px)",
-              backgroundSize: "28px 28px",
-            }}
-          />
-          <div
-            aria-hidden="true"
-            className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent/10 blur-3xl"
-          />
-          <div className="relative flex w-full items-end justify-between">
-            <span className="font-mono text-6xl font-medium tracking-tighter text-ink/90">
-              {featuredProject.caseStudy.metrics[0]?.value}
-            </span>
-            <span className="max-w-28 text-right font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-ink-faint">
-              {featuredProject.caseStudy.metrics[0]?.label}
-            </span>
+            case study page renders, so the two can never disagree. Hover gives
+            it a real 3D diorama: grid plane behind, metric forward, a specular
+            sweep that follows the pointer. */}
+        <TiltPanel classNameWrapper="lg:col-span-5">
+          <div className="tilt-panel-plane relative flex min-h-56 items-end overflow-hidden rounded-lg border border-line bg-panel p-5">
+            <div
+              aria-hidden="true"
+              className="tilt-depth-grid absolute inset-0 opacity-70"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, var(--color-grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--color-grid-line) 1px, transparent 1px)",
+                backgroundSize: "28px 28px",
+              }}
+            />
+            <div
+              aria-hidden="true"
+              className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent/10 blur-3xl"
+            />
+            <div className="relative flex w-full items-end justify-between">
+              <AnimatedMetric
+                value={featuredProject.caseStudy.metrics[0]?.value ?? ""}
+                className="font-mono text-6xl font-medium tracking-tighter text-ink/90"
+              />
+              <span className="tilt-depth-metric max-w-28 text-right font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-ink-faint">
+                {featuredProject.caseStudy.metrics[0]?.label}
+              </span>
+            </div>
+            <span aria-hidden="true" className="tilt-panel-glare" />
           </div>
-        </div>
+        </TiltPanel>
       </article>
       </RevealSection>
 

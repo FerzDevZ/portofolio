@@ -1,6 +1,8 @@
 import Image from "next/image";
 import type { PortfolioContent } from "@/lib/content";
 import { HeroParallax } from "@/components/parallax";
+import { MagneticAction } from "@/components/cursor-spotlight";
+import { HeroSceneLoader } from "@/components/hero-scene-loader";
 
 /**
  * Asymmetric hero: display type on the left axis, meta rail pushed right,
@@ -8,6 +10,15 @@ import { HeroParallax } from "@/components/parallax";
  */
 export function Hero({ content }: { content: PortfolioContent }) {
   const { hero, site } = content;
+
+  /* Two marquee rows: split the strip in half, each row scrolls the
+     opposite way. The track is the row content twice, so the CSS loop
+     (translateX(-50%)) is seamless. The echo copy is aria-hidden. */
+  const midpoint = Math.ceil(content.stackStrip.length / 2);
+  const twoStackRows = [
+    content.stackStrip.slice(0, midpoint),
+    content.stackStrip.slice(midpoint),
+  ];
 
   return (
     <section id="top" className="relative overflow-hidden">
@@ -17,6 +28,9 @@ export function Hero({ content }: { content: PortfolioContent }) {
         data-parallax-grid
         className="bg-grid parallax-grid absolute inset-0"
       />
+      {/* WebGL relief field — loads idle-time, unmounts off-screen, keeps
+          the CSS poster as its floor. Mounted client-side only. */}
+      <HeroSceneLoader />
 
       <div className="hero-top-space relative mx-auto max-w-6xl px-5 pb-0 sm:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
@@ -49,7 +63,7 @@ export function Hero({ content }: { content: PortfolioContent }) {
               className="enter mt-9 flex flex-wrap items-center gap-3"
               style={{ "--enter-delay": "340ms" } as React.CSSProperties}
             >
-              <a href="#work" className="btn btn-primary">
+              <MagneticAction href="#work" className="btn btn-primary">
                 {hero.primaryAction}
                 <svg
                   width="12"
@@ -66,7 +80,7 @@ export function Hero({ content }: { content: PortfolioContent }) {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </a>
+              </MagneticAction>
               <a href="#contact" className="btn btn-ghost">
                 {hero.secondaryAction}
               </a>
@@ -111,21 +125,38 @@ export function Hero({ content }: { content: PortfolioContent }) {
         </div>
 
         <div className="mt-20 border-t border-line py-4">
-          <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            {content.stackStrip.map((stackEntry, stackIndex) => (
-              <li
-                key={stackEntry}
-                className="flex items-center gap-6 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+          {twoStackRows.map((rowEntry, rowIndex) => (
+            <div
+              key={rowIndex}
+              className="stack-marquee"
+              aria-hidden={rowIndex === 1 || undefined}
+            >
+              <div
+                className="stack-marquee-track"
+                data-direction={rowIndex === 1 ? "right" : "left"}
               >
-                {stackEntry}
-                {stackIndex < content.stackStrip.length - 1 && (
-                  <span aria-hidden="true" className="text-line-strong">
-                    /
+                {[0, 1].map((copyIndex) => (
+                  <span
+                    key={copyIndex}
+                    aria-hidden={copyIndex === 1 || undefined}
+                    className="flex items-center"
+                  >
+                    {rowEntry.map((stackEntry, entryIndex) => (
+                      <span
+                        key={`${stackEntry}-${entryIndex}`}
+                        className="flex items-center gap-8 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+                      >
+                        {stackEntry}
+                        <span aria-hidden="true" className="text-line-strong">
+                          /
+                        </span>
+                      </span>
+                    ))}
                   </span>
-                )}
-              </li>
-            ))}
-          </ul>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

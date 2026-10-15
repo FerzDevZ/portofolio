@@ -6,6 +6,7 @@ import { Work } from "@/components/work";
 import { Capabilities, Experience } from "@/components/capabilities";
 import { Certificates } from "@/components/certificates";
 import { Contact, Footer } from "@/components/contact";
+import { CursorSpotlight, MagneticAction } from "@/components/cursor-spotlight";
 
 export default async function Home({
   params,
@@ -26,6 +27,7 @@ export default async function Home({
         ui={content.ui}
       />
       <main id="main">
+        <CursorSpotlight />
         <Hero content={content} />
         <Work content={content} />
         <Capabilities content={content} />
