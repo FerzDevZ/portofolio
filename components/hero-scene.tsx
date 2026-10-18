@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import {
@@ -11,6 +11,11 @@ import {
   CELL_SPACING,
   RELIEF_AMPLITUDE,
 } from "@/lib/hero-relief";
+import {
+  readReliefPalette,
+  watchThemeChanges,
+  type ReliefPalette,
+} from "@/lib/relief-palette";
 
 /**
  * "Capabilities field" — the hero's interactive 3D relief.
@@ -39,9 +44,11 @@ type FieldPointer = { x: number; y: number; active: boolean };
 function ReliefField({
   pointer,
   lastPointerMoveAt,
+  palette,
 }: {
   pointer: React.RefObject<FieldPointer>;
   lastPointerMoveAt: React.RefObject<number>;
+  palette: ReliefPalette;
 }) {
   const fieldRef = useRef<THREE.InstancedMesh>(null);
   const smoothedPointer = useRef({ x: 0.5, y: 0.5, strength: 0 });
@@ -137,12 +144,14 @@ function ReliefField({
       args={[undefined, undefined, FIELD_COLUMNS * FIELD_ROWS]}
     >
       <boxGeometry args={[0.1, 0.1, 0.1]} />
+      {/* Colours come from the live theme tokens, so the relief keeps the same
+          legibility in either theme instead of being tuned for one. */}
       <meshStandardMaterial
-        color="#3a4152"
-        emissive="#1b2334"
-        emissiveIntensity={0.6}
-        roughness={0.55}
-        metalness={0.25}
+        color={palette.cubeColor}
+        emissive={palette.emissiveColor}
+        emissiveIntensity={0.7}
+        roughness={0.5}
+        metalness={0.18}
       />
     </instancedMesh>
   );
@@ -251,6 +260,17 @@ export default function HeroScene() {
      needs its own elapsed time, and it must not allocate or re-render. */
   const lastPointerMoveAtRef = useRef(0);
   const frameRef = useRef<HTMLDivElement | null>(null);
+  /* Start from the dark values and correct on mount, so the first frame is
+     never rendered with an undefined colour. */
+  const [palette, setPalette] = useState<ReliefPalette | null>(null);
+
+  useEffect(() => {
+    const syncPalette = () => setPalette(readReliefPalette());
+    syncPalette();
+    /* Re-read when the visitor flips the theme, so the field re-colours in
+       place instead of staying on the palette it mounted with. */
+    return watchThemeChanges(syncPalette);
+  }, []);
 
   useEffect(() => {
     const frameElement = frameRef.current;
@@ -293,13 +313,27 @@ export default function HeroScene() {
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
         style={{ position: "absolute", inset: 0 }}
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[3, 4, 5]} intensity={0.7} />
-        <directionalLight position={[-4, -2, 2]} intensity={0.25} color="#5a7bd8" />
-        <ReliefField
-          pointer={pointerRef}
-          lastPointerMoveAt={lastPointerMoveAtRef}
-        />
+        {/* The palette is read from the theme tokens on mount, so nothing is
+            rendered for the single frame before it is known. */}
+        {palette ? (
+          <>
+            <ambientLight intensity={palette.ambientIntensity} />
+            <directionalLight
+              position={[3, 4, 5]}
+              intensity={palette.lightIntensity}
+            />
+            <directionalLight
+              position={[-4, -2, 2]}
+              intensity={palette.lightIntensity * 0.35}
+              color="#5a7bd8"
+            />
+            <ReliefField
+              pointer={pointerRef}
+              lastPointerMoveAt={lastPointerMoveAtRef}
+              palette={palette}
+            />
+          </>
+        ) : null}
         <DriftingCamera pointer={pointerRef} />
         <CadenceTicker />
       </Canvas>
