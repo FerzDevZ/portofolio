@@ -12,8 +12,12 @@ import { MOTION_OFF_CLASS, MOTION_STORAGE_KEY } from "@/components/motion-toggle
  *   win the first-paint race;
  * - unmounted while the hero is scrolled away, which stops the render loop.
  *
- * Any exit (no WebGL, weak device, reduced motion) keeps the CSS poster —
- * the hero is never blank on its own.
+ * The support decision is re-made whenever the visitor flips the footer
+ * switch, so "3D motion off" stops the loop instead of hiding a canvas that
+ * keeps rendering behind `display: none`.
+ *
+ * Any exit (no WebGL, weak device, reduced motion, switch off) keeps the CSS
+ * poster — the hero is never blank on its own.
  */
 
 const HeroScene = dynamic(() => import("@/components/hero-scene"), {
@@ -56,11 +60,42 @@ function decideSceneSupport(): boolean {
 export function HeroSceneLoader() {
   const [sceneState, setSceneState] = useState<SceneDecision>("loading");
   const [heroVisible, setHeroVisible] = useState(true);
+  /* Whether the scene is allowed right now. Kept separate from `sceneState`
+     so a policy change can cancel a pending idle callback and unmount the
+     canvas without re-running the visibility observer. */
+  const [sceneAllowed, setSceneAllowed] = useState(false);
 
   useEffect(() => {
-    /* Keep the handle of whichever idle callback was scheduled, so an unmount
-       before it fires cancels it. Without this, a scene can switch on after
-       the component is gone. */
+    const decide = () => setSceneAllowed(decideSceneSupport());
+    decide();
+
+    /* Two writers can change the answer after mount: the footer switch (a
+       class on <html>) and another tab (the storage key). Watching both is
+       what turns the switch into an actual off switch. */
+    const classObserver = new MutationObserver(decide);
+    classObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    const followStorage = (storageEvent: StorageEvent) => {
+      if (storageEvent.key === MOTION_STORAGE_KEY) decide();
+    };
+    window.addEventListener("storage", followStorage);
+
+    return () => {
+      classObserver.disconnect();
+      window.removeEventListener("storage", followStorage);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!sceneAllowed) {
+      setSceneState("poster");
+      return;
+    }
+
+    /* Keep the handle of whichever idle callback was scheduled, so a policy
+       change before it fires cancels it instead of switching a scene on. */
     let idleHandle: number | null = null;
     let timeoutHandle: number | null = null;
     const idleWindow = window as Window & {
@@ -68,24 +103,21 @@ export function HeroSceneLoader() {
       cancelIdleCallback?: (handle: number) => void;
     };
 
-    if (!decideSceneSupport()) {
-      setSceneState("poster");
-      return;
-    }
+    const activate = () => setSceneState("active");
 
     /* requestIdleCallback where the browser has it; a small timeout as the
        portable fallback. Either way: never during the initial paint. */
     if (typeof idleWindow.requestIdleCallback === "function") {
-      idleHandle = idleWindow.requestIdleCallback(() => setSceneState("active"));
+      idleHandle = idleWindow.requestIdleCallback(activate);
     } else {
-      timeoutHandle = window.setTimeout(() => setSceneState("active"), 350);
+      timeoutHandle = window.setTimeout(activate, 350);
     }
 
     return () => {
       if (idleHandle !== null) idleWindow.cancelIdleCallback?.(idleHandle);
       if (timeoutHandle !== null) window.clearTimeout(timeoutHandle);
     };
-  }, []);
+  }, [sceneAllowed]);
 
   /* When the hero scrolls fully out of view, unmount the Canvas so the
      GPU stops rendering a scene nobody sees. */

@@ -25,10 +25,15 @@ export function MotionToggle({
   offLabel: string;
 }) {
   const [isMotionOn, setIsMotionOn] = useState(true);
+  /* False until the stored choice has been read. The state word is withheld
+     until then, so a visitor who chose "off" never sees "on" flash at first
+     paint — the same reason ThemeToggle keeps its state text behind `mounted`. */
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const savedChoice = window.localStorage.getItem(MOTION_STORAGE_KEY);
     setIsMotionOn(savedChoice !== "off");
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -49,7 +54,9 @@ export function MotionToggle({
       className="inline-flex min-h-6 items-center gap-2 font-mono text-[11px] text-ink-faint transition-colors duration-150 hover:text-ink"
     >
       <span>{label}</span>
-      <span className="text-ink-muted">{isMotionOn ? onLabel : offLabel}</span>
+      <span className="inline-block min-w-5 text-left text-ink-muted">
+        {mounted ? (isMotionOn ? onLabel : offLabel) : "\u00A0"}
+      </span>
     </button>
   );
 }
