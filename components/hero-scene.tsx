@@ -263,6 +263,10 @@ export default function HeroScene() {
   /* Start from the dark values and correct on mount, so the first frame is
      never rendered with an undefined colour. */
   const [palette, setPalette] = useState<ReliefPalette | null>(null);
+  /* A lost WebGL context leaves a canvas that still exists, still reports a
+     size, and draws nothing. Unmounting it puts the poster back on screen —
+     which is the same fallback a device that never supported WebGL gets. */
+  const [contextLost, setContextLost] = useState(false);
 
   useEffect(() => {
     const syncPalette = () => setPalette(readReliefPalette());
@@ -270,6 +274,39 @@ export default function HeroScene() {
     /* Re-read when the visitor flips the theme, so the field re-colours in
        place instead of staying on the palette it mounted with. */
     return watchThemeChanges(syncPalette);
+  }, []);
+
+  useEffect(() => {
+    const frameElement = frameRef.current;
+    if (!frameElement) return;
+
+    /* `webglcontextlost` does not bubble, so it is captured at the frame. The
+       default action is to keep a permanently dead context, which is why it is
+       prevented: the browser may then restore, and the scene remounts. */
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      setContextLost(true);
+    };
+    const handleContextRestored = () => setContextLost(false);
+
+    frameElement.addEventListener("webglcontextlost", handleContextLost, true);
+    frameElement.addEventListener(
+      "webglcontextrestored",
+      handleContextRestored,
+      true,
+    );
+    return () => {
+      frameElement.removeEventListener(
+        "webglcontextlost",
+        handleContextLost,
+        true,
+      );
+      frameElement.removeEventListener(
+        "webglcontextrestored",
+        handleContextRestored,
+        true,
+      );
+    };
   }, []);
 
   useEffect(() => {
@@ -307,7 +344,8 @@ export default function HeroScene() {
       window listener keeps the coordinates honest while letting the field
       react to the pointer anywhere over the hero. */
     <div ref={frameRef} className="hero-scene-frame" aria-hidden="true">
-      <Canvas
+      {contextLost ? null : (
+        <Canvas
         camera={{ position: [0, 0.35, 3.4], fov: 42 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
@@ -336,7 +374,8 @@ export default function HeroScene() {
         ) : null}
         <DriftingCamera pointer={pointerRef} />
         <CadenceTicker />
-      </Canvas>
+        </Canvas>
+      )}
     </div>
   );
 }

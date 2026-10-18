@@ -1,4 +1,13 @@
-import type { Locale, PortfolioContent } from "@/lib/content/types";
+import type { PortfolioContent } from "@/lib/content/types";
+import {
+  defaultLocale,
+  isLocale,
+  localeAlternates,
+  locales,
+  localizedPath,
+  resolveLocaleFromAcceptLanguage,
+  type Locale,
+} from "@/lib/locale";
 import { content as englishContent } from "@/lib/content/en";
 import { content as indonesianContent } from "@/lib/content/id";
 
@@ -9,7 +18,6 @@ export type {
   CaseStudy,
   Certificate,
   Experience,
-  Locale,
   MetaRow,
   NavItem,
   PortfolioContent,
@@ -17,19 +25,25 @@ export type {
   SocialLink,
 } from "@/lib/content/types";
 
-/** Every locale the site ships. Order matters: the first is the fallback. */
-export const locales = ["en", "id"] as const;
-
-export const defaultLocale: Locale = "en";
+/**
+ * Re-exported from `lib/locale.ts` so a component can keep importing from the
+ * barrel while the middleware and the error boundary import the dictionary-free
+ * module directly.
+ */
+export {
+  defaultLocale,
+  isLocale,
+  localeAlternates,
+  locales,
+  localizedPath,
+  resolveLocaleFromAcceptLanguage,
+  type Locale,
+};
 
 const dictionaryByLocale: Record<Locale, PortfolioContent> = {
   en: englishContent,
   id: indonesianContent,
 };
-
-export function isLocale(value: string | undefined | null): value is Locale {
-  return value === "en" || value === "id";
-}
 
 /** The complete, ready-to-render content for one locale. */
 export function getContent(locale: Locale): PortfolioContent {
@@ -37,15 +51,22 @@ export function getContent(locale: Locale): PortfolioContent {
 }
 
 /**
- * Prefixes a site-relative path with its locale.
+ * Every page the site publishes, as locale-free paths, in the order the work
+ * section presents them.
  *
- * `localizedPath("id", "/projects/atlas")` → `/id/projects/atlas`, and
- * `localizedPath("en", "/")` → `/en`. Every internal link goes through here so
- * a locale can never be dropped by a hand-written href.
+ * One list feeds `generateStaticParams` and the sitemap. They used to read
+ * different arrays (`featuredProject + projects` in one place, `projects` in
+ * the other), which is exactly how the featured case study fell out of the
+ * sitemap once already.
  */
-export function localizedPath(locale: Locale, path = "/"): string {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return normalizedPath === "/" ? `/${locale}` : `/${locale}${normalizedPath}`;
+export function contentRoutes(locale: Locale = defaultLocale): string[] {
+  const content = getContent(locale);
+  return [
+    "/",
+    ...[content.featuredProject, ...content.projects].map(
+      (project) => project.href,
+    ),
+  ];
 }
 
 /**
@@ -80,8 +101,31 @@ export function formatTemplate(
 export function resolveSiteUrl(fallbackUrl: string): string {
   const withoutTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
+  /* A configured origin is used verbatim, so it has to be a URL: the layout
+     feeds this into `new URL()` for `metadataBase`, and a value without a
+     scheme (`example.com`) throws a `TypeError` from a line that never names
+     the environment variable that caused it. Failing here, with the variable's
+     name in the message, is the difference between a five-second fix and a
+     stack trace in a minified server bundle. */
+  const readOrigin = (rawValue: string, envName: string): string => {
+    const candidate = withoutTrailingSlash(rawValue);
+    try {
+      const parsed = new URL(candidate);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        throw new Error("unsupported protocol");
+      }
+      return candidate;
+    } catch {
+      throw new Error(
+        `${envName} must be an absolute http(s) URL, e.g. https://example.com — received "${rawValue}".`,
+      );
+    }
+  };
+
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (configuredUrl) return withoutTrailingSlash(configuredUrl);
+  if (configuredUrl) {
+    return readOrigin(configuredUrl, "NEXT_PUBLIC_SITE_URL");
+  }
 
   const vercelProductionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
   if (vercelProductionHost) {
@@ -89,36 +133,4 @@ export function resolveSiteUrl(fallbackUrl: string): string {
   }
 
   return withoutTrailingSlash(fallbackUrl);
-}
-
-/** The locale a visitor should land on, given an Accept-Language header. */
-export function resolveLocaleFromAcceptLanguage(
-  acceptLanguageHeader: string | null,
-): Locale {
-  if (!acceptLanguageHeader) return defaultLocale;
-
-  const candidates = acceptLanguageHeader
-    .split(",")
-    .map((part, order) => {
-      const [tag = "", ...options] = part.trim().split(";");
-      const qualityOption = options.find((option) =>
-        option.trim().startsWith("q="),
-      );
-      const quality = qualityOption
-        ? Number(qualityOption.trim().slice(2))
-        : 1;
-      return { tag: tag.toLowerCase(), quality, order };
-    })
-    .filter(({ tag, quality }) => tag !== "*" && quality > 0)
-    .sort(
-      (candidateA, candidateB) =>
-        candidateB.quality - candidateA.quality ||
-        candidateA.order - candidateB.order,
-    );
-
-  for (const { tag } of candidates) {
-    const baseLanguage = tag.split("-")[0];
-    if (isLocale(baseLanguage)) return baseLanguage;
-  }
-  return defaultLocale;
 }

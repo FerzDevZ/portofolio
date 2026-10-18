@@ -43,7 +43,9 @@ export function RevealSection({
         }
       },
       /* The threshold keeps a section that sits half in view at page load
-         from animating: it reveals only once a real part of it scrolls in. */
+         from animating: it reveals only once a real part of it scrolls in.
+         It is also the end of the scroll-timeline range in `globals.css` —
+         changing one without the other cuts the entrance in half. */
       { threshold: 0.12 },
     );
 

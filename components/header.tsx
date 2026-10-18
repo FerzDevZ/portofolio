@@ -26,7 +26,9 @@ export type HeaderContent = {
   locale: Locale;
   nav: NavItem[];
   site: Pick<PortfolioContent["site"], "name" | "initials" | "timezone">;
-  ui: PortfolioContent["ui"];
+  /* Everything the header renders except the 404 copy, which belongs to a
+     boundary this component never sees. */
+  ui: Omit<PortfolioContent["ui"], "notFound">;
 };
 
 /**
@@ -62,6 +64,8 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const desktopNavRef = useRef<HTMLDivElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const mobileNavRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -70,6 +74,36 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, []);
+
+  /*
+   * An open drawer owns the screen, so the rest of the document has to stop
+   * being reachable. `inert` on the two landmarks behind the scrim is what
+   * actually does that — the scrim only stops the pointer. Focus moves into
+   * the panel on open and returns to the toggle on close, so a keyboard user
+   * never has to hunt for where they were.
+   */
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const menuButton = menuButtonRef.current;
+    const landmarksBehindScrim = [
+      document.getElementById("main"),
+      document.querySelector("footer"),
+    ].filter((landmark): landmark is HTMLElement => landmark !== null);
+
+    for (const landmark of landmarksBehindScrim) {
+      landmark.setAttribute("inert", "");
+    }
+
+    mobileNavRef.current?.querySelector<HTMLElement>("a")?.focus();
+
+    return () => {
+      for (const landmark of landmarksBehindScrim) {
+        landmark.removeAttribute("inert");
+      }
+      menuButton?.focus();
+    };
+  }, [menuOpen]);
 
   /*
    * While the panel is open it owns the screen: the page behind it must not
@@ -184,6 +218,10 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
 
     measureActivePill();
     window.addEventListener("resize", measureActivePill);
+    /* The pill is measured against the rendered label widths, and Geist is a
+       webfont: a swap after the first measurement shifts every link and leaves
+       the pill a few pixels off until something else triggers a re-measure. */
+    void document.fonts?.ready.then(measureActivePill);
     return () => window.removeEventListener("resize", measureActivePill);
   }, [activeSectionId]);
 
@@ -248,6 +286,14 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
                   key={navEntry.href}
                   href={navEntry.href}
                   data-active={activeSectionId === navEntry.href.replace(/^#/, "")}
+                  /* Same state the mobile rows announce: on desktop the only
+                     other cue is colour, which is not a cue at all for a
+                     screen reader. */
+                  aria-current={
+                    activeSectionId === navEntry.href.replace(/^#/, "")
+                      ? "true"
+                      : undefined
+                  }
                   className="nav-link"
                 >
                   {navEntry.label}
@@ -289,6 +335,7 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
             <ThemeToggle labels={ui} />
 
             <button
+              ref={menuButtonRef}
               type="button"
               className="flex h-8 w-8 items-center justify-center rounded-full border border-line bg-panel/60 text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink md:hidden"
               aria-expanded={menuOpen}
@@ -324,12 +371,15 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
         </div>
 
         <nav
+          ref={mobileNavRef}
           id="mobile-nav"
           aria-label={ui.mobileNavLabel}
           aria-hidden={!menuOpen}
           inert={!menuOpen}
-          className={`overflow-hidden bg-canvas transition-[max-height,opacity] duration-200 ease-out md:hidden ${
-            menuOpen ? "max-h-[24rem] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+          className={`overflow-y-auto bg-canvas transition-[max-height,opacity] duration-200 ease-out md:hidden ${
+            menuOpen
+              ? "max-h-[calc(100dvh-3.5rem)] opacity-100"
+              : "max-h-0 opacity-0 pointer-events-none"
           }`}
         >
           {/* A column of rows, not a run of inline links: each entry is a full

@@ -51,7 +51,13 @@ function decideSceneSupport(): boolean {
     const webglContext =
       probeCanvas.getContext("webgl2") ??
       probeCanvas.getContext("webgl");
-    return webglContext !== null;
+    if (!webglContext) return false;
+    /* Release the probe immediately. Every `decide()` run — mount, each
+       mutation of <html>'s class, each `storage` event — used to take one slot
+       out of the browser's WebGL context quota (about 16 per page) and keep it
+       forever, which can end with the *scene's* context being evicted. */
+    webglContext.getExtension("WEBGL_lose_context")?.loseContext();
+    return true;
   } catch {
     return false;
   }
@@ -141,8 +147,9 @@ export function HeroSceneLoader() {
   return (
     <div aria-hidden="true" className="hero-scene-slot">
       {sceneState === "active" && heroVisible ? <HeroScene /> : null}
-      {/* The poster always sits under the canvas (scene renders absolutely
-          on top), so the visible hand-off is instant whatever the network. */}
+      {/* The poster paints behind the canvas (`.hero-scene-poster` carries
+          `z-index: 0`, the frame `z-index: 1`), so it is the first paint and
+          the fallback whenever the scene never mounts or loses its context. */}
       <div className="hero-scene-poster" />
     </div>
   );

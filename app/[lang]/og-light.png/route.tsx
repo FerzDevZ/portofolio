@@ -30,6 +30,9 @@ export async function GET(
 
   const response = renderOgCard(ogPalettes.light, content);
   response.headers.set("Content-Type", ogContentType);
-  response.headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+  /* No `Cache-Control` override: `force-static` already makes Next emit
+     `public, max-age=31536000, immutable` for this route, which is the same
+     policy the dark card gets. Overriding it with `max-age=0, must-revalidate`
+     made a build-time image revalidate on every request. */
   return response;
 }

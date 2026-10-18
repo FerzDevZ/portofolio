@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Offline — Ferdinand Dero Saputra</title>
+    <!--
+      The service worker's offline notice.
+
+      It exists because the previous fallback answered an uncached navigation
+      with the cached home document: a request for /en/projects/aegisx rendered
+      the home page under the project's URL, with the project's URL in the
+      address bar and no sign that anything was wrong. Saying "this page is not
+      available offline" is less useful than a page, but it is true.
+
+      Self-contained on purpose: no build asset names, no fonts, no React. The
+      only thing this file may assume is that it was itself precached.
+    -->
+    <style>
+      :root {
+        color-scheme: dark light;
+        --canvas: #050709;
+        --panel: #0f1216;
+        --ink: #eceff3;
+        --ink-muted: #a8b0ba;
+        --line: rgba(255, 255, 255, 0.1);
+        --accent: #5aa9ff;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --canvas: #f1f4f8;
+          --panel: #ffffff;
+          --ink: #14181f;
+          --ink-muted: #4c5560;
+          --line: rgba(19, 25, 34, 0.14);
+          --accent: #1c62d8;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1.25rem;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+      main {
+        width: 100%;
+        max-width: 34rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        padding: clamp(1.5rem, 5vw, 2.5rem);
+      }
+      p.label {
+        margin: 0 0 1.25rem;
+        font-family: ui-monospace, "SF Mono", monospace;
+        font-size: 0.6875rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+      }
+      h1 { margin: 0 0 0.75rem; font-size: clamp(1.35rem, 4vw, 1.75rem); }
+      p.body { margin: 0 0 1.75rem; color: var(--ink-muted); }
+      .lang + .lang { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+      a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.25rem;
+        padding: 0 1rem;
+        border-radius: 999px;
+        background: var(--ink);
+        color: var(--canvas);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="lang" lang="en">
+        <p class="label">Offline</p>
+        <h1>This page isn’t saved on your device</h1>
+        <p class="body">
+          You’re offline and this page has never been opened here, so there is
+          nothing to show. The home page is cached and works without a network.
+        </p>
+        <a href="/en">Go to the home page</a>
+      </section>
+      <section class="lang" lang="id">
+        <p class="label">Luring</p>
+        <h1>Halaman ini tidak tersimpan di perangkat Anda</h1>
+        <p class="body">
+          Anda sedang luring dan halaman ini belum pernah dibuka di sini, jadi
+          tidak ada yang bisa ditampilkan. Halaman beranda tersimpan dan tetap
+          berfungsi tanpa jaringan.
+        </p>
+        <a href="/id">Ke halaman beranda</a>
+      </section>
+    </main>
+  </body>
+</html>

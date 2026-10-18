@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { errorCopy } from "@/lib/content/error-copy";
+import { defaultLocale, isLocale, localizedPath } from "@/lib/locale";
 
 /**
  * Locale-aware error boundary for every route below `[lang]`.
@@ -21,9 +22,11 @@ export default function LocaleError({
   reset: () => void;
 }) {
   const pathname = usePathname();
-  /* Inlined rather than imported: `isLocale` lives in the barrel that pulls
-     both dictionaries, and an error boundary should not carry them. */
-  const locale = pathname?.split("/")[1] === "id" ? "id" : "en";
+  /* Resolved from the URL rather than from the dictionary barrel: an error
+     boundary should not carry two dictionaries, and the locale set is the one
+     fact both the middleware and this boundary need to agree on. */
+  const pathLocale = pathname?.split("/")[1];
+  const locale = isLocale(pathLocale) ? pathLocale : defaultLocale;
   const copy = errorCopy[locale];
 
   useEffect(() => {
@@ -44,7 +47,7 @@ export default function LocaleError({
           <button type="button" onClick={reset} className="btn btn-primary">
             {copy.retry}
           </button>
-          <Link href={`/${locale}`} className="btn btn-ghost">
+          <Link href={localizedPath(locale)} className="btn btn-ghost">
             {copy.home}
           </Link>
         </div>

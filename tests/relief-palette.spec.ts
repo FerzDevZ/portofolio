@@ -185,6 +185,11 @@ test.describe("hero relief palette", () => {
          started that server by hand, and fails in CI. */
       await page.goto("/en");
       await waitForReliefCanvas(page);
+      /* The theme comes from the pre-paint script reading localStorage. If that
+         script stops honouring the key, the page stays on the default palette
+         and every number below would describe the dark theme while the test
+         claims to prove the light one — green, and wrong. */
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       await page.waitForTimeout(2_500);
 
       /* 3 frames across one wave period, worst contrast wins: the assertion

@@ -8,7 +8,8 @@
 /* single-file edit.                                                   */
 /* ------------------------------------------------------------------ */
 
-export type Locale = "en" | "id";
+export type { Locale } from "@/lib/locale";
+import type { Locale } from "@/lib/locale";
 
 export type SocialLink = {
   label: string;

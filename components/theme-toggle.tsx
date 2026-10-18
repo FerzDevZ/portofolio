@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { formatTemplate, type PortfolioContent } from "@/lib/content";
+import { themeStorageKey } from "@/lib/brand";
 
 type Theme = "light" | "dark" | "system";
 type ResolvedTheme = "light" | "dark";
@@ -32,7 +33,10 @@ const stateLabelKey: Record<
   dark: "themeDark",
 };
 
-const STORAGE_KEY = "portfolio-theme";
+/* The same key the pre-paint script in the layout reads, imported from one
+   module: a rename on one side used to leave the other silently reading a key
+   nobody writes. */
+const STORAGE_KEY = themeStorageKey;
 const MANAGED_THEME_COLOR_ID = "theme-color-managed";
 
 /** Chromium keeps `oklch()` verbatim in getComputedStyle, so the token has to
@@ -138,6 +142,10 @@ export function ThemeToggle({ labels }: { labels: ThemeToggleLabels }) {
        Ctrl+Shift+T for "reopen closed tab" and never deliver it to the
        page, so a T-chord here would silently do nothing. */
     const handleKeyboardShortcut = (keyboardEvent: KeyboardEvent) => {
+      /* Holding the chord fires `keydown` on every auto-repeat — around 30
+         times a second — and each one would cycle the theme, write
+         `localStorage` and re-sample the canvas. One press, one step. */
+      if (keyboardEvent.repeat) return;
       const isChordPress =
         (keyboardEvent.ctrlKey || keyboardEvent.metaKey) &&
         keyboardEvent.shiftKey &&
@@ -148,9 +156,20 @@ export function ThemeToggle({ labels }: { labels: ThemeToggleLabels }) {
     };
     window.addEventListener("keydown", handleKeyboardShortcut);
 
+    /* Two tabs, one choice: `storage` is the only cross-tab signal, and without
+       it each tab kept whatever it had resolved until the next reload. */
+    const followOtherTab = (storageEvent: StorageEvent) => {
+      if (storageEvent.key !== STORAGE_KEY) return;
+      const storedTheme = readStoredTheme();
+      setTheme(storedTheme);
+      applyTheme(storedTheme);
+    };
+    window.addEventListener("storage", followOtherTab);
+
     return () => {
       systemTheme.removeEventListener("change", followSystemChange);
       window.removeEventListener("keydown", handleKeyboardShortcut);
+      window.removeEventListener("storage", followOtherTab);
     };
   }, [cycleTheme]);
 

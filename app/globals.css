@@ -22,6 +22,19 @@
   /* Hairlines */
   --color-line: oklch(0.999 0.001 258 / 0.08);
   --color-line-strong: oklch(0.999 0.001 258 / 0.17);
+  /* Control outlines. The boundary of a ghost button, the nav pill or an icon
+     button is the only thing that says "pressable" when the label is short, so
+     it carries its own floor: WCAG 1.4.11 asks 3:1, and this value measures
+     3.20:1 on the dark canvas. The hairline ramp above is for dividers, which
+     have no such requirement. */
+  --color-control-line: oklch(0.999 0.001 258 / 0.36);
+
+  /* The two soft washes behind the hero relief, painted while the canvas is
+     still loading. They are tokens rather than literals because the dark pair
+     reads as a grey smear on paper: the light values are tints of the paper,
+     not shades of the night sky. */
+  --color-poster-wash-warm: oklch(0.29 0.035 252 / 0.5);
+  --color-poster-wash-cool: oklch(0.24 0.03 205 / 0.4);
 
   /* Ink ramp */
   --color-ink: oklch(0.935 0.003 258);
@@ -95,10 +108,11 @@
   --text-row--line-height: 1.2;
   --text-row--letter-spacing: -0.02em;
 
-  /* The address is a single 33-character token, so it needs its own scale:
-     the floor keeps `ferdinandderosaputra1` inside the column on a 320px
-     phone so the preferred break at `@` survives, and it still saturates at
-     the title size on desktop. */
+  /* The address is one 31-character token whose longest unbreakable segment is
+     the 21-character local part, so it needs its own scale: the floor keeps
+     `ferdinandderosaputra1` inside the column on a 320px phone so the
+     preferred break at `@` survives, and it still saturates at the title size
+     on desktop. (Measured from `site.email`, not counted by eye.) */
   --text-email: clamp(1.375rem, 0.6rem + 3.4vw, 2.75rem);
   --text-email--line-height: 1.15;
   --text-email--letter-spacing: -0.03em;
@@ -132,6 +146,11 @@
     --color-line: oklch(0.19 0.02 258 / 0.13);
     --color-line-strong: oklch(0.19 0.02 258 / 0.26);
     --color-line-hover: oklch(0.19 0.02 258 / 0.44);
+    /* 3.02:1 on paper — the same floor as the dark value. */
+    --color-control-line: oklch(0.19 0.02 258 / 0.46);
+    /* A tint of the paper rather than a shade of the night sky. */
+    --color-poster-wash-warm: oklch(0.88 0.035 252 / 0.6);
+    --color-poster-wash-cool: oklch(0.9 0.03 205 / 0.5);
 
     /* Ink ramp. `ink-faint` carries 11px uppercase labels, so its floor is
        set by 4.5:1 against the canvas rather than by taste. */
@@ -206,6 +225,9 @@
   --color-line: oklch(0.19 0.02 258 / 0.13);
   --color-line-strong: oklch(0.19 0.02 258 / 0.26);
   --color-line-hover: oklch(0.19 0.02 258 / 0.44);
+  --color-control-line: oklch(0.19 0.02 258 / 0.46);
+  --color-poster-wash-warm: oklch(0.88 0.035 252 / 0.6);
+  --color-poster-wash-cool: oklch(0.9 0.03 205 / 0.5);
   /* Ink ramp */
   --color-ink: oklch(0.21 0.02 258);
   --color-ink-muted: oklch(0.44 0.02 258);
@@ -347,6 +369,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  /* Transparent rather than absent: `.btn-ghost` adds a 1px border, and without
+     a matching box on the primary variant a primary and a ghost CTA sitting in
+     the same row were 2px apart in height. */
+  border: 1px solid transparent;
   border-radius: 6px;
   padding: 0.625rem 1.125rem;
   font-size: 0.875rem;
@@ -375,7 +401,7 @@
 }
 
 .btn-ghost {
-  border: 1px solid var(--color-line-strong);
+  border: 1px solid var(--color-control-line);
   color: var(--color-ink);
   background-color: transparent;
 }
@@ -539,7 +565,7 @@
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 999px;
-  border: 1px solid var(--color-line-strong);
+  border: 1px solid var(--color-control-line);
   color: var(--color-ink-muted);
   background: var(--color-panel);
   transition:
@@ -694,15 +720,19 @@
 .hero-scene-poster {
   position: absolute;
   inset: 0;
+  /* Behind the canvas, not over it. Both are absolutely positioned with
+     `z-index: auto`, so the poster — the later sibling in the DOM — used to
+     paint on top and veil the entire relief with two radial washes. */
+  z-index: 0;
   background:
     radial-gradient(
       ellipse 60% 50% at 30% 35%,
-      oklch(0.29 0.035 252 / 0.5),
+      var(--color-poster-wash-warm),
       transparent 70%
     ),
     radial-gradient(
       ellipse 50% 45% at 72% 60%,
-      oklch(0.24 0.03 205 / 0.4),
+      var(--color-poster-wash-cool),
       transparent 72%
     );
   opacity: 0.85;
@@ -711,6 +741,7 @@
 .hero-scene-frame {
   position: absolute;
   inset: 0;
+  z-index: 1;
 }
 
 /* The scene canvas inherits no pointer events itself; the frame's own   */
@@ -769,7 +800,14 @@
     transform 320ms cubic-bezier(0.22, 0.7, 0.3, 1),
     background-color 150ms ease,
     border-color 150ms ease,
-    color 150ms ease;
+    color 150ms ease,
+    /* Restated because this shorthand replaces `.btn`'s: without it the CTA
+       lost its opacity transition the moment it also became magnetic. */
+    opacity 150ms ease;
+}
+
+.magnetic-action:hover,
+.magnetic-action:focus-visible {
   will-change: transform;
 }
 
@@ -805,7 +843,12 @@
   .reveal-section--armed {
     animation: scroll-reveal-in linear both;
     animation-timeline: view();
-    animation-range: entry 0% entry 42%;
+    /* The range ends exactly where the component's observer fires (12%). The
+       component drops `--armed` at that point, which cancels this animation —
+       so the two numbers are one decision: if the range were longer, the
+       entrance would be cut off part-way and the 680ms transition would take
+       over from a half-faded state. */
+    animation-range: entry 0% entry 12%;
   }
 }
 
@@ -887,6 +930,14 @@
   navigation: auto;
 }
 
+/* A cross-document view transition is a full-page crossfade. Someone who asked
+   for reduced motion should get the navigation without the animation. */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
 /* Featured work panel — pointer-tracked diorama. The component writes
    --tilt-x/-y (values are degrees as unitless strings); the perspective
    and rotate live here. Touch and reduced-motion never engage it: the
@@ -951,7 +1002,7 @@
   align-items: center;
   gap: 0.25rem;
   border-radius: 999px;
-  border: 1px solid var(--color-line-strong);
+  border: 1px solid var(--color-control-line);
   background: var(--color-panel-translucent);
   backdrop-filter: blur(14px);
   padding: 0.3rem;
@@ -1029,7 +1080,26 @@
 .tilt-card {
   transform-style: preserve-3d;
   transition: transform 340ms cubic-bezier(0.22, 0.7, 0.3, 1);
+}
+
+/* Promote the layer only while it is actually being transformed: a permanent
+   `will-change: transform` on every certificate card kept a compositor layer
+   alive for the whole visit, for an effect that only runs under the pointer. */
+.tilt-frame:hover .tilt-card,
+.tilt-frame:focus-visible .tilt-card {
   will-change: transform;
+}
+
+/* No pointer to track, or the visitor asked for less motion: the card stays
+   flat, and the glare (which reads as a light source) is hidden. */
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .tilt-card {
+    transform: none !important;
+    transition: none;
+  }
+  .tilt-glare {
+    display: none;
+  }
 }
 
 .tilt-card img {
@@ -1062,10 +1132,44 @@
 /* Print: recruiters export this page to PDF. Hide the interactive chrome
    and render the content in black on white, with links shown by URL. */
 @media print {
-  html,
-  body {
-    background: #fff !important;
-    color: #000 !important;
+  /* The palette is remapped, not forced. `text-ink` declares
+     `color: var(--color-ink)` on the element itself, and a declaration on the
+     element always beats one inherited from `body` — even an `!important` one.
+     Forcing `color: #000` on `body` therefore left every utility-coloured text
+     node at its dark-theme value: measured 1.21:1 for `ink` on white paper.
+     Re-pointing the tokens reaches every element, and keeps the "no colour
+     outside the token block" rule intact. */
+  :root,
+  :root[data-theme] {
+    color-scheme: light;
+    --color-canvas: oklch(1 0 0);
+    --color-panel: oklch(1 0 0);
+    --color-raised: oklch(1 0 0);
+    --color-line: oklch(0 0 0 / 0.22);
+    --color-line-strong: oklch(0 0 0 / 0.3);
+    --color-line-hover: oklch(0 0 0 / 0.4);
+    --color-control-line: oklch(0 0 0 / 0.45);
+    --color-ink: oklch(0 0 0);
+    --color-ink-muted: oklch(0.34 0 0);
+    --color-ink-faint: oklch(0.42 0 0);
+    --color-accent: oklch(0.45 0.14 250);
+    --color-accent-strong: oklch(0.4 0.15 250);
+    --color-accent-mid: oklch(0.45 0.1 205);
+    --color-live: oklch(0.42 0.13 158);
+    --color-signal: oklch(0.45 0.13 65);
+    --color-veil-soft: oklch(0 0 0 / 0.04);
+    --color-veil: oklch(0 0 0 / 0.06);
+    --color-veil-ring: oklch(0 0 0 / 0.1);
+    --color-grid-line: oklch(0 0 0 / 0.06);
+    --color-glare: transparent;
+    --color-panel-translucent: oklch(1 0 0);
+    --color-backdrop: oklch(1 0 0);
+    --color-shadow-soft: transparent;
+    --color-shadow-deep: transparent;
+    --color-poster-wash-warm: transparent;
+    --color-poster-wash-cool: transparent;
+    background: var(--color-canvas);
+    color: var(--color-ink);
   }
   .cursor-label,
   .stack-marquee,
@@ -1077,8 +1181,10 @@
   .safe-area-header,
   .nav-pill,
   .scroll-progress,
+  .scroll-section-counter,
   .lightbox-overlay,
-  .skip-link {
+  .skip-link,
+  .hero-scene-slot {
     display: none !important;
   }
   .reveal-section,
@@ -1090,7 +1196,7 @@
     break-inside: avoid;
   }
   a {
-    color: #000 !important;
+    color: var(--color-ink);
     text-decoration: none !important;
   }
   a[href^="http"]::after,

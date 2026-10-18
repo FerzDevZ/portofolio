@@ -21,6 +21,11 @@ function TiltingFrame({
   children: React.ReactNode;
 }) {
   const frameRef = useRef<HTMLDivElement | null>(null);
+  /* The rotation goes on the card, not on the frame: the frame is the element
+     that declares `perspective`, and `perspective` only applies to its
+     children. Writing `transform` on the frame itself projected nothing, so
+     the tilt read as a flat skew. */
+  const cardRef = useRef<HTMLDivElement | null>(null);
   /* A real drag (picking text, scrolling on touch) must not fire the lightbox;
      only a deliberate click does. */
   const pointerDownAtRef = useRef<{ x: number; y: number } | null>(null);
@@ -31,7 +36,8 @@ function TiltingFrame({
     pointerEvent: ReactPointerEvent<HTMLDivElement>,
   ) => {
     const frameElement = frameRef.current;
-    if (!frameElement) return;
+    const cardElement = cardRef.current;
+    if (!frameElement || !cardElement) return;
 
     const frameRect = frameElement.getBoundingClientRect();
     const xRatio = (pointerEvent.clientX - frameRect.left) / frameRect.width;
@@ -43,17 +49,25 @@ function TiltingFrame({
     const tiltXDeg = (0.5 - clampedY) * 5;
     const tiltYDeg = (clampedX - 0.5) * 7;
 
-    frameElement.style.transform = `rotateX(${tiltXDeg.toFixed(2)}deg) rotateY(${tiltYDeg.toFixed(2)}deg)`;
+    cardElement.style.transform = `rotateX(${tiltXDeg.toFixed(2)}deg) rotateY(${tiltYDeg.toFixed(2)}deg)`;
     frameElement.style.setProperty("--glare-x", `${(clampedX * 100).toFixed(1)}%`);
     frameElement.style.setProperty("--glare-y", `${(clampedY * 100).toFixed(1)}%`);
   };
 
   const resetFrameTransform = () => {
-    const frameElement = frameRef.current;
-    frameElement?.style.setProperty("transform", "rotateX(0deg) rotateY(0deg)");
+    cardRef.current?.style.setProperty(
+      "transform",
+      "rotateX(0deg) rotateY(0deg)",
+    );
   };
 
   const recordPointerDown = (pointerEvent: ReactPointerEvent<HTMLDivElement>) => {
+    /* A right click or a middle click opens the context menu / autoscroll, not
+       the lightbox. */
+    if (pointerEvent.button !== 0) {
+      pointerDownAtRef.current = null;
+      return;
+    }
     pointerDownAtRef.current = {
       x: pointerEvent.clientX,
       y: pointerEvent.clientY,
@@ -80,6 +94,10 @@ function TiltingFrame({
       aria-label={enlargeLabel}
       onPointerMove={handleFramePointerMove}
       onPointerLeave={resetFrameTransform}
+      onPointerCancel={() => {
+        pointerDownAtRef.current = null;
+        resetFrameTransform();
+      }}
       onPointerDown={recordPointerDown}
       onPointerUp={openWhenClickNotDrag}
       onKeyDown={(keyboardEvent) => {
@@ -89,7 +107,7 @@ function TiltingFrame({
         }
       }}
     >
-      <div className="tilt-card">{children}</div>
+      <div ref={cardRef} className="tilt-card">{children}</div>
       <span aria-hidden="true" className="tilt-glare" />
     </div>
   );

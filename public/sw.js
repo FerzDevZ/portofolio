@@ -12,11 +12,11 @@
  * static documents, and `/` is only a redirect into one of them.
  */
 
-/* v2: the site became bilingual, so `/` is no longer a page — it redirects to
-   a locale. A shell cache from v1 holds an English-only document under a URL
-   that no longer renders, so the version is bumped and the old cache dropped
-   on activate rather than migrated. */
-const CACHE_NAME = "portfolio-shell-v2";
+/* v3: an uncached navigation used to be answered with the cached home
+   document, which rendered the home page under a project URL. The worker now
+   serves a dedicated offline notice instead, so the cache name is bumped and
+   the previous shell is dropped on activate rather than migrated. */
+const CACHE_NAME = "portfolio-shell-v3";
 
 /* Whether the document on screen was answered from the offline cache.
    Module state is enough: the page asks for it the moment it boots, while the
@@ -31,6 +31,7 @@ let servedNavigationFromCache = false;
 const PRECACHE_URLS = [
   "/en",
   "/id",
+  "/offline.html",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/maskable-192.png",
@@ -95,26 +96,34 @@ async function serveFromNetwork(request) {
     if (isDocument) servedNavigationFromCache = false;
     return networkResponse;
   } catch (networkFailure) {
-    /* Offline navigation falls back to the shell of the same locale first —
-       a request for `/id/projects/atlas` should not surface the English
-       home page to a reader who chose Indonesian. */
-    const requestedLocaleShell = new URL(request.url).pathname.startsWith("/id")
-      ? "/id"
-      : "/en";
-    const otherLocaleShell = requestedLocaleShell === "/id" ? "/en" : "/id";
-    const cachedResponse =
-      (await cache.match(request)) ??
-      (await cache.match(requestedLocaleShell)) ??
-      (await cache.match(otherLocaleShell));
+    /* Offline navigation. The exact page if it was cached, otherwise the
+       offline notice — never a *different* page. The old fallback chain ended
+       with the locale shell, which meant a request for
+       `/en/projects/aegisx` rendered the home page under the project's URL:
+       the visitor saw the wrong document and nothing said so. */
+    const cachedResponse = await cache.match(request);
     if (cachedResponse) {
       if (isDocument) servedNavigationFromCache = true;
       return cachedResponse;
     }
+
+    if (isDocument) {
+      const offlineNotice = await cache.match("/offline.html");
+      if (offlineNotice) {
+        servedNavigationFromCache = true;
+        return offlineNotice;
+      }
+    }
+
     throw networkFailure;
   }
 }
 
-const CONTENT_ADDRESSED_PATH = /\.(?:png|svg|ico|webmanifest|woff2?|css|js)$/;
+/* Only paths whose name changes when their content changes. The manifest is
+   deliberately absent: `/manifest.webmanifest` is a stable URL whose contents
+   are not content-addressed, so caching it cache-first pinned an installed
+   app to whatever name, icons and colours it had the first time. */
+const CONTENT_ADDRESSED_PATH = /\.(?:png|svg|ico|woff2?|css|js)$/;
 
 /* The page cannot tell from the inside whether its own response came off the
    disk, so it asks the worker that produced it. */

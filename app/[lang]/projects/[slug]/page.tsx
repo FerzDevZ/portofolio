@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  defaultLocale,
   formatTemplate,
   getContent,
   isLocale,
-  locales,
+  localeAlternates,
   localizedPath,
+  locales,
   resolveSiteUrl,
 } from "@/lib/content";
+import { ogSize } from "@/lib/og-card";
 import { Footer } from "@/components/contact";
 import { LanguageSwitch } from "@/components/language-switch";
 import { SkipLink } from "@/components/skip-link";
@@ -21,9 +22,9 @@ export const dynamicParams = false;
 
 export function generateStaticParams() {
   return locales.flatMap((lang) =>
-    getContent(lang).projects
-      .concat(getContent(lang).featuredProject)
-      .map((project) => ({ lang, slug: project.id })),
+    [getContent(lang).featuredProject, ...getContent(lang).projects].map(
+      (project) => ({ lang, slug: project.id }),
+    ),
   );
 }
 
@@ -44,30 +45,40 @@ export async function generateMetadata({
   const caseTitle = formatTemplate(content.caseStudyPage.documentTitleTemplate, {
     title: project.title,
   });
+  const casePath = localizedPath(lang, project.href);
+  /* The page-level `openGraph`/`twitter` objects replace the ones inherited
+     from the layout, so the file-convention `opengraph-image` that the home
+     page gets for free is not inherited here — a case study would emit no
+     `og:image` at all. Naming the generated card explicitly puts the share
+     card back on the pages most likely to be shared. */
+  const shareImage = {
+    url: localizedPath(lang, "/opengraph-image/card"),
+    width: ogSize.width,
+    height: ogSize.height,
+    alt: caseTitle,
+  };
 
   return {
     title: caseTitle,
     description: project.description,
     alternates: {
-      canonical: localizedPath(lang, project.href),
-      languages: {
-        en: localizedPath("en", project.href),
-        id: localizedPath("id", project.href),
-        "x-default": localizedPath(defaultLocale, project.href),
-      },
+      canonical: casePath,
+      languages: localeAlternates(project.href),
     },
     openGraph: {
       type: "article",
       title: caseTitle,
       description: project.description,
-      url: `${resolveSiteUrl(content.site.url)}${localizedPath(lang, project.href)}`,
+      url: `${resolveSiteUrl(content.site.url)}${casePath}`,
       siteName: content.site.name,
       locale: lang === "id" ? "id_ID" : "en_US",
+      images: [shareImage],
     },
     twitter: {
       card: "summary_large_image",
       title: caseTitle,
       description: project.description,
+      images: [shareImage],
     },
   };
 }

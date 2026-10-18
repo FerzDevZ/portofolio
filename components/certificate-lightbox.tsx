@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   formatTemplate,
@@ -38,6 +38,14 @@ export function CertificateLightbox({
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+  /* `onClose` is an inline arrow in the parent, so a new identity on every
+     parent render would tear this effect down and rebuild it while the dialog
+     is open — restoring scroll and focus mid-interaction. The effect depends on
+     the certificate; the callback is read through a ref. */
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!certificate) return;
@@ -45,7 +53,7 @@ export function CertificateLightbox({
     previouslyFocusedRef.current = document.activeElement as HTMLElement;
 
     const closeOnEscape = (keyboardEvent: KeyboardEvent) => {
-      if (keyboardEvent.key === "Escape") onClose();
+      if (keyboardEvent.key === "Escape") onCloseRef.current();
     };
 
     /* Keep the keyboard cycling inside the overlay while it is open. */
@@ -62,6 +70,15 @@ export function CertificateLightbox({
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       const active = document.activeElement as HTMLElement;
+      /* Focus can already be outside the overlay — a pointer press on the
+         image moves it to `<body>`, and the first Tab after that used to walk
+         straight into the page behind the scrim. Anything not inside the
+         dialog is pulled back to the first control. */
+      if (!overlayRef.current?.contains(active)) {
+        keyboardEvent.preventDefault();
+        first?.focus();
+        return;
+      }
       if (keyboardEvent.shiftKey && active === first) {
         keyboardEvent.preventDefault();
         last?.focus();
@@ -72,6 +89,9 @@ export function CertificateLightbox({
     };
 
     const scrollYBeforeOpen = window.scrollY;
+    /* Saved and restored rather than cleared: if another surface has already
+       locked the page, closing this one must not unlock it. */
+    const previousBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", closeOnEscape);
     document.addEventListener("keydown", trapFocus);
@@ -79,14 +99,14 @@ export function CertificateLightbox({
     setTimeout(() => closeBtnRef.current?.focus(), 0);
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousBodyOverflow;
       document.removeEventListener("keydown", closeOnEscape);
       document.removeEventListener("keydown", trapFocus);
       window.scrollTo(0, scrollYBeforeOpen);
       // Restore focus
       previouslyFocusedRef.current?.focus();
     };
-  }, [certificate, onClose]);
+  }, [certificate]);
 
   if (!certificate) return null;
 
@@ -103,7 +123,12 @@ export function CertificateLightbox({
   });
 
   const handleBackdropPointerDown = (pointerEvent: React.PointerEvent) => {
-    if (pointerEvent.target === pointerEvent.currentTarget) onClose();
+    /* A press on the photo is "I want to look at this", not "close"; a press
+       anywhere else — the scrim or the padding around the figure — is the
+       gesture every other lightbox on the web accepts. Requiring the exact
+       overlay element made the obvious click do nothing. */
+    if ((pointerEvent.target as HTMLElement).closest(".lightbox-image")) return;
+    onClose();
   };
 
   return (

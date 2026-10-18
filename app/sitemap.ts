@@ -1,10 +1,12 @@
 import type { MetadataRoute } from "next";
 import {
-  defaultLocale,
+  contentRoutes,
   getContent,
+  localeAlternates,
   locales,
   localizedPath,
   resolveSiteUrl,
+  defaultLocale,
   type Locale,
 } from "@/lib/content";
 
@@ -17,45 +19,34 @@ import {
  * treating one as a duplicate of the other. `x-default` points at the default
  * locale, which is also where the middleware sends a visitor whose
  * Accept-Language matches neither dictionary.
+ *
+ * The route list comes from `contentRoutes()`, the same function
+ * `generateStaticParams` uses, so the sitemap cannot fall one array short of
+ * the routes that actually exist.
+ *
+ * `lastModified` is deliberately absent. It used to be `new Date()`, which
+ * restamped every URL on every deploy without a single page changing — a
+ * freshness claim that was never true. Omitting it says "unknown", which is
+ * the honest answer, and leaves the field for a future source that knows.
  */
 function buildEntry(
   siteUrl: string,
   locale: Locale,
   path: string,
-  lastModified: Date,
 ): MetadataRoute.Sitemap[number] {
-  const languageAlternates: Record<string, string> = Object.fromEntries(
-    locales.map((alternateLocale: Locale) => [
-      alternateLocale,
-      `${siteUrl}${localizedPath(alternateLocale, path)}`,
-    ]),
-  );
-  languageAlternates["x-default"] = `${siteUrl}${localizedPath(defaultLocale, path)}`;
-
   return {
     url: `${siteUrl}${localizedPath(locale, path)}`,
-    lastModified,
     changeFrequency: "monthly",
     priority: path === "/" ? 1 : 0.7,
-    alternates: { languages: languageAlternates },
+    alternates: { languages: localeAlternates(path) },
   };
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = resolveSiteUrl(getContent(defaultLocale).site.url);
-  /* The case-study routes are identical in both dictionaries, so the default
-     locale is the single source of truth for which paths exist. The featured
-     project lives outside `projects` and is the site's most-linked case study,
-     so it leads the list rather than being left out of the sitemap. */
-  const caseStudyPaths = [
-    getContent(defaultLocale).featuredProject.href,
-    ...getContent(defaultLocale).projects.map((project) => project.href),
-  ];
-  const lastModified = new Date();
+  const paths = contentRoutes();
 
   return locales.flatMap((locale: Locale) =>
-    ["/", ...caseStudyPaths].map((path) =>
-      buildEntry(siteUrl, locale, path, lastModified),
-    ),
+    paths.map((path) => buildEntry(siteUrl, locale, path)),
   );
 }

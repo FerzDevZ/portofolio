@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { appleSplashScreens } from "@/lib/apple-splash-screens";
+import { canvasHex, themeStorageKey } from "@/lib/brand";
 import {
-  defaultLocale,
   formatTemplate,
   getContent,
   isLocale,
@@ -70,17 +70,12 @@ export async function generateMetadata({
        second, contradictory robots tag on every 404. Indexing is the default
        for the real pages, so nothing needs to be declared. */
     applicationName: content.site.name,
-    // Every locale gets a canonical URL of its own plus the reciprocal
-    // alternates, so a search engine can pair them instead of treating the
-    // translations as duplicates.
-    alternates: {
-      canonical: localizedPath(lang),
-      languages: {
-        en: localizedPath("en"),
-        id: localizedPath("id"),
-        "x-default": localizedPath(defaultLocale),
-      },
-    },
+    /* No `alternates` here on purpose: a canonical is a claim about *this*
+       page, and a layout-level canonical is inherited by every URL the segment
+       renders — including the 404 boundary, which would then tell a crawler
+       that a missing page is a duplicate of the home page. Each real page
+       declares its own canonical (the home page in `page.tsx`, a case study in
+       its own `generateMetadata`). */
     // Next emits the standardised `mobile-web-app-capable` for `appleWebApp`,
     // but iOS below 15.4 only understands the prefixed spelling.
     other: { "apple-mobile-web-app-capable": "yes" },
@@ -93,12 +88,11 @@ export async function generateMetadata({
 }
 
 export const viewport: Viewport = {
-  // One hex per scheme, each the resolved sRGB value of --color-canvas in that
-  // scheme. Both were sampled in the browser: Chromium keeps `oklch()` verbatim
-  // in getComputedStyle, so the canvas has to be told to paint the token.
+  /* One hex per scheme, shared with the manifest through `lib/brand.ts` so the
+     status bar, the splash surface and the manifest cannot drift apart. */
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#050709" },
-    { media: "(prefers-color-scheme: light)", color: "#f1f4f8" },
+    { media: "(prefers-color-scheme: dark)", color: canvasHex.dark },
+    { media: "(prefers-color-scheme: light)", color: canvasHex.light },
   ],
   colorScheme: "light dark",
   viewportFit: "cover",
@@ -131,7 +125,7 @@ export default async function RootLayout({
             __html: `
 (() => {
   try {
-    const key = 'portfolio-theme';
+    const key = ${JSON.stringify(themeStorageKey)};
     const stored = localStorage.getItem(key);
     const theme = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
     const resolved = theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
@@ -188,8 +182,12 @@ export default async function RootLayout({
                     .map((socialLink) => socialLink.href),
                 },
                 /* Each published case study, so search results can surface the
-                   individual projects rather than only the home page. */
-                ...content.projects.map((project) => ({
+                   individual projects rather than only the home page. The
+                   featured project leads this list everywhere else on the site
+                   (`generateStaticParams`, the sitemap, the work section), and
+                   leaving it out here made the one project the home page
+                   promotes the only one absent from the structured data. */
+                ...[content.featuredProject, ...content.projects].map((project) => ({
                   "@type": "CreativeWork",
                   "@id": `${siteUrl}${localizedPath(lang, project.href)}`,
                   name: project.title,

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { defaultLocale, formatTemplate, getContent } from "@/lib/content";
+import { canvasHex } from "@/lib/brand";
 
 /**
  * Web app manifest, served by Next at /manifest.webmanifest and linked from
@@ -28,8 +29,8 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#050709",
-    theme_color: "#050709",
+    background_color: canvasHex.dark,
+    theme_color: canvasHex.dark,
     lang: defaultLocale,
     dir: "ltr",
     categories: ["portfolio", "developer", "productivity"],

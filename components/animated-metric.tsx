@@ -30,12 +30,14 @@ export function AnimatedMetric({
     if (!metricElement) return;
 
     /* Value grammar: optional leading sign, digits with one decimal dot,
-       then any tail (% or suffix letters/×…). "61%", "3.2×", "12" animate;
-       "Shipped" renders as plain text. */
-    const numericMatch = value.match(/^(\d+(?:\.\d+)?)(.*)$/);
+       then any tail (% or suffix letters/×…). "61%", "-18%", "+12", "3.2×"
+       animate; "Shipped" renders as plain text. The sign is captured rather
+       than ignored: without it a negative metric skipped the tween and sat at
+       its final value with no hint that the animation never ran. */
+    const numericMatch = value.match(/^([+-]?)(\d+(?:\.\d+)?)(.*)$/);
     if (!numericMatch) return;
 
-    const [, numericPart = "", affix = ""] = numericMatch;
+    const [, sign = "", numericPart = "", affix = ""] = numericMatch;
     const target = Number(numericPart);
     const decimals = numericPart.includes(".")
       ? (numericPart.split(".")[1] ?? "").length
@@ -58,7 +60,7 @@ export function AnimatedMetric({
          a cubic ease-out reads identically at this duration. */
       const eased = 1 - Math.pow(1 - progressRatio, 3);
       const current = target * eased;
-      metricElement.textContent = `${current.toFixed(decimals)}${affix}`;
+      metricElement.textContent = `${sign}${current.toFixed(decimals)}${affix}`;
     };
 
     const tickCounter = (now: number) => {
@@ -131,10 +133,22 @@ export function TiltPanel({
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const readPanelPointer = (pointerEvent: PointerEvent) => {
+    /* One layout read per frame: `pointermove` can fire faster than the
+       compositor draws, and `getBoundingClientRect` inside the handler forces a
+       layout each time. The handler only stores the position; the frame does
+       the reading. */
+    let pendingPointer: { x: number; y: number } | null = null;
+    let frameId: number | null = null;
+
+    const applyPanelPointer = () => {
+      frameId = null;
+      if (!pendingPointer) return;
+      const { x: pointerX, y: pointerY } = pendingPointer;
+      pendingPointer = null;
+
       const panelRect = panelElement.getBoundingClientRect();
-      const xRatio = (pointerEvent.clientX - panelRect.left) / panelRect.width;
-      const yRatio = (pointerEvent.clientY - panelRect.top) / panelRect.height;
+      const xRatio = (pointerX - panelRect.left) / panelRect.width;
+      const yRatio = (pointerY - panelRect.top) / panelRect.height;
       const clampedX = Math.min(Math.max(xRatio, 0), 1);
       const clampedY = Math.min(Math.max(yRatio, 0), 1);
 
@@ -146,7 +160,18 @@ export function TiltPanel({
       panelElement.style.setProperty("--tilt-gy", `${(clampedY * 100).toFixed(1)}%`);
     };
 
+    const readPanelPointer = (pointerEvent: PointerEvent) => {
+      pendingPointer = { x: pointerEvent.clientX, y: pointerEvent.clientY };
+      if (frameId !== null) return;
+      frameId = window.requestAnimationFrame(applyPanelPointer);
+    };
+
     const resetPanelTilt = () => {
+      pendingPointer = null;
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+        frameId = null;
+      }
       panelElement.style.setProperty("--tilt-x", "0");
       panelElement.style.setProperty("--tilt-y", "0");
     };
