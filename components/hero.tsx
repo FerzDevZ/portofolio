@@ -135,11 +135,19 @@ export function Hero({ content }: { content: PortfolioContent }) {
                 className="stack-marquee-track"
                 data-direction={rowIndex === 1 ? "right" : "left"}
               >
+                {/* The second copy exists only to make the CSS loop seamless;
+                    the reduced-motion rule hides `.stack-marquee-echo`, so the
+                    class has to travel with the copy or the strip renders
+                    every entry twice once the animation is gone. */}
                 {[0, 1].map((copyIndex) => (
                   <span
                     key={copyIndex}
                     aria-hidden={copyIndex === 1 || undefined}
-                    className="flex items-center"
+                    className={
+                      copyIndex === 1
+                        ? "stack-marquee-echo flex items-center"
+                        : "flex items-center"
+                    }
                   >
                     {rowEntry.map((stackEntry, entryIndex) => (
                       <span
