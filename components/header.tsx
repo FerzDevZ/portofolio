@@ -154,28 +154,37 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
   }, []);
 
   /* The active pill slides to the currently highlighted link. Measured here,
-     positioned with CSS variables — the links themselves never re-render. */
+     positioned with CSS variables — the links themselves never re-render.
+     Re-measured on resize, because the nav's geometry changes at the `md`
+     breakpoint even while the active section stays the same. */
   const [activePill, setActivePill] = useState<{ x: number; width: number } | null>(
     null,
   );
 
   useEffect(() => {
-    if (!activeSectionId) {
-      setActivePill(null);
-      return;
-    }
     const desktopNav = desktopNavRef.current;
     if (!desktopNav) return;
-    const activeLink = desktopNav.querySelector<HTMLAnchorElement>(
-      `a[href="#${activeSectionId}"]`,
-    );
-    if (!activeLink) {
-      setActivePill(null);
-      return;
-    }
-    const navLeft = desktopNav.getBoundingClientRect().left;
-    const linkRect = activeLink.getBoundingClientRect();
-    setActivePill({ x: linkRect.left - navLeft, width: linkRect.width });
+
+    const measureActivePill = () => {
+      if (!activeSectionId) {
+        setActivePill(null);
+        return;
+      }
+      const activeLink = desktopNav.querySelector<HTMLAnchorElement>(
+        `a[href="#${activeSectionId}"]`,
+      );
+      if (!activeLink) {
+        setActivePill(null);
+        return;
+      }
+      const navLeft = desktopNav.getBoundingClientRect().left;
+      const linkRect = activeLink.getBoundingClientRect();
+      setActivePill({ x: linkRect.left - navLeft, width: linkRect.width });
+    };
+
+    measureActivePill();
+    window.addEventListener("resize", measureActivePill);
+    return () => window.removeEventListener("resize", measureActivePill);
   }, [activeSectionId]);
 
   return (

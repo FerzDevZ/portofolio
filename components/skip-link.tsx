@@ -8,7 +8,7 @@ export function SkipLink({ label }: { label: string }) {
   return (
     <a
       href="#main"
-      className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[999] focus:rounded-[6px] focus:border focus:border-line-strong focus:bg-panel focus:px-3.5 focus:py-2 focus:font-mono focus:text-xs focus:text-ink"
+      className="skip-link sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[999] focus:rounded-[6px] focus:border focus:border-line-strong focus:bg-panel focus:px-3.5 focus:py-2 focus:font-mono focus:text-xs focus:text-ink"
     >
       {label}
     </a>
