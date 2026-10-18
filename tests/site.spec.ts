@@ -40,6 +40,22 @@ test.describe("routing", () => {
     const response = await request.get("/en/projects/does-not-exist");
     expect(response.status()).toBe(404);
   });
+
+  for (const locale of LOCALES) {
+    test(`/${locale}/unknown-path renders the localised not-found page`, async ({ page }) => {
+      const response = await page.goto(`/${locale}/no-such-page`);
+      expect(response?.status()).toBe(404);
+      await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+        locale === "id" ? "Halaman tidak ditemukan" : "Page not found",
+      );
+      /* Next marks a 404 `noindex`; a layout-level `index, follow` would add a
+         second, contradictory tag to the same document. */
+      const robotsMeta = page.locator('meta[name="robots"]');
+      await expect(robotsMeta).toHaveCount(1);
+      await expect(robotsMeta).toHaveAttribute("content", "noindex");
+    });
+  }
 });
 
 test.describe("metadata", () => {
@@ -75,6 +91,25 @@ test.describe("metadata", () => {
   test("web manifest and service worker are served", async ({ request }) => {
     expect((await request.get("/manifest.webmanifest")).status()).toBe(200);
     expect((await request.get("/sw.js")).status()).toBe(200);
+  });
+
+  test("case study declares x-default alongside both locales", async ({ page }) => {
+    await page.goto("/en/projects/fcopier");
+    await expect(
+      page.locator('link[rel="alternate"][hreflang="x-default"]'),
+    ).toHaveAttribute("href", /\/en\/projects\/fcopier$/);
+  });
+});
+
+test.describe("security headers", () => {
+  test("responses carry the hardened headers and a production CSP", async ({ request }) => {
+    const response = await request.get("/en");
+    const headers = response.headers();
+    expect(headers["x-content-type-options"]).toBe("nosniff");
+    expect(headers["x-frame-options"]).toBe("DENY");
+    expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(headers["content-security-policy"]).toContain("default-src 'self'");
+    expect(headers["x-powered-by"]).toBeUndefined();
   });
 });
 
@@ -282,6 +317,21 @@ test.describe("3D motion switch", () => {
     await page.waitForTimeout(1200);
     await expect(page.locator("canvas")).toHaveCount(0);
   });
+
+  test("turning 3D motion off at runtime unmounts the canvas", async ({ page }) => {
+    await page.goto("/en");
+    const canvas = page.locator("canvas");
+    await expect(canvas).toHaveCount(1, { timeout: 25_000 });
+
+    const toggle = page.getByRole("button", { name: /3D motion/i });
+    /* Clicked through the DOM on purpose: a real click would scroll the footer
+       into view, and the loader unmounts the scene for that reason instead —
+       which would let a switch that only hides the canvas pass this test. */
+    await toggle.evaluate((button: HTMLElement) => button.click());
+
+    await expect(page.locator("html")).toHaveClass(/motion-3d-off/);
+    await expect(canvas).toHaveCount(0);
+  });
 });
 
 /* ------------------------------------------------------------------ */
@@ -331,6 +381,22 @@ test.describe("motion contract", () => {
       transitionProperty,
       "the magnet leans via transform, so the transition must cover it",
     ).toContain("transform");
+  });
+
+  test("the marquee echo is hidden when reduced motion is requested", async ({ browser }) => {
+    const reducedContext = await browser.newContext({
+      viewport: { width: 1280, height: 720 },
+      reducedMotion: "reduce",
+    });
+    const reducedPage = await reducedContext.newPage();
+    await reducedPage.goto("/en");
+
+    /* One echo copy per marquee row. The class is what the reduced-motion
+       rule hides; without it the strip renders every entry twice. */
+    const echoCopies = reducedPage.locator(".stack-marquee-echo");
+    await expect(echoCopies).toHaveCount(2);
+    await expect(echoCopies.first()).toHaveCSS("visibility", "hidden");
+    await reducedContext.close();
   });
 });
 
