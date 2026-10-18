@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  defaultLocale,
   formatTemplate,
   getContent,
   isLocale,
@@ -52,6 +53,7 @@ export async function generateMetadata({
       languages: {
         en: localizedPath("en", project.href),
         id: localizedPath("id", project.href),
+        "x-default": localizedPath(defaultLocale, project.href),
       },
     },
     openGraph: {

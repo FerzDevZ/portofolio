@@ -1,8 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
-  defaultLocale,
   isLocale,
-  locales,
   resolveLocaleFromAcceptLanguage,
 } from "@/lib/content";
 
@@ -46,7 +44,16 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const firstSegment = pathname.split("/")[1];
 
-  if (isLocale(firstSegment)) return NextResponse.next();
+  if (isLocale(firstSegment)) {
+    /** The locale is already explicit, but the route is a dynamic segment — and
+     *  a boundary that never sees `params` (the not-found page) still has to
+     *  speak this language. Hand the resolved locale forward as a request
+     *  header instead of reading cookies or `headers()` inside a page, which
+     *  would opt every page into dynamic rendering. */
+    const forwardedHeaders = new Headers(request.headers);
+    forwardedHeaders.set("x-locale", firstSegment);
+    return NextResponse.next({ request: { headers: forwardedHeaders } });
+  }
 
   const savedLocale = request.cookies.get("NEXT_LOCALE")?.value;
   const locale = isLocale(savedLocale)
@@ -77,7 +84,3 @@ export const config = {
     "/((?!_next/static|_next/image|icon.png|apple-icon.png|manifest.webmanifest|opengraph-image|og-light.png|sw.js|favicon.ico|.*\\..*).*)",
   ],
 };
-
-/** Kept for the type-checker: the locale set lives in one module. */
-export const supportedLocales = locales;
-export const fallbackLocale = defaultLocale;

@@ -535,5 +535,11 @@ export const content: PortfolioContent = {
     ogCardLabel: "Portofolio",
     cursorViewLabel: "Lihat",
     sectionProgressTemplate: "Bagian {current} dari {total}",
+    notFound: {
+      figure: "404",
+      title: "Halaman tidak ditemukan",
+      subtitle: "Halaman yang Anda cari tidak ada atau telah dipindahkan.",
+      back: "Kembali ke beranda",
+    },
   },
 };

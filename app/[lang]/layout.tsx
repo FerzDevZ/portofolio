@@ -65,7 +65,10 @@ export async function generateMetadata({
       title: homeTitle,
       description: content.site.description,
     },
-    robots: { index: true, follow: true },
+    /* No `robots` here on purpose: a not-found response already carries
+       `noindex` from Next, and a layout-level `index, follow` would emit a
+       second, contradictory robots tag on every 404. Indexing is the default
+       for the real pages, so nothing needs to be declared. */
     applicationName: content.site.name,
     // Every locale gets a canonical URL of its own plus the reciprocal
     // alternates, so a search engine can pair them instead of treating the

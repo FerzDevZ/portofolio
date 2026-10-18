@@ -534,5 +534,11 @@ export const content: PortfolioContent = {
     ogCardLabel: "Portfolio",
     cursorViewLabel: "View",
     sectionProgressTemplate: "Section {current} of {total}",
+    notFound: {
+      figure: "404",
+      title: "Page not found",
+      subtitle: "The page you are looking for does not exist or has been moved.",
+      back: "Back to home",
+    },
   },
 };

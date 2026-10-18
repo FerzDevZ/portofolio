@@ -242,5 +242,15 @@ export type PortfolioContent = {
     /** `{current}` and `{total}` are replaced — the section counter that
      *  rides beside the scroll progress bar. */
     sectionProgressTemplate: string;
+    notFound: {
+      /** The status figure, rendered large above the title. */
+      figure: string;
+      /** The page headline. */
+      title: string;
+      /** Explains what happened and where to go next. */
+      subtitle: string;
+      /** Label of the link back to the home page. */
+      back: string;
+    };
   };
 };
