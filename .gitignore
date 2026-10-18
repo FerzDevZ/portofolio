@@ -14,9 +14,6 @@ next-env.d.ts
 .freebuff-snapshots/
 .vercel
 
-# Environment-generated pnpm config, not part of the project
-pnpm-workspace.yaml
-
 # Lighthouse CI output and Playwright artefacts (generated, never committed)
 .lighthouseci/
 playwright-report/
