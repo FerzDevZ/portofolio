@@ -1,7 +1,8 @@
-import { formatTemplate, type PortfolioContent } from "@/lib/content";
+import type { PortfolioContent } from "@/lib/content";
 import { LocalClock } from "@/components/local-clock";
 import { RevealSection } from "@/components/reveal-section";
 import { MotionToggle } from "@/components/motion-toggle";
+import { CopyrightLine } from "@/components/copyright-line";
 
 /**
  * The address is wider than its display column, so it is split at the `@`.
@@ -105,12 +106,11 @@ export function Footer({ content }: { content: PortfolioContent }) {
   return (
     <footer className="mt-10 border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <p className="font-mono text-[11px] text-ink-faint">
-          {formatTemplate(content.footer.copyrightTemplate, {
-            year: new Date().getFullYear(),
-            name: content.site.name,
-          })}
-        </p>
+        <CopyrightLine
+          template={content.footer.copyrightTemplate}
+          name={content.site.name}
+          buildYear={new Date().getFullYear()}
+        />
         <div className="flex items-center gap-5">
           <LocalClock
             label={content.ui.clockLabel}
