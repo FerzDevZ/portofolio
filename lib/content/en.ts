@@ -379,28 +379,25 @@ export const content: PortfolioContent = {
 
   experience: {
     heading: "03 — Experience",
-    span: "2021 — now",
+    span: "2024 — now",
+    /* Only milestones this repository can prove: the six case studies and the
+       three certificates. Employment history is deliberately absent — there is
+       no verifiable source for it, and an unverifiable employer is worse than
+       no employer line at all. */
     items: [
       {
-        period: "2024 — Present",
-        role: "Independent frontend engineer",
-        company: "Freelance",
+        period: "2026 — Present",
+        role: "Independent builder",
+        company: "Personal projects",
         description:
-          "Shipping product interfaces for startups across SEA — commerce, fintech, and internal tools.",
+          "Six shipped projects on this page — a services marketplace, a security model, a Rust archiver, a CLI agent, an OAuth system, and a Playwright cloner — each with its source repository linked.",
       },
       {
-        period: "2022 — 2024",
-        role: "Frontend engineer",
-        company: "Northlight Studio",
+        period: "2024 — 2026",
+        role: "Competition track",
+        company: "OTN VI · LKS Babel · E-MOSTFET 11",
         description:
-          "Led the frontend guild: design system rollout, performance budgets, and hiring code reviews.",
-      },
-      {
-        period: "2021 — 2022",
-        role: "Web developer",
-        company: "Kreasi Digital",
-        description:
-          "Built marketing sites and dashboards for consumer brands; introduced TypeScript across the stack.",
+          "Juara I Desain Web at OTN VI (2024), Juara II IT Software Solution for Business at LKS Babel (2025), and Juara 2 Web Design Online at E-MOSTFET 11 (2026).",
       },
     ],
   },

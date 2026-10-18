@@ -61,10 +61,14 @@ Enam proyek di halaman ini diambil dari repositori GitHub `FerzDevZ`, dan
 deskripsi serta metriknya mengikuti README masing-masing repo. Metrik yang
 tidak bisa dibuktikan dari repo sudah dihapus.
 
-Yang **belum** bisa dibuktikan dan sengaja belum diisi:
+Bagian Experience hanya memuat tonggak yang bisa dibuktikan: enam proyek di
+halaman ini dan tiga sertifikat kompetisi. Riwayat kerja formal (nama
+perusahaan dan tanggal) tidak diklaim, karena tidak ada sumber yang bisa
+diverifikasi di repo.
 
-- Pengalaman kerja (Northlight Studio, Kreasi Digital, Freelance). Tidak
-  ada sumber yang bisa diverifikasi di repo.
+Yang masih terbuka dan butuh data dari pemilik situs:
+
+- Riwayat kerja formal, bila ada yang ingin dipublikasikan.
 - Berkas CV. Belum ada tautan unduh.
 - Screenshot per proyek. Hanya FCopier yang punya pratinjau, dan itu
   dokumentasi FCopier, bukan karya desain.

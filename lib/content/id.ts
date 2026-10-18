@@ -380,28 +380,25 @@ export const content: PortfolioContent = {
 
   experience: {
     heading: "03 — Pengalaman",
-    span: "2021 — sekarang",
+    span: "2024 — sekarang",
+    /* Hanya tonggak yang bisa dibuktikan repositori ini: enam studi kasus dan
+       tiga sertifikat. Riwayat kerja sengaja tidak dicantumkan — tidak ada
+       sumber yang bisa diverifikasi, dan nama perusahaan yang tidak terbukti
+       lebih buruk daripada tidak ada baris pengalaman sama sekali. */
     items: [
       {
-        period: "2024 — Sekarang",
-        role: "Frontend engineer independen",
-        company: "Freelance",
+        period: "2026 — Sekarang",
+        role: "Pembangun independen",
+        company: "Proyek pribadi",
         description:
-          "Merilis antarmuka produk untuk startup di Asia Tenggara — commerce, fintech, dan alat internal.",
+          "Enam proyek yang sudah dirilis di halaman ini — marketplace jasa, model keamanan, pengarsip Rust, agen CLI, sistem OAuth, dan cloner Playwright — masing-masing dengan tautan repositori sumbernya.",
       },
       {
-        period: "2022 — 2024",
-        role: "Frontend engineer",
-        company: "Northlight Studio",
+        period: "2024 — 2026",
+        role: "Jalur kompetisi",
+        company: "OTN VI · LKS Babel · E-MOSTFET 11",
         description:
-          "Memimpin guild frontend: peluncuran design system, anggaran performa, dan tinjauan kode saat perekrutan.",
-      },
-      {
-        period: "2021 — 2022",
-        role: "Web developer",
-        company: "Kreasi Digital",
-        description:
-          "Membangun situs pemasaran dan dasbor untuk merek konsumen; memperkenalkan TypeScript di seluruh stack.",
+          "Juara I Desain Web di OTN VI (2024), Juara II IT Software Solution for Business di LKS Babel (2025), dan Juara 2 Web Design Online di E-MOSTFET 11 (2026).",
       },
     ],
   },

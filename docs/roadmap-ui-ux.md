@@ -136,8 +136,10 @@ P0.1 riset repo GitHub → P0.2–3 rewrite konten → gate build
 - **P0.1 selesai**: proyek diambil dari repo GitHub nyata, dengan tautan
   repo dan metrik yang bisa ditelusuri ke README-nya. Klaim "5 years" dan
   metrik fiktif dihapus.
-- **Masih terbuka di P0**: pengalaman kerja, berkas CV, dan screenshot per
-  proyek. Ketiganya butuh data dari pemilik situs.
+- **Masih terbuka di P0**: riwayat kerja formal (bila ada), berkas CV, dan
+  screenshot per proyek. Ketiganya butuh data dari pemilik situs. Bagian
+  Experience sekarang hanya memuat tonggak yang bisa dibuktikan (proyek dan
+  sertifikat), bukan nama perusahaan dari template.
 - **Kualitas yang sekarang diverifikasi**: tes Playwright (routing, metadata,
   overflow 320px, lightbox, count-up, pratinjau), axe pada beranda, ESLint,
   dan Lighthouse dengan ambang di `lighthouserc.json`.

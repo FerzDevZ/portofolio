@@ -13,9 +13,10 @@ Verified source → output mapping (do not reorder without opening the images):
   img/sertifikat3.png  1280x927   OTN VI "Juara I Desain Web"
                                   → otn-vi-desain-web-2024.webp
 
-The intrinsic dimensions printed here are the values that lib/portfolio-data.ts
-must declare for each certificate; next/image renders the lightbox from them,
-so a mismatch distorts the aspect ratio.
+The intrinsic dimensions printed here are the values that the certificate
+entries in lib/content/en.ts and lib/content/id.ts must declare (imageWidth /
+imageHeight); next/image renders the card and the lightbox from them, so a
+mismatch distorts the aspect ratio.
 """
 
 from pathlib import Path
