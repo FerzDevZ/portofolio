@@ -10,6 +10,7 @@ import {
 } from "@/lib/locale";
 import { content as englishContent } from "@/lib/content/en";
 import { content as indonesianContent } from "@/lib/content/id";
+import { content as japaneseContent } from "@/lib/content/ja";
 
 export type {
   Capability,
@@ -43,6 +44,10 @@ export {
 const dictionaryByLocale: Record<Locale, PortfolioContent> = {
   en: englishContent,
   id: indonesianContent,
+  /* Placeholder copy: `lib/content/ja.ts` is the prep-only skeleton. It is
+     registered here so every `Record<Locale, …>` consumer typechecks and the
+     routes resolve; the strings themselves are translated before `/ja` ships. */
+  ja: japaneseContent,
 };
 
 /** The complete, ready-to-render content for one locale. */

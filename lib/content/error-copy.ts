@@ -27,4 +27,13 @@ export const errorCopy: Record<
     retry: "Coba lagi",
     home: "Kembali ke beranda",
   },
+  /* Placeholder until the Japanese dictionary ships — same contract as
+     every other Record<Locale, …> consumer. */
+  ja: {
+    eyebrow: "エラー",
+    title: "エラーが発生しました",
+    body: "このページのレンダリングに失敗しました。サイトの他の部分は動作しています。",
+    retry: "再試行",
+    home: "ホームへ戻る",
+  },
 };

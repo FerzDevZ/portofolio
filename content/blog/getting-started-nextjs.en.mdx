@@ -1,0 +1,39 @@
+---
+title: "Getting Started with Next.js 15"
+description: "Learn how to build modern web applications with the latest features in Next.js 15, including React Server Components and improved performance."
+date: "2024-11-15"
+tags:
+  - Next.js
+  - React
+  - Web Development
+---
+
+# Getting Started with Next.js 15
+
+Next.js 15 brings powerful new features that make building modern web applications easier and faster. In this post, we'll explore the key improvements and how to leverage them in your projects.
+
+## React Server Components
+
+Server Components are now stable and offer significant performance benefits:
+
+```tsx
+// This component runs only on the server
+export default async function Page() {
+  const data = await fetch('https://api.example.com/data');
+  return <div>{data.title}</div>;
+}
+```
+
+## App Router Improvements
+
+The App Router has been refined with better TypeScript support and more intuitive routing patterns.
+
+### Key Benefits
+
+- **Faster builds** with optimized compilation
+- **Improved caching** for better performance
+- **Better error handling** with clearer messages
+
+## Conclusion
+
+Next.js 15 represents a significant step forward in web development. Give it a try in your next project!

@@ -14,6 +14,8 @@ import {
   type Locale,
 } from "@/lib/content";
 import { ServiceWorkerRegistrar } from "@/components/service-worker-registrar";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../globals.css";
 
 /**
@@ -151,6 +153,8 @@ export default async function RootLayout({
         ))}
         {children}
         <ServiceWorkerRegistrar />
+        <Analytics />
+        <SpeedInsights />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

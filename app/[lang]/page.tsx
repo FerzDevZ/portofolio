@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { getContent, isLocale, localeAlternates, localizedPath } from "@/lib/content";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
@@ -8,6 +9,10 @@ import { Capabilities, Experience } from "@/components/capabilities";
 import { Certificates } from "@/components/certificates";
 import { Contact, Footer } from "@/components/contact";
 import { CursorLabel } from "@/components/cursor-label";
+import {
+  WorkSkeleton,
+  CertificatesSkeleton,
+} from "@/components/loading-skeletons";
 
 /**
  * The home page owns its canonical and its `hreflang` pair.
@@ -65,10 +70,14 @@ export default async function Home({
       <main id="main">
         <CursorLabel label={content.ui.cursorViewLabel} />
         <Hero content={content} />
-        <Work content={content} />
+        <Suspense fallback={<WorkSkeleton />}>
+          <Work content={content} />
+        </Suspense>
         <Capabilities content={content} />
         <Experience content={content} />
-        <Certificates certificates={content.certificates} />
+        <Suspense fallback={<CertificatesSkeleton />}>
+          <Certificates certificates={content.certificates} />
+        </Suspense>
         <Contact content={content} />
       </main>
       <Footer content={content} />

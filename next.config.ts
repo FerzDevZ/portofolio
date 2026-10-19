@@ -1,5 +1,8 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 
 /**
  * Response headers every route gets.
@@ -50,6 +53,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   // The dev server is reached over loopback under either host name.
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
   async headers() {
     return [
       {
@@ -65,4 +69,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [rehypeHighlight],
+  },
+});
+
+export default withMDX(nextConfig);

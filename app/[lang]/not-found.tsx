@@ -52,5 +52,15 @@ function buildCopy(locale: Locale): NotFoundCopy {
 }
 
 export default function NotFound() {
-  return <NotFoundView copy={{ en: buildCopy("en"), id: buildCopy("id") }} />;
+  return (
+    <NotFoundView
+      copy={{
+        en: buildCopy("en"),
+        id: buildCopy("id"),
+        /* Placeholder copy until the Japanese dictionary ships; the strings
+           resolve from `lib/content/ja.ts` exactly like the pages do. */
+        ja: buildCopy("ja"),
+      }}
+    />
+  );
 }

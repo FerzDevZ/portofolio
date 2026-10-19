@@ -9,7 +9,7 @@
  */
 
 /** Every locale the site ships. Order matters: the first is the fallback. */
-export const locales = ["en", "id"] as const;
+export const locales = ["en", "id", "ja"] as const;
 
 export type Locale = (typeof locales)[number];
 
