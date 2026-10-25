@@ -1,5 +1,6 @@
 import type { PortfolioContent } from "@/lib/content";
 import { LocalClock } from "@/components/local-clock";
+import { PageLinks } from "@/components/page-links";
 import { RevealSection } from "@/components/reveal-section";
 import { MotionToggle } from "@/components/motion-toggle";
 import { CopyrightLine } from "@/components/copyright-line";
@@ -9,7 +10,10 @@ import { CopyrightLine } from "@/components/copyright-line";
  * The `<wbr>` marks the preferred wrap point and `overflow-wrap: anywhere` on
  * the anchor is the fallback that stops a narrow viewport from overflowing.
  */
-function splitEmail(email: string): { localPart: string; domain: string } {
+export function splitEmail(email: string): {
+  localPart: string;
+  domain: string;
+} {
   const atIndex = email.indexOf("@");
   return atIndex === -1
     ? { localPart: email, domain: "" }
@@ -105,28 +109,35 @@ export function Contact({ content }: { content: PortfolioContent }) {
 export function Footer({ content }: { content: PortfolioContent }) {
   return (
     <footer className="mt-10 border-t border-line">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <CopyrightLine
-          template={content.footer.copyrightTemplate}
-          name={content.site.name}
-          buildYear={new Date().getFullYear()}
+      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">
+        <PageLinks
+          locale={content.locale}
+          links={content.pageLinks}
+          label={content.footer.pagesLabel}
         />
-        <div className="flex items-center gap-5">
-          <LocalClock
-            label={content.ui.clockLabel}
-            timeZone={content.site.timezone}
+        <div className="mt-5 flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <CopyrightLine
+            template={content.footer.copyrightTemplate}
+            name={content.site.name}
+            buildYear={new Date().getFullYear()}
           />
-          <MotionToggle
-            label={content.footer.motionToggleLabel}
-            onLabel={content.footer.motionOn}
-            offLabel={content.footer.motionOff}
-          />
-          <a
-            href="#top"
-            className="link-sweep inline-flex min-h-6 items-center font-mono text-[11px] text-ink-faint transition-colors duration-150 hover:text-ink"
-          >
-            {content.footer.backToTop}
-          </a>
+          <div className="flex items-center gap-5">
+            <LocalClock
+              label={content.ui.clockLabel}
+              timeZone={content.site.timezone}
+            />
+            <MotionToggle
+              label={content.footer.motionToggleLabel}
+              onLabel={content.footer.motionOn}
+              offLabel={content.footer.motionOff}
+            />
+            <a
+              href="#top"
+              className="link-sweep inline-flex min-h-6 items-center font-mono text-[11px] text-ink-faint transition-colors duration-150 hover:text-ink"
+            >
+              {content.footer.backToTop}
+            </a>
+          </div>
         </div>
       </div>
     </footer>

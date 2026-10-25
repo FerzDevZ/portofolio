@@ -1,76 +1,32 @@
-"use client";
-
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 /**
- * Section reveal: children fade up the first time they enter the viewport.
+ * Section reveal: the entrance is a scroll-driven CSS animation, no JS.
  *
  * Design contract:
- * - Without JS nothing is ever hidden: the base `.reveal-section` state is
- *   fully visible. Only after hydration does the component "arm" itself
- *   (opacity 0) and the next intersection plays the entrance — so
- *   server-rendered HTML and no-JS clients never see blank sections.
- * - IntersectionObserver, not a scroll listener: zero work on the scroll
- *   thread; the browser decides when the threshold is crossed.
- * - Fires once, then disconnects — revisiting a section never re-animates.
- * - Animation targets transform and opacity only; `prefers-reduced-motion`
- *   is collapsed to 0.01ms by the global rule in globals.css.
+ * - Deliberately NOT a client component. It used to be: every section armed
+ *   itself after hydration (opacity 0) and played a 680ms transition from an
+ *   IntersectionObserver. Ten of those boundaries cost ~100ms of main-thread
+ *   hydration time on a mid-range phone — measured as Lighthouse TBT — to
+ *   produce an entrance the browser can compute from scroll position alone.
+ * - The animation lives in `globals.css` (`.reveal-section`), driven by
+ *   `animation-timeline: view()`. Where that timeline is unsupported, in
+ *   print, and under `prefers-reduced-motion`, the section is simply visible.
+ *   The HTML never ships hidden content, so no-JS clients are unaffected.
+ * - Trade-off made explicit: a scroll timeline has no memory, so scrolling
+ *   back up replays the entrance. The old observer's "fire once" required JS
+ *   to remember it; this trades that memory for a smaller main thread.
+ * - The entrance is transform/opacity only, so it never touches layout.
+ *
+ * The delay that the old `delayMs` prop carried is now the scroll order
+ * itself: a section that follows another enters the viewport later.
  */
 export function RevealSection({
   children,
   className = "",
-  delayMs = 0,
 }: {
   children: ReactNode;
   className?: string;
-  delayMs?: number;
 }) {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
-  const [isArmed, setIsArmed] = useState(false);
-  const [hasRevealed, setHasRevealed] = useState(false);
-
-  useEffect(() => {
-    const observedSection = sectionRef.current;
-    if (!observedSection) return;
-
-    const intersectionObserver = new IntersectionObserver(
-      (observerEntries) => {
-        for (const observerEntry of observerEntries) {
-          if (observerEntry.isIntersecting) {
-            setHasRevealed(true);
-            intersectionObserver.disconnect();
-          }
-        }
-      },
-      /* The threshold keeps a section that sits half in view at page load
-         from animating: it reveals only once a real part of it scrolls in.
-         It is also the end of the scroll-timeline range in `globals.css` —
-         changing one without the other cuts the entrance in half. */
-      { threshold: 0.12 },
-    );
-
-    /* Arm after mount: hides the section only when JS is confirmed live and
-       the section has not been seen yet. Elements already on screen at load
-       intersect within the first observer callback, so they reappear on the
-       same frame the entrance would have played. */
-    setIsArmed(true);
-    intersectionObserver.observe(observedSection);
-    return () => intersectionObserver.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={sectionRef}
-      className={`reveal-section ${
-        isArmed && !hasRevealed ? "reveal-section--armed" : ""
-      } ${hasRevealed ? "reveal-section--in" : ""} ${className}`}
-      style={
-        delayMs > 0
-          ? ({ "--reveal-delay": `${delayMs}ms` } as React.CSSProperties)
-          : undefined
-      }
-    >
-      {children}
-    </div>
-  );
+  return <div className={`reveal-section ${className}`}>{children}</div>;
 }

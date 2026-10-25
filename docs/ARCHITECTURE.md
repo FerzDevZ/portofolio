@@ -687,7 +687,8 @@ All static assets and pages served from Vercel Edge:
 
 - Pages: Cached at edge with stale-while-revalidate
 - Assets: Immutable cache (hashed filenames)
-- API routes: None (fully static site)
+- API routes: `GET /api/resume?lang=en|id` (PDF export via Puppeteer +
+  serverless Chromium); everything else is static
 
 ---
 
@@ -719,39 +720,36 @@ All static assets and pages served from Vercel Edge:
    };
    ```
 
-2. **Add to dictionaries**:
+2. **Write the article as MDX** (articles are content, not dictionary copy —
+   the dictionary only carries the blog chrome):
    ```typescript
-   // lib/content/en.ts
-   export const content: PortfolioContent = {
-     // ...
-     blog: {
-       heading: "Blog",
-       posts: [{ id: "first-post", /* ... */ }],
-     },
-   };
+   // content/blog/first-post.en.mdx
+   ---
+   title: "First Post"
+   description: "The first article."
+   date: "2026-10-25"
+   tags: ["Web"]
+   ---
+
+   Hello world.
    ```
+   The same slug with a different suffix (`first-post.id.mdx`) is the
+   translation; a slug that exists in only one locale simply has no route in
+   the other (`lib/blog.ts`, `generateStaticParams`).
 
 3. **Create route**:
    ```typescript
-   // app/[lang]/blog/page.tsx
-   export default async function BlogPage({ params }) {
-     const { lang } = await params;
-     const content = getContent(lang);
-     return <BlogList posts={content.blog.posts} />;
-   }
+   // app/[lang]/blog/page.tsx — index
+   // app/[lang]/blog/[slug]/page.tsx — article, body rendered by
+   // next-mdx-remote/rsc into `.post-body` (globals.css styles it,
+   // including the hljs token colours for code blocks)
    ```
 
 4. **Add to sitemap**:
    ```typescript
-   // app/sitemap.ts
-   for (const locale of locales) {
-     const content = getContent(locale);
-     for (const post of content.blog.posts) {
-       entries.push({
-         url: `${siteUrl}${localizedPath(locale, `/blog/${post.id}`)}`,
-         alternates: { languages: localeAlternates(`/blog/${post.id}`) },
-       });
-     }
+   // app/sitemap.ts already enumerates articles from the filesystem:
+   for (const post of getBlogPosts(locale)) {
+     entries.push(buildEntry(siteUrl, locale, `/blog/${post.slug}`));
    }
    ```
 

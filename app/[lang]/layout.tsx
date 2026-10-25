@@ -7,13 +7,12 @@ import { canvasHex, themeStorageKey } from "@/lib/brand";
 import {
   formatTemplate,
   getContent,
-  isLocale,
-  locales,
+  isPublishedLocale,
+  publishedLocales,
   localizedPath,
   resolveSiteUrl,
-  type Locale,
 } from "@/lib/content";
-import { ServiceWorkerRegistrar } from "@/components/service-worker-registrar";
+import { DeferredIntegrations } from "@/components/deferred-integrations";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../globals.css";
@@ -23,11 +22,16 @@ import "../globals.css";
  * locale-prefixed, so this is the only layout that has to exist, and it can
  * therefore set `<html lang>` from the segment itself. Unsupported locale
  * values 404 at build time instead of rendering a half-translated page.
+ *
+ * The params come from `publishedLocales`, not from every dictionary in the
+ * type universe: a locale whose copy is still placeholder text has no routes,
+ * so `/ja` is a 404 rather than a linked page reading
+ * `[Japanese headline to be translated]`.
  */
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return locales.map((lang) => ({ lang }));
+  return publishedLocales.map((lang) => ({ lang }));
 }
 
 export async function generateMetadata({
@@ -36,7 +40,7 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLocale(lang)) return {};
+  if (!isPublishedLocale(lang)) return {};
   const content = getContent(lang);
 
   const homeTitle = formatTemplate(content.meta.homeTitleTemplate, {
@@ -105,9 +109,9 @@ export default async function RootLayout({
   params,
 }: Readonly<{ children: React.ReactNode; params: Promise<{ lang: string }> }>) {
   const { lang } = await params;
-  if (!isLocale(lang)) notFound();
+  if (!isPublishedLocale(lang)) notFound();
 
-  const content = getContent(lang as Locale);
+  const content = getContent(lang);
   /* Resolved once here so the JSON-LD graph and the metadata agree on the
      origin the site claims, whatever domain the host assigned. */
   const siteUrl = resolveSiteUrl(content.site.url);
@@ -152,9 +156,7 @@ export default async function RootLayout({
           />
         ))}
         {children}
-        <ServiceWorkerRegistrar />
-        <Analytics />
-        <SpeedInsights />
+        <DeferredIntegrations />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

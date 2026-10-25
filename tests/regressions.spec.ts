@@ -57,10 +57,42 @@ test.describe("static rendering", () => {
 
   test("the sitemap lists every route in both locales", async ({ request }) => {
     const xml = await (await request.get("/sitemap.xml")).text();
-    /* 7 paths × 2 locales. The featured case study fell out of this list once
-       because the sitemap read a different array than `generateStaticParams`. */
-    expect((xml.match(/<loc>/g) ?? []).length).toBe(14);
-    expect((xml.match(/hreflang=/g) ?? []).length).toBe(42);
+    /* 10 dictionary/footer paths × 2 locales, plus one article per locale.
+       The featured case study fell out of this list once because the sitemap
+       read a different array than `generateStaticParams`. */
+    expect((xml.match(/<loc>/g) ?? []).length).toBe(22);
+    expect((xml.match(/hreflang=/g) ?? []).length).toBe(66);
+
+    /* Every page reachable from the footer is advertised in both locales. */
+    for (const path of [
+      "/en/blog",
+      "/id/blog",
+      "/en/contact",
+      "/id/contact",
+      "/en/resume",
+      "/id/resume",
+      "/en/blog/getting-started-nextjs",
+    ]) {
+      expect(xml).toContain(`${path}</loc>`);
+    }
+  });
+});
+
+test.describe("resume PDF endpoint", () => {
+  test("an unpublished locale is a 400 from the handler, not a localized 404", async ({
+    request,
+  }) => {
+    /* Two silent defects met here. The middleware treated `api` as a language
+       tag and rewrote `/api/resume` into `[lang]/[...rest]`, so every request
+       to the endpoint answered with the localized 404 while the handler never
+       ran; and the handler's `isLocale` guard accepted `ja`, a locale with a
+       dictionary but no routes, which Chromium would have paginated into a
+       file named Resume.pdf. A 400 is only reachable when the route is the
+       one answering AND the guard is the published-locale predicate. */
+    const response = await request.get("/api/resume?lang=ja");
+    expect(response.status()).toBe(400);
+    expect(response.headers()["content-type"]).toContain("application/json");
+    expect(await response.json()).toEqual({ error: "Unsupported locale: ja" });
   });
 });
 

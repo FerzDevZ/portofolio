@@ -69,6 +69,12 @@ export const content: PortfolioContent = {
     { label: "Kontak", href: "#contact" },
   ],
 
+  pageLinks: [
+    { label: "Blog", href: "/blog" },
+    { label: "Kontak", href: "/contact" },
+    { label: "Resume", href: "/resume" },
+  ],
+
   work: {
     heading: "01 — Karya pilihan",
     countTemplate: "{count} proyek",
@@ -337,6 +343,17 @@ export const content: PortfolioContent = {
     },
   ],
 
+  blog: {
+    heading: "Blog",
+    kicker: "Tulisan",
+    description:
+      "Catatan tentang craft frontend: design system, anggaran performa, dan detail yang menentukan apakah sebuah antarmuka terasa tenang.",
+    emptyState: "Belum ada tulisan. Yang pertama sedang ditulis.",
+    countTemplate: "{count} tulisan",
+    allPosts: "Semua tulisan",
+    backToHome: "Kembali ke beranda",
+  },
+
   capabilities: {
     heading: "02 — Kemampuan",
     note: "yang saya kerjakan",
@@ -457,6 +474,32 @@ export const content: PortfolioContent = {
     socialsLabel: "Tautan sosial",
   },
 
+  contactPage: {
+    kicker: "Kontak",
+    heading: "Hubungi saya",
+    lede: "Terbuka untuk proyek pilihan — design system, pekerjaan performa, atau antarmuka yang menuntut presisi. Ceritakan apa yang sedang kamu bangun dan di bagian mana terasanya sulit.",
+    formLabel: "Kirim pesan",
+    nameLabel: "Nama",
+    namePlaceholder: "Nama kamu",
+    emailLabel: "Email",
+    emailPlaceholder: "email@kamu.com",
+    messageLabel: "Pesan",
+    messagePlaceholder: "Ceritakan proyekmu…",
+    submitLabel: "Kirim pesan",
+    submittingLabel: "Mengirim…",
+    successTitle: "Pesan terkirim.",
+    successBody: "Balasan datang dalam dua hari kerja, biasanya lebih cepat.",
+    errorLabel: "Galat:",
+    rateLimitNote: "Dibatasi 1 pesan per menit. Pesanmu tidak dibagikan ke siapa pun.",
+    preferEmail: "Lebih suka email? Hubungi langsung:",
+  },
+
+  resumePage: {
+    documentTitleTemplate: "{name} — Resume",
+    summaryHeading: "Ringkasan Profesional",
+    downloadLabel: "Unduh PDF",
+  },
+
   socials: [
     {
       label: "GitHub",
@@ -482,6 +525,7 @@ export const content: PortfolioContent = {
   ],
 
   footer: {
+    pagesLabel: "Halaman",
     copyrightTemplate: "© {year} {name} — dibangun dengan Next.js & Tailwind",
     backToTop: "Kembali ke atas ↑",
     motionToggleLabel: "Gerak 3D",

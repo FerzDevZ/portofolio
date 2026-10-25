@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 import {
   formatTemplate,
   getContent,
-  isLocale,
+  isPublishedLocale,
   localeAlternates,
   localizedPath,
-  locales,
+  publishedLocales,
   resolveSiteUrl,
 } from "@/lib/content";
 import { ogSize } from "@/lib/og-card";
@@ -17,11 +17,11 @@ import { SkipLink } from "@/components/skip-link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AnimatedMetric } from "@/components/animated-metric";
 
-/** Every case study exists in every locale, so both are known at build time. */
+/** Every case study exists in every published locale, so all are known at build time. */
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return locales.flatMap((lang) =>
+  return publishedLocales.flatMap((lang) =>
     [getContent(lang).featuredProject, ...getContent(lang).projects].map(
       (project) => ({ lang, slug: project.id }),
     ),
@@ -34,7 +34,7 @@ export async function generateMetadata({
   params: Promise<{ lang: string; slug: string }>;
 }): Promise<Metadata> {
   const { lang, slug } = await params;
-  if (!isLocale(lang)) return {};
+  if (!isPublishedLocale(lang)) return {};
 
   const content = getContent(lang);
   const project = [content.featuredProject, ...content.projects].find(
@@ -89,7 +89,7 @@ export default async function ProjectCaseStudyPage({
   params: Promise<{ lang: string; slug: string }>;
 }) {
   const { lang, slug } = await params;
-  if (!isLocale(lang)) notFound();
+  if (!isPublishedLocale(lang)) notFound();
 
   const content = getContent(lang);
   const allProjects = [content.featuredProject, ...content.projects];

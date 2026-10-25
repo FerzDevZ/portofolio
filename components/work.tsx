@@ -43,6 +43,22 @@ function ProjectRow({
 
         <span className="text-sm leading-relaxed text-ink-muted sm:col-span-4">
           {project.description}
+          {/* Touch counterpart of the gutter preview: `(hover: none)` renders
+              the same screenshot as a small inline block, so a phone is not
+              left without any visual for the project. The whole row links to
+              the case study, so the image stays out of the tab order. */}
+          {project.preview ? (
+            <span aria-hidden="true" className="row-preview-touch">
+              <Image
+                src={project.preview.src}
+                alt=""
+                width={project.preview.width}
+                height={project.preview.height}
+                sizes="288px"
+                className="h-auto w-full"
+              />
+            </span>
+          ) : null}
         </span>
 
         <span className="flex flex-wrap items-center gap-2 sm:col-span-2">
@@ -124,7 +140,7 @@ export function Work({ content }: { content: PortfolioContent }) {
         </header>
       </RevealSection>
 
-      <RevealSection delayMs={80}>
+      <RevealSection>
         <article className="group grid grid-cols-1 gap-8 border-b border-line py-12 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-7">
           <p className="mb-4 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
@@ -214,7 +230,7 @@ export function Work({ content }: { content: PortfolioContent }) {
       </article>
       </RevealSection>
 
-      <RevealSection delayMs={140}>
+      <RevealSection>
         <ul>
           {projects.map((project) => (
             <ProjectRow key={project.id} project={project} content={content} />

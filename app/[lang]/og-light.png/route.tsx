@@ -1,4 +1,9 @@
-import { defaultLocale, getContent, isLocale, locales } from "@/lib/content";
+import {
+  defaultLocale,
+  getContent,
+  isPublishedLocale,
+  publishedLocales,
+} from "@/lib/content";
 import { ogContentType, ogPalettes, renderOgCard } from "@/lib/og-card";
 
 /**
@@ -16,9 +21,9 @@ import { ogContentType, ogPalettes, renderOgCard } from "@/lib/og-card";
  */
 export const dynamic = "force-static";
 
-/** Pre-rendered per locale, so the route is a static asset, not a function. */
+/** Pre-rendered per published locale, so the route is a static asset, not a function. */
 export function generateStaticParams() {
-  return locales.map((lang) => ({ lang }));
+  return publishedLocales.map((lang) => ({ lang }));
 }
 
 export async function GET(
@@ -26,7 +31,7 @@ export async function GET(
   { params }: { params: Promise<{ lang: string }> },
 ) {
   const { lang } = await params;
-  const content = getContent(isLocale(lang) ? lang : defaultLocale);
+  const content = getContent(isPublishedLocale(lang) ? lang : defaultLocale);
 
   const response = renderOgCard(ogPalettes.light, content);
   response.headers.set("Content-Type", ogContentType);

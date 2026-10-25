@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
   locales,
+  publishedLocales,
   defaultLocale,
   isLocale,
+  isPublishedLocale,
   localizedPath,
   localeAlternates,
   resolveLocaleFromAcceptLanguage,
@@ -29,6 +31,39 @@ describe("locale", () => {
     });
   });
 
+  describe("isPublishedLocale", () => {
+    it("accepts the locales the site publishes routes for", () => {
+      for (const locale of publishedLocales) {
+        expect(isPublishedLocale(locale)).toBe(true);
+      }
+    });
+
+    /* `ja` has a dictionary skeleton but no routes: publishing it would render
+       "[Japanese … to be translated]" under a linked URL. Routing therefore
+       has to reject it even though the type universe accepts it. */
+    it("rejects a locale that exists only as a dictionary skeleton", () => {
+      expect(isLocale("ja")).toBe(true);
+      expect(isPublishedLocale("ja")).toBe(false);
+    });
+
+    it("rejects unknown and non-string values", () => {
+      expect(isPublishedLocale("fr")).toBe(false);
+      expect(isPublishedLocale(undefined)).toBe(false);
+      expect(isPublishedLocale(null)).toBe(false);
+    });
+
+    it("publishes a subset of the locales the type universe carries", () => {
+      for (const locale of publishedLocales) {
+        expect(locales).toContain(locale);
+      }
+      expect(publishedLocales.length).toBeLessThanOrEqual(locales.length);
+    });
+
+    it("keeps the published default first in the published set", () => {
+      expect(publishedLocales[0]).toBe(defaultLocale);
+    });
+  });
+
   describe("localizedPath", () => {
     it("prefixes path with locale", () => {
       expect(localizedPath("en", "/projects/atlas")).toBe("/en/projects/atlas");
@@ -52,24 +87,32 @@ describe("locale", () => {
   });
 
   describe("localeAlternates", () => {
-    it("returns all locales for root path", () => {
+    it("returns every published locale for the root path", () => {
       const alternates = localeAlternates("/");
       expect(alternates).toEqual({
         en: "/en",
         id: "/id",
-        ja: "/ja",
         "x-default": "/en",
       });
     });
 
-    it("returns all locales for nested path", () => {
+    it("returns every published locale for a nested path", () => {
       const alternates = localeAlternates("/projects/atlas");
       expect(alternates).toEqual({
         en: "/en/projects/atlas",
         id: "/id/projects/atlas",
-        ja: "/ja/projects/atlas",
         "x-default": "/en/projects/atlas",
       });
+    });
+
+    /* An hreflang pointing at a placeholder dictionary tells a crawler that a
+       half-translated page is a legitimate translation of this one. */
+    it("never advertises an unpublished dictionary", () => {
+      expect(localeAlternates("/")).not.toHaveProperty("ja");
+      expect(Object.keys(localeAlternates("/"))).toEqual([
+        ...publishedLocales,
+        "x-default",
+      ]);
     });
 
     it("uses default locale for x-default", () => {
@@ -77,9 +120,9 @@ describe("locale", () => {
       expect(alternates["x-default"]).toBe(`/${defaultLocale}/about`);
     });
 
-    it("includes all shipped locales", () => {
+    it("includes all published locales", () => {
       const alternates = localeAlternates("/test");
-      for (const locale of locales) {
+      for (const locale of publishedLocales) {
         expect(alternates[locale]).toBeDefined();
       }
     });
@@ -121,10 +164,18 @@ describe("locale", () => {
       expect(resolveLocaleFromAcceptLanguage("ko, fr, id")).toBe("id");
     });
 
-    it("resolves every shipped locale tag", () => {
-      for (const locale of locales) {
+    it("resolves every published locale tag", () => {
+      for (const locale of publishedLocales) {
         expect(resolveLocaleFromAcceptLanguage(locale)).toBe(locale);
       }
+    });
+
+    /* The skeleton dictionary must not pull traffic: a Japanese browser gets
+       the fallback page, which exists, instead of a route that would 404. */
+    it("falls back rather than resolving a locale with no routes", () => {
+      expect(resolveLocaleFromAcceptLanguage("ja")).toBe(defaultLocale);
+      expect(resolveLocaleFromAcceptLanguage("ja-JP,ja;q=0.9")).toBe(defaultLocale);
+      expect(resolveLocaleFromAcceptLanguage("ja, id;q=0.4")).toBe("id");
     });
 
     it("ignores wildcard and zero-quality tags", () => {

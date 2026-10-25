@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   formatTemplate,
@@ -7,6 +8,7 @@ import {
   type NavItem,
   type PortfolioContent,
 } from "@/lib/content";
+import { localizedPath } from "@/lib/locale";
 import { LocalClock } from "@/components/local-clock";
 import { OfflineIndicator } from "@/components/offline-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -25,6 +27,8 @@ import { ScrollSectionCounter } from "@/components/scroll-section-counter";
 export type HeaderContent = {
   locale: Locale;
   nav: NavItem[];
+  /** The page routes (blog, contact, resume), rendered in the mobile panel. */
+  pageLinks: NavItem[];
   site: Pick<PortfolioContent["site"], "name" | "initials" | "timezone">;
   /* Everything the header renders except the 404 copy, which belongs to a
      boundary this component never sees. */
@@ -60,7 +64,7 @@ function readActiveSectionId(navEntries: NavItem[]): string | null {
  * and a scrolled-state border. Everything measures once per frame at most
  * (rAF-throttled) and every visual change is transform/opacity only.
  */
-export function Header({ locale, nav, site, ui }: HeaderContent) {
+export function Header({ locale, nav, pageLinks, site, ui }: HeaderContent) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const desktopNavRef = useRef<HTMLDivElement | null>(null);
@@ -410,6 +414,38 @@ export function Header({ locale, nav, site, ui }: HeaderContent) {
                     {String(navIndex + 1).padStart(2, "0")}
                   </span>
                 </a>
+              </li>
+            ))}
+            {/* Page routes, not section anchors: they leave this page, so they
+                get a forward chevron instead of the section index. */}
+            {pageLinks.map((pageLink) => (
+              <li
+                key={pageLink.href}
+                className="border-b border-line last:border-b-0"
+              >
+                <Link
+                  href={localizedPath(locale, pageLink.href)}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-between gap-4 py-3.5 text-sm text-ink-muted transition-colors duration-150 hover:text-ink"
+                >
+                  {pageLink.label}
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
+                    className="text-ink-faint"
+                  >
+                    <path
+                      d="M2.5 6h7M6.5 3l3 3-3 3"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Link>
               </li>
             ))}
             {/* Below `sm` this row is the only way to change language, which is

@@ -130,7 +130,14 @@ export type PortfolioContent = {
 
   heroMeta: MetaRow[];
   stackStrip: string[];
+  /** In-page section anchors on the home page. The header tracks these. */
   nav: NavItem[];
+  /**
+   * Site-wide page links (blog, contact, resume). Locale-free hrefs, like
+   * `Project.href`: every surface prefixes them with `localizedPath`, so a
+   * hand-written `/blog` can never drop the visitor into the wrong language.
+   */
+  pageLinks: NavItem[];
 
   work: {
     heading: string;
@@ -142,6 +149,27 @@ export type PortfolioContent = {
 
   featuredProject: Project;
   projects: Project[];
+
+  /**
+   * Chrome for the blog index and article pages. The articles themselves are
+   * MDX files in `content/blog`, not dictionary entries — a post is long-form
+   * prose with its own frontmatter, so it is content, not copy.
+   */
+  blog: {
+    heading: string;
+    /** The mono eyebrow above the headline. */
+    kicker: string;
+    description: string;
+    emptyState: string;
+    /**
+     * `{count}` is replaced with the number of published posts, and `{plural}`
+     * with the language's plural suffix (`""` or `"s"` in English). A locale
+     * that does not inflect simply omits the token.
+     */
+    countTemplate: string;
+    allPosts: string;
+    backToHome: string;
+  };
 
   capabilities: {
     heading: string;
@@ -178,9 +206,48 @@ export type PortfolioContent = {
     socialsLabel: string;
   };
 
+  /**
+   * Chrome for the standalone `/contact` page. The form fields, their
+   * placeholders and every status line live here too — the page used to
+   * hard-code its copy, which meant `/id/contact` spoke English.
+   *
+   * The server action's own messages (rate limit, Resend failures) stay
+   * English on purpose: they are rare, and localising them would drag a
+   * dictionary into a "use server" module.
+   */
+  contactPage: {
+    kicker: string;
+    heading: string;
+    lede: string;
+    formLabel: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    messageLabel: string;
+    messagePlaceholder: string;
+    submitLabel: string;
+    submittingLabel: string;
+    successTitle: string;
+    successBody: string;
+    errorLabel: string;
+    rateLimitNote: string;
+    preferEmail: string;
+  };
+
+  /** Chrome for the `/resume` document and its PDF export. */
+  resumePage: {
+    /** `{name}` is replaced — the metadata title. */
+    documentTitleTemplate: string;
+    summaryHeading: string;
+    downloadLabel: string;
+  };
+
   socials: SocialLink[];
 
   footer: {
+    /** `aria-label` for the row of site-page links. */
+    pagesLabel: string;
     /** `{year}` and `{name}` are replaced. */
     copyrightTemplate: string;
     backToTop: string;

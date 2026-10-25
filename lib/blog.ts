@@ -15,6 +15,27 @@ export type BlogPost = {
 
 const postsDirectory = path.join(process.cwd(), "content/blog");
 
+/**
+ * How a post's date reads in each locale.
+ *
+ * A `Record<Locale, …>` rather than a chain of ternaries: adding a locale is a
+ * compile error here, instead of quietly formatting its dates in English.
+ */
+const INTL_LOCALE: Record<Locale, string> = {
+  en: "en-US",
+  id: "id-ID",
+  ja: "ja-JP",
+};
+
+/** `2026-10-20` → "20 Oktober 2026" (id) / "October 20, 2026" (en). */
+export function formatPostDate(date: string, locale: Locale): string {
+  return new Date(date).toLocaleDateString(INTL_LOCALE[locale], {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 /** Nama file postingan berformat `slug.<locale>.mdx`; slug tidak boleh kosong. */
 const POST_FILE_PATTERN = /^(.+)\.(en|id|ja)\.mdx$/;
 

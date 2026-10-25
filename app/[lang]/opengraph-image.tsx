@@ -1,4 +1,9 @@
-import { defaultLocale, getContent, isLocale, locales } from "@/lib/content";
+import {
+  defaultLocale,
+  getContent,
+  isPublishedLocale,
+  publishedLocales,
+} from "@/lib/content";
 import {
   ogContentType,
   ogPalettes,
@@ -26,9 +31,9 @@ export const size = ogSize;
 export const contentType = ogContentType;
 
 /**
- * Prerendered for both locales at build time. Declared here rather than
- * inherited: a metadata image in a dynamic segment is otherwise generated on
- * every crawler fetch, which would make the one asset a social platform is
+ * Prerendered for every published locale at build time. Declared here rather
+ * than inherited: a metadata image in a dynamic segment is otherwise generated
+ * on every crawler fetch, which would make the one asset a social platform is
  * guaranteed to ask for the only uncached route on the site.
  */
 export const dynamicParams = false;
@@ -37,7 +42,7 @@ export function generateStaticParams() {
   /* `__metadata_id__` is part of this route's params because the image is
      described by `generateImageMetadata`; both halves have to be enumerated
      for the route to be treated as static. */
-  return locales.map((lang) => ({ lang, __metadata_id__: "card" }));
+  return publishedLocales.map((lang) => ({ lang, __metadata_id__: "card" }));
 }
 
 export async function generateImageMetadata({
@@ -46,7 +51,7 @@ export async function generateImageMetadata({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const content = getContent(isLocale(lang) ? lang : defaultLocale);
+  const content = getContent(isPublishedLocale(lang) ? lang : defaultLocale);
 
   return [
     {
@@ -64,7 +69,7 @@ export default async function LocaleOpengraphImage({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const content = getContent(isLocale(lang) ? lang : defaultLocale);
+  const content = getContent(isPublishedLocale(lang) ? lang : defaultLocale);
 
   return renderOgCard(ogPalettes.dark, content);
 }

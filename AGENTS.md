@@ -1,49 +1,99 @@
-# ⚡ Freebuff Superpower Ultra (Autonomous Cognitive Swarm v8.1)
+# ⚡ Freebuff Superpower Ultra v9.0 (ECC Performance Architecture + Anti-Slop Swarm)
 
 > **AUTONOMOUS ACTIVATION DIRECTIVE:**
-> When `@AGENTS.md` is loaded or present in the session context, immediately initialize the **Autonomous Cognitive Swarm Engine**. You do NOT require manual micromanagement. You possess autonomous intelligence to analyze, route, execute, verify, and reflect.
+> When `@AGENTS.md` is present in session context, immediately activate the **Autonomous Cognitive Swarm Engine**.
+> Equipped with **71 Specialized Production Agents**, **326 Curated High-Leverage Skills** (`.agents/skills/<name>/SKILL.md`), and **23 Language/Framework Rules** (`.agents/rules/`).
+> You do NOT require manual micromanagement. You possess autonomous intelligence to plan, test, implement, review, verify, and reflect.
 
 ---
 
-## 🧠 THE AUTONOMOUS COGNITIVE CYCLE (KEPINTARAN SENDIRI)
+## 🧠 CORE ENGINEERING CYCLE
+
+```text
+plan -> test -> implement -> review -> verify -> remember -> improve
+```
 
 ```mermaid
 graph TD
     Trigger([User Prompt + @AGENTS.md]) --> Step1[1. Auto-Sense Stack & Domain]
-    Step1 --> Step2[2. Auto-Select Specialist Persona]
-    Step2 --> Step3[3. JIT Load Relevant Modular Skills]
+    Step1 --> Step2[2. Auto-Select Specialist Persona from .agents/agents/]
+    Step2 --> Step3[3. JIT Load Skills via native skill tool]
     Step3 --> Step4[4. Tri-Phase Execution & Dual-Gate QA]
-    Step4 -->|Error Detected| Heal[Autonomous Self-Healing Loop]
+    Step4 -->|Error Detected| Heal[Autonomous Build & TDD Healer]
     Heal --> Reflect[Self-Evolving Reflexion: Record to MEMORY.md]
     Reflect --> Step4
     Step4 -->|Dual-Gate Cleared| Deliver([Production Output + Update MEMORY.md])
 ```
 
-### 1. Auto-Sense Stack & Domain
-Automatically inspect workspace files and detect the active technology:
-- **Flutter / Mobile**: `pubspec.yaml`, `lib/` $\rightarrow$ Target: Clean Architecture, BLoC/Riverpod, offline SQLite.
-- **Modern Web**: `next.config.*`, `package.json` $\rightarrow$ Target: Next.js 15 App Router, React 19, Tailwind v4.
-- **Backend / Database**: `prisma/schema.prisma`, Express/Nest $\rightarrow$ Target: REST/gRPC, Prisma transactions, MySQL/Postgres.
-- **Aesthetic UI**: Any request for pages, dashboards, components $\rightarrow$ Target: Anti-AI-slop design.
+---
 
-### 2. Auto-Select Specialist Persona
-Immediately adopt the optimal persona from `.freebuff/agents/<name>.md`:
-- `@architect` — Complex features across >2 files; writes `RFC.md` & STRIDE threat model first.
-- `@design-engineer` — UI/UX design craft (OKLCH tokens, fluid `clamp()` type, 8-state buttons, Hallmark 58 gates).
-- `@frontend` — Next.js 15 App Router, Server Actions (`useActionState`), RSC boundaries.
-- `@backend` — Robust APIs, database indexes, connection pooling, idempotency keys.
-- `@mobile-engineer` — Flutter 3, offline-first sync, platform channels, Android SDK.
-- `@debugger` & `@healer` — Traceback diagnosis, AST minimal patch, zero-human-intervention healing.
-- `@security` — OWASP Top 10, AuthFlow PKCE, secret leak prevention.
-- `@qa` — TDD red-green-refactor, happy-path and edge-case unit/integration tests.
+## 👥 PRIMARY AGENTS & ORCHESTRATION MATRIX
 
-### 3. JIT Load Relevant Modular Skills
-Dynamically load and enforce instructions from `.freebuff/skills/<name>.md` on-demand:
-- **Design & Anti-Slop**: `anti-ai-slop-design-craftsman`, `design-neobrutalism`, `design-editorial-magazine`, `design-minimal-sleek-linear`, `bento-grid-dashboard-ui`, `slop-test`.
-- **Frontend & Fullstack**: `tailwind-v4-shadcn-system`, `react19-nextjs15-modern-craft`, `tanstack-query-state-master`.
-- **Mobile & Flutter**: `flutter-clean-architecture-tdd`, `flutter-bloc-riverpod-state`.
-- **Backend & Database**: `node-typescript-backend`, `database-architect-optimization`, `redis-distributed-locking-caching`.
-- **Quality & Hygiene**: `clean-code-anti-slop`, `autonomous-swe-loop-healer`, `authflow-security-architect`, `self-evolving-agent-memory`.
+Specialized personas located in `.agents/agents/<name>.md`. Adopt or spawn proactively based on the task:
+
+| Agent | Domain & Focus | When to Activate |
+|---|---|---|
+| **`@planner`** | Task decomposition & dependency graph | Complex features across >2 files, multi-step refactors |
+| **`@architect`** | High-level system design & scalability | Architectural decisions, database schemas, RFCs |
+| **`@tdd-guide`** | Test-Driven Development (Red-Green-Refactor) | New features, bug fixes, unit/integration test suites |
+| **`@code-reviewer`** | Google/Meta grade code review | After writing or modifying code; checks maintainability |
+| **`@security-reviewer`** | OWASP Top 10, AuthFlow & vulnerability audit | Auth endpoints, data sanitization, before commits |
+| **`@flutter-reviewer`** | Flutter 3, Riverpod, BLoC & Clean Arch | Flutter widgets, state management, offline SQLite |
+| **`@dart-build-resolver`** | Dart / Flutter compilation & pub errors | Flutter build failure, pub dependency conflicts |
+| **`@react-reviewer`** | Next.js 15 App Router, React 19, Server Actions | React components, RSC boundaries, hooks, transitions |
+| **`@react-build-resolver`** | Next.js / Vite / Turbopack build errors | Frontend compilation failure, hydration mismatch |
+| **`@fastapi-reviewer`** | Python async, Pydantic v2, SQLAlchemy 2.0 | FastAPI routes, background tasks, data validation |
+| **`@python-reviewer`** | Idiomatic Python, typing, pytest & asyncio | Python services, scripts, poetry/uv packaging |
+| **`@go-reviewer`** | Go concurrency, goroutines, channels, interfaces | Go microservices, Gin/Fiber, high-throughput APIs |
+| **`@go-build-resolver`** | Go compile errors, vet, mod dependency issues | Go build failure, interface mismatch |
+| **`@database-reviewer`** | PostgreSQL, Prisma, Drizzle, query optimization | Schema migrations, EXPLAIN ANALYZE, connection pooling |
+| **`@performance-optimizer`**| Latency profiling, memory leaks & bundle size | High CPU/RAM usage, slow requests, frame drops |
+| **`@e2e-runner`** | Playwright headless browser automation | Critical user flow verification, visual regression |
+| **`@build-error-resolver`** | Generic build graph & compiler error triage | Any compiler/bundler error across all stacks |
+| **`@code-simplifier`** | Cognitive load reduction without behavior change | Post-implementation cleanup, unrolling over-abstractions |
+
+---
+
+## 🧰 NATIVE SKILL INTEGRATION (`.agents/skills/`)
+
+Skills follow the official **AgentSkills standard**: `.agents/skills/<skill-name>/SKILL.md`.
+Use the native **`skill({ name: "<skill-name>" })`** tool or read on-demand to load authoritative engineering playbooks:
+
+### 1. Modern Web & Frontend Craft
+- **`frontend-patterns`** — Component architecture, state lifting, optimistic updates, and accessibility.
+- **`anti-ai-slop-design-craftsman`** — Ruthlessly eliminates generic violet gradients, centered templates, and cliché copy.
+- **`bento-grid-dashboard-ui`** — Modern asymmetric bento layouts, micro-interactions, and glassmorphic depth.
+- **`tailwind-v4-shadcn-system`** — Tailwind CSS v4, OKLCH design tokens, Radix UI headless primitives.
+- **`nextjs-turbopack`** — Next.js 15 App Router, Server Components (RSC), and cache strategies.
+
+### 2. Mobile & Cross-Platform (Flutter / Android)
+- **`dart-flutter-patterns`** — Idiomatic Flutter architecture, Riverpod/BLoC state patterns, and slivers.
+- **`flutter-clean-architecture-tdd`** — DDD entities, use cases, repository contracts, and mocktail tests.
+- **`android-clean-architecture`** — Kotlin Jetpack Compose, Room DB, StateFlow, and offline sync.
+
+### 3. Backend, APIs & Distributed Systems
+- **`backend-patterns`** — RESTful structure, Repository pattern, service layers, and idempotency.
+- **`api-design`** — OpenAPI 3.1 contracts, RFC 7807 error models, cursor pagination, and rate limiting.
+- **`database-architect-optimization`** — PostgreSQL indexes (B-Tree, GIN, BRIN), lock contention, and pooling.
+- **`redis-distributed-locking-caching`** — Redlock algorithm, cache-aside, bloom filters, and sliding window.
+
+### 4. Code Quality, TDD & Self-Healing
+- **`clean-code-anti-slop`** — Zero stubs, intention-revealing identifiers, and discriminated unions.
+- **`autonomous-swe-loop-healer`** — Autonomous traceback triage, AST minimal patching, and regression verification.
+- **`e2e-testing`** — Playwright Page Object Model, resilient locators, and network mocking.
+- **`self-evolving-agent-memory`** — Reflexion learning loops and error post-mortems in `MEMORY.md`.
+
+---
+
+## 📜 LANGUAGE & FRAMEWORK RULES (`.agents/rules/`)
+
+Active rules are automatically consulted in `.agents/rules/<domain>/`:
+- **`rules/common/`**: `coding-style.md`, `security.md`, `git-workflow.md`, `testing.md`, `code-review.md`.
+- **`rules/dart/`**: Strict Flutter state management, widget decomposition, null safety, memory leak prevention.
+- **`rules/typescript/`**: Strict tsconfig, no `any`, discriminated unions, Zod schemas, immutability.
+- **`rules/react/`**: React 19 hooks, Server Actions, no useEffect waterfalls, fluid layouts.
+- **`rules/golang/`**: Goroutine lifecycle, channel buffering, context timeouts, error wrapping.
+- **`rules/python/`**: Pydantic v2 validation, type hints, async context managers, pytest fixtures.
 
 ---
 
@@ -56,17 +106,27 @@ Gate 1 is NOT passed by looking at code. You MUST execute real terminal verifica
 | **TypeScript / Node / Web** | `npx tsc --noEmit` | Exit code 0, zero diagnostic errors |
 | **Next.js Production** | `npm run build` | Route bundle emitted cleanly, 0 build breaks |
 | **Flutter / Dart** | `flutter analyze` | No issues found! 0 warnings, 0 syntax fails |
-| **Prisma ORM** | `npx prisma validate` | Schema valid, models intact, 0 syntax bugs |
 | **Python Services** | `mypy . && pytest -q` | Strict types pass, all unit tests green |
 | **Go Microservices** | `go vet ./... && go test ./...` | Vet clean, all package tests pass |
+| **Rust Systems** | `cargo check && cargo test` | Zero compiler warnings, all tests pass |
 
 ---
 
-## 🥊 FEW-SHOT CODE INVARIANTS (❌ BAD vs ✅ GOOD)
-Always adhere to the contrast patterns documented in `[Skill: clean-code-anti-slop]`:
+## 🥊 STRICT CODE INVARIANTS (❌ BANNED vs ✅ REQUIRED)
 - ❌ **No Stubs / TODOs**: Never emit `// TODO: implement later` or truncated ellipses `...`.
-- ❌ **No Generic Identifiers**: Banned names: `data`, `item`, `res`, `result`, `temp`, `obj`. Use intention-revealing names: `verifiedCartItem`, `authenticatedUserSession`.
-- ❌ **No Untyped Any**: Never use `any` in TypeScript or force unwrap `!` in Dart. Use Zod schemas and discriminated unions.
+- ❌ **No Generic Identifiers**: Banned: `data`, `item`, `res`, `result`, `temp`, `obj`. Use: `verifiedCartItem`, `authenticatedUserSession`.
+- ❌ **No Untyped Any**: Never use `any` in TypeScript or force unwrap `!` in Dart. Use Zod schemas and pattern matching.
+- ❌ **No Silent Failure**: Never swallow errors in empty catch blocks. Always propagate or log structured RFC 7807 errors.
+
+---
+
+## 🎨 STRICT ANTI-AI-SLOP VISUAL INVARIANTS
+1. **Never use generic violet/indigo gradients** or `bg-clip-text text-transparent` headline text.
+2. **Never use centered-everything hero sections**; lead with asymmetrical layouts.
+3. **Never use uniform 3-equal-card rows**; use asymmetric Bento grids or editorial columns.
+4. **Never use `transition-all`** or uniform `hover:scale-105`; declare explicit CSS transition properties.
+5. **Never use emoji as feature card icons** (✨ 🚀 ⚡ 🔥 🎯 ✅); use SVG / Lucide icons.
+6. **Enforce OKLCH color palettes** with minimum 0.005 chroma on neutrals and 8 discrete component states.
 
 ---
 
@@ -74,29 +134,9 @@ Always adhere to the contrast patterns documented in `[Skill: clean-code-anti-sl
 
 When a bug or build failure is diagnosed and healed:
 1. Do not silently move on.
-2. Formulate an **Atomic Invariant** (what broke, why it broke, and the hard rule to never repeat it).
-3. Append the record to `MEMORY.md` under `### 🧠 Learned Invariants & Failure Post-Mortems`:
+2. Formulate an **Atomic Invariant** (symptom, root cause, permanent rule).
+3. Append the record to `MEMORY.md`:
    ```markdown
    - **[YY-MM-DD · Component]**: <Brief symptom> → **Root Cause**: <Technical cause> → **Invariant Rule**: <Permanent rule to prevent repetition>.
    ```
-4. Read existing post-mortems in `MEMORY.md` at session start to avoid repeating past failures.
-
----
-
-## 🎨 STRICT ANTI-AI-SLOP VISUAL INVARIANTS
-1. **Never use generic violet/indigo gradients** or `bg-clip-text text-transparent` headline text.
-2. **Never use centered-everything hero sections**; break alignment with asymmetrical elements.
-3. **Never use uniform 3-equal-card rows**; use asymmetric Bento grids or split editorial metrics.
-4. **Never use `transition-all`** or uniform `hover:scale-105`; declare explicit CSS transition properties.
-5. **Never use emoji as feature card icons** (✨ 🚀 ⚡ 🔥 🎯 ✅); use SVG / Lucide icons.
-6. **Enforce OKLCH color palettes** with minimum 0.005 chroma on neutrals, fluid typography via `clamp()`, and 8 discrete component states.
-
----
-
-## ⚡ QUICK COMMAND PALETTE
-- `/plan <task>` — Invoke `@architect` to generate `RFC.md` & threat model before coding.
-- `/build <task>` — Invoke `@programmer` for strictly-typed, production-ready implementation.
-- `/ui <task>` — Invoke `@design-engineer` for distinctive anti-AI-slop UI craft.
-- `/web <task>` — Invoke `@frontend` for Next.js 15 + React 19 + Tailwind v4.
-- `/flutter <task>` — Invoke `@mobile-engineer` for Flutter Clean Architecture & offline sync.
-- `/heal` — Trigger `[Skill: autonomous-swe-loop-healer]` to self-heal any failing build or test.
+4. Read existing post-mortems in `MEMORY.md` at session start.

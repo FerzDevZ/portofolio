@@ -21,7 +21,7 @@ export function Capabilities({ content }: { content: PortfolioContent }) {
         </header>
       </RevealSection>
 
-      <RevealSection delayMs={80}>
+      <RevealSection>
         <div className="grid grid-cols-1 gap-10 py-12 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-24">
@@ -89,7 +89,7 @@ export function Experience({ content }: { content: PortfolioContent }) {
         </header>
       </RevealSection>
 
-      <RevealSection delayMs={80}>
+      <RevealSection>
         <ol className="pb-4">
         {experience.items.map((roleEntry) => (
           <li

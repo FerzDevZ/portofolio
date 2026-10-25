@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
 import { getBlogPosts } from "@/lib/blog";
 import { getContent, resolveSiteUrl } from "@/lib/content";
-import { isLocale, type Locale } from "@/lib/locale";
+import { isPublishedLocale } from "@/lib/locale";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ lang: string }> },
 ) {
   const { lang } = await params;
-  if (!isLocale(lang)) {
+  /* Only published locales have articles, so an unpublished one is a 404 here
+     rather than a feed that validates but lists nothing. */
+  if (!isPublishedLocale(lang)) {
     return new NextResponse("Not Found", { status: 404 });
   }
 
-  const locale = lang as Locale;
-  const content = getContent(locale);
+  const content = getContent(lang);
   const siteUrl = resolveSiteUrl(content.site.url);
-  const posts = getBlogPosts(locale);
+  const posts = getBlogPosts(lang);
 
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">

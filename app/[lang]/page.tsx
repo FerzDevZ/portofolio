@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { getContent, isLocale, localeAlternates, localizedPath } from "@/lib/content";
+import {
+  getContent,
+  isPublishedLocale,
+  localeAlternates,
+  localizedPath,
+} from "@/lib/content";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
 import { Work } from "@/components/work";
@@ -28,7 +33,7 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLocale(lang)) return {};
+  if (!isPublishedLocale(lang)) return {};
 
   return {
     alternates: {
@@ -44,7 +49,7 @@ export default async function Home({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  if (!isLocale(lang)) notFound();
+  if (!isPublishedLocale(lang)) notFound();
 
   const content = getContent(lang);
   /* The header renders the nav, the clock and a handful of controls. Passing
@@ -60,6 +65,7 @@ export default async function Home({
       <Header
         locale={content.locale}
         nav={content.nav}
+        pageLinks={content.pageLinks}
         site={{
           name: content.site.name,
           initials: content.site.initials,

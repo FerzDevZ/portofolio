@@ -80,16 +80,16 @@ export const ogPalettes: Record<"dark" | "light", OgPalette> = {
     badgeFill: "rgba(232, 233, 235, 0.05)", // --color-veil-soft
   },
   light: {
-    // --color-panel (the light block in globals.css)
-    surface: "#fbfeff",
+    // --color-panel (the "day paper" light block in globals.css)
+    surface: "#fefcf7",
     glow: "rgba(0, 109, 195, 0.08)", // --color-accent, restrained on paper
-    ink: "#131922", // --color-ink
-    inkMuted: "#4c535e", // --color-ink-muted
-    inkFaint: "#636972", // --color-ink-faint
+    ink: "#1f1a10", // --color-ink
+    inkMuted: "#585246", // --color-ink-muted
+    inkFaint: "#6b655b", // --color-ink-faint
     accent: "#006dc3", // --color-accent
-    live: "#008a4e", // --color-live
-    hairline: "rgba(19, 25, 34, 0.14)", // --color-ink at hairline strength
-    badgeFill: "rgba(19, 25, 34, 0.04)", // --color-veil-soft
+    live: "#00753a", // --color-live
+    hairline: "rgba(31, 26, 16, 0.14)", // --color-ink at hairline strength
+    badgeFill: "rgba(31, 26, 16, 0.04)", // --color-veil-soft
   },
 };
 

@@ -65,6 +65,12 @@ export const content: PortfolioContent = {
     { label: "[Contact]", href: "#contact" },
   ],
 
+  pageLinks: [
+    { label: "[Blog]", href: "/blog" },
+    { label: "[Contact]", href: "/contact" },
+    { label: "[Resume]", href: "/resume" },
+  ],
+
   work: {
     heading: "01 — [Selected work]",
     countTemplate: "{count} [projects]",
@@ -103,6 +109,16 @@ export const content: PortfolioContent = {
 
   projects: [],
 
+  blog: {
+    heading: "[Blog]",
+    kicker: "[Writing]",
+    description: "[Japanese blog description to be translated]",
+    emptyState: "[Japanese empty state to be translated]",
+    countTemplate: "{count} [posts]",
+    allPosts: "[All posts]",
+    backToHome: "[Back to home]",
+  },
+
   capabilities: {
     heading: "02 — [Capabilities]",
     note: "[what I do]",
@@ -135,6 +151,32 @@ export const content: PortfolioContent = {
     socialsLabel: "[Social links]",
   },
 
+  contactPage: {
+    kicker: "[Contact]",
+    heading: "[Get in touch]",
+    lede: "[Japanese contact lede to be translated]",
+    formLabel: "[Send a message]",
+    nameLabel: "[Name]",
+    namePlaceholder: "[Your name]",
+    emailLabel: "[Email]",
+    emailPlaceholder: "[your email]",
+    messageLabel: "[Message]",
+    messagePlaceholder: "[Tell me about your project]",
+    submitLabel: "[Send message]",
+    submittingLabel: "[Sending]",
+    successTitle: "[Message sent]",
+    successBody: "[Japanese success body to be translated]",
+    errorLabel: "[Error:]",
+    rateLimitNote: "[Rate limited to 1 message per minute]",
+    preferEmail: "[Prefer email?]",
+  },
+
+  resumePage: {
+    documentTitleTemplate: "{name} — [Resume]",
+    summaryHeading: "[Professional Summary]",
+    downloadLabel: "[Download PDF]",
+  },
+
   socials: [
     {
       label: "GitHub",
@@ -160,6 +202,7 @@ export const content: PortfolioContent = {
   ],
 
   footer: {
+    pagesLabel: "[Pages]",
     copyrightTemplate: "© {year} {name} — [built in Next.js & Tailwind]",
     backToTop: "[Back to top] ↑",
     motionToggleLabel: "[3D motion]",

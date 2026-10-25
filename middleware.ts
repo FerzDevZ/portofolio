@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { isLocale, resolveLocaleFromAcceptLanguage } from "@/lib/locale";
+import { isPublishedLocale, resolveLocaleFromAcceptLanguage } from "@/lib/locale";
 
 /**
  * Sends an unprefixed path to a locale.
@@ -23,6 +23,10 @@ import { isLocale, resolveLocaleFromAcceptLanguage } from "@/lib/locale";
  * win — but only when they name a host this deployment already knows, because
  * `X-Forwarded-Host` is an ordinary request header and an unchecked value
  * turns the redirector into an open redirect.
+ *
+ * Only *published* locales are accepted here. `ja` has a dictionary skeleton
+ * but no routes, so a stale `NEXT_LOCALE=ja` cookie or an `Accept-Language: ja`
+ * must not be allowed to send a visitor to a page that does not exist.
  */
 
 /** A host with an optional port. Anything else is not a host we will echo. */
@@ -116,7 +120,7 @@ export function middleware(request: NextRequest) {
      Next matches case-insensitively, so it would otherwise render a page whose
      `lang` is `EN` and then 404 on the locale guard. Canonicalise the case and
      remember the explicit choice. */
-  if (isLocale(normalizedSegment)) {
+  if (isPublishedLocale(normalizedSegment)) {
     if (normalizedSegment === firstSegment) {
       return rememberLocale(NextResponse.next(), normalizedSegment);
     }
@@ -136,7 +140,7 @@ export function middleware(request: NextRequest) {
   if (/\.[^/]+$/.test(pathname)) return NextResponse.next();
 
   const savedLocale = request.cookies.get(COOKIE_NAME)?.value;
-  const locale = isLocale(savedLocale)
+  const locale = isPublishedLocale(savedLocale)
     ? savedLocale
     : resolveLocaleFromAcceptLanguage(request.headers.get("accept-language"));
 
@@ -167,12 +171,16 @@ export const config = {
   /**
    * Everything except Next's own output (which includes the dev HMR socket)
    * and the file-convention endpoints that must stay unprefixed: icons, the
-   * manifest, the OG images, the service worker, robots and the sitemap.
-   * Dotted paths are no longer excluded here — `/id/foo.bar` is a page under a
-   * locale and has to reach the localized 404 — so the extension check moved
-   * into the handler, where it can be conditional.
+   * manifest, the OG images, the service worker, robots, the sitemap, and
+   * `/api`. An endpoint is not a page and must not be locale-prefixed — and
+   * `api` is three letters, so without this exclusion the first segment reads
+   * as a language tag, the request is rewritten to `/en/api/resume`, and the
+   * catch-all answers with the localized 404 while the route handler is never
+   * reached. Dotted paths are no longer excluded here — `/id/foo.bar` is a
+   * page under a locale and has to reach the localized 404 — so the extension
+   * check moved into the handler, where it can be conditional.
    */
   matcher: [
-    "/((?!_next/|icon.png|apple-icon.png|manifest.webmanifest|opengraph-image|og-light.png|sw.js|favicon.ico|robots.txt|sitemap.xml).*)",
+    "/((?!_next/|api/|icon.png|apple-icon.png|manifest.webmanifest|opengraph-image|og-light.png|sw.js|favicon.ico|robots.txt|sitemap.xml).*)",
   ],
 };

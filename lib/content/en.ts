@@ -68,6 +68,12 @@ export const content: PortfolioContent = {
     { label: "Contact", href: "#contact" },
   ],
 
+  pageLinks: [
+    { label: "Blog", href: "/blog" },
+    { label: "Contact", href: "/contact" },
+    { label: "Resume", href: "/resume" },
+  ],
+
   work: {
     heading: "01 — Selected work",
     countTemplate: "{count} projects",
@@ -336,6 +342,17 @@ export const content: PortfolioContent = {
     },
   ],
 
+  blog: {
+    heading: "Blog",
+    kicker: "Writing",
+    description:
+      "Notes on frontend craft: design systems, performance budgets, and the details that decide whether an interface feels calm.",
+    emptyState: "No posts yet. The first one is being written.",
+    countTemplate: "{count} post{plural}",
+    allPosts: "All posts",
+    backToHome: "Back to home",
+  },
+
   capabilities: {
     heading: "02 — Capabilities",
     note: "what I do",
@@ -456,6 +473,32 @@ export const content: PortfolioContent = {
     socialsLabel: "Social links",
   },
 
+  contactPage: {
+    kicker: "Contact",
+    heading: "Get in touch",
+    lede: "Available for select projects — design systems, performance work, or interfaces that demand precision. Tell me what you are building and where it hurts.",
+    formLabel: "Send a message",
+    nameLabel: "Name",
+    namePlaceholder: "Your name",
+    emailLabel: "Email",
+    emailPlaceholder: "your@email.com",
+    messageLabel: "Message",
+    messagePlaceholder: "Tell me about your project…",
+    submitLabel: "Send message",
+    submittingLabel: "Sending…",
+    successTitle: "Message sent.",
+    successBody: "You'll get a reply within two working days, usually sooner.",
+    errorLabel: "Error:",
+    rateLimitNote: "Rate limited to 1 message per minute. Your message is never shared.",
+    preferEmail: "Prefer email? Reach me directly:",
+  },
+
+  resumePage: {
+    documentTitleTemplate: "{name} — Resume",
+    summaryHeading: "Professional Summary",
+    downloadLabel: "Download PDF",
+  },
+
   socials: [
     {
       label: "GitHub",
@@ -481,6 +524,7 @@ export const content: PortfolioContent = {
   ],
 
   footer: {
+    pagesLabel: "Pages",
     copyrightTemplate: "© {year} {name} — built in Next.js & Tailwind",
     backToTop: "Back to top ↑",
     motionToggleLabel: "3D motion",

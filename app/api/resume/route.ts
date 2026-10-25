@@ -1,19 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
-import { isLocale } from "@/lib/locale";
+import { isPublishedLocale } from "@/lib/locale";
 
 /**
  * PDF resume generator — renders the print-optimized /[lang]/resume page.
  *
  * GET /api/resume?lang=en → Ferdinand_Dero_Saputra_Resume.pdf
  * Puppeteer uses the @media print styles already in globals.css.
+ *
+ * Only *published* locales are accepted. `ja` has a dictionary skeleton but no
+ * routes, so `isLocale` let it through and Chromium happily paginated the 404
+ * document into a file named `..._Resume.pdf`. Routing is the predicate that
+ * decides this question everywhere else on the site, so it decides here too.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const lang = searchParams.get("lang") || "en";
 
-  if (!isLocale(lang)) {
+  if (!isPublishedLocale(lang)) {
     return NextResponse.json(
       { error: `Unsupported locale: ${lang}` },
       { status: 400 },

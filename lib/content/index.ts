@@ -2,11 +2,14 @@ import type { PortfolioContent } from "@/lib/content/types";
 import {
   defaultLocale,
   isLocale,
+  isPublishedLocale,
   localeAlternates,
   locales,
   localizedPath,
+  publishedLocales,
   resolveLocaleFromAcceptLanguage,
   type Locale,
+  type PublishedLocale,
 } from "@/lib/locale";
 import { content as englishContent } from "@/lib/content/en";
 import { content as indonesianContent } from "@/lib/content/id";
@@ -34,19 +37,23 @@ export type {
 export {
   defaultLocale,
   isLocale,
+  isPublishedLocale,
   localeAlternates,
   locales,
   localizedPath,
+  publishedLocales,
   resolveLocaleFromAcceptLanguage,
   type Locale,
+  type PublishedLocale,
 };
 
 const dictionaryByLocale: Record<Locale, PortfolioContent> = {
   en: englishContent,
   id: indonesianContent,
   /* Placeholder copy: `lib/content/ja.ts` is the prep-only skeleton. It is
-     registered here so every `Record<Locale, …>` consumer typechecks and the
-     routes resolve; the strings themselves are translated before `/ja` ships. */
+     registered here so every `Record<Locale, …>` consumer typechecks, and it is
+     deliberately absent from `publishedLocales` until the strings are
+     translated — a dictionary is not a route. */
   ja: japaneseContent,
 };
 

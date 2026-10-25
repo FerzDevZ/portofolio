@@ -144,3 +144,43 @@ P0.1 riset repo GitHub → P0.2–3 rewrite konten → gate build
   overflow 320px, lightbox, count-up, pratinjau), axe pada beranda, ESLint,
   dan Lighthouse dengan ambang di `lighthouserc.json`.
 
+---
+
+## Selesai per 25 Oktober 2026 — roadmap v3 (konsistensi tema & aksesibilitas)
+
+Setelah audit ulang seluruh kode, sisa temuan terbesar bukan lagi fitur baru
+melainkan *fork desain* dan jaring pengaman yang bolong. Semua dikerjakan:
+
+- **Halaman contact disatukan ke sistem desain** — palet kertas + serif +
+  copy Inggris hard-code diganti token situs + kamus `contactPage`
+  (`/id/contact` sekarang berbahasa Indonesia), layout asimetris ala
+  blog/case-study, chrome lengkap (SkipLink, ThemeToggle, LanguageSwitch),
+  guard `isLocale` → `isPublishedLocale`.
+- **Halaman resume** — judul & heading dari kamus `resumePage`, bar screen-only
+  kini memuat LanguageSwitch + ThemeToggle + tautan **Download PDF**
+  (`/api/resume` sebelumnya tidak tertaut dari mana pun), guard diperbaiki.
+- **Tema light menjadi "day paper"** — hue netral terang digeser 258 (biru)
+  ke 85 (kertas hangat): dark = studio malam, light = kertas siang. `live`
+  dan `signal` terang diperdalam sampai lolos AA sebagai teks (5.21:1 /
+  6.13:1, terukur); `canvasHex.light` dan palet OG terang di-resample.
+- **Warna sintaks MDX** — rule `.hljs-*` dari token situs (accent/live/
+  signal/ink) untuk kedua tema; pipeline rehype-highlight sudah terpasang
+  sejak awal tapi tidak punya satu pun warna token.
+- **Mikro-UI** — view transitions antar-dokumen (`@view-transition`, mati
+  under reduced-motion), `text-wrap: balance/pretty`, progress bar scroll
+  murni CSS (`animation-timeline: scroll()` + fallback JS), thumbnail
+  sentuh untuk preview proyek (`(hover: none)`), slot sertifikat reserved
+  dengan bingkai dashed + hover, empty state blog dengan CTA pulang.
+- **Aksesibilitas** — rules `forced-colors` (lapisan dekoratif disembunyikan)
+  dan `prefers-contrast: more` (hairline + ink-faint diperkuat per tema);
+  **axe kini juga jalan di tema terang**, plus test terukur kontras
+  aksen-sebagai-teks di kedua tema (≥ 4.5:1).
+- **Tata kelola** — `LanguageSwitch` data-driven dari `publishedLocales`
+  (siap 3 locale), script `test:unit` + step Vitest di CI (sebelumnya unit
+  test tidak pernah dijalankan di CI), README/ARCHITECTURE disegarkan
+  (blog/contact/resume/PDF, langkah `publishedLocales`), `lcp-probe.tmp.mjs`
+  dihapus.
+
+**Masih terbuka (butuh data pemilik):** translasi kamus `ja`, riwayat kerja
+formal + berkas CV, screenshot proyek selain FCopier.
+

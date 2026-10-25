@@ -5,11 +5,14 @@ A bilingual (EN/ID) portfolio site built with Next.js 15 App Router, React 19, a
 ## Features
 
 - **Locale-first architecture**: `/en` and `/id` routes with middleware-based language detection
-- **Fully static**: 26 pages prerendered at build time, zero dynamic routes
-- **Dual-language**: Complete English and Indonesian dictionaries without machine translation
+- **Fully static**: all pages prerendered at build time, zero dynamic routes
+- **Dual-language**: Complete English and Indonesian dictionaries without machine translation (`ja` is a registered skeleton awaiting translation)
+- **Blog**: MDX articles per locale (`content/blog/slug.<locale>.mdx`) with GFM, syntax highlighting, and an RSS feed per locale
+- **Contact form**: Server Action with Zod validation, Upstash-backed rate limiting, and Resend email delivery
+- **Resume**: Print-optimized `/resume` page plus `GET /api/resume` PDF export (Puppeteer + serverless Chromium)
 - **3D hero scene**: Interactive Three.js relief field with pointer interaction and idle animations
 - **Progressive Web App**: Service worker, web manifest, offline support
-- **Accessibility**: WCAG AA compliant, tested with axe-core, keyboard navigation, screen reader support
+- **Accessibility**: WCAG AA compliant, tested with axe-core in both themes, keyboard navigation, screen reader support
 - **Performance**: Lighthouse 100 scores, optimized animations, lazy-loaded 3D canvas
 - **SEO**: Per-locale metadata, hreflang tags, Open Graph images, XML sitemap
 
@@ -52,9 +55,15 @@ portofolio/
 │   │   ├── layout.tsx             # Root layout with <html lang>
 │   │   ├── page.tsx               # Home page
 │   │   ├── projects/[slug]/       # Case study pages
+│   │   ├── blog/                  # Blog index + MDX article pages
+│   │   ├── contact/page.tsx       # Contact page (server-action form)
+│   │   ├── resume/page.tsx        # Print-optimized résumé document
+│   │   ├── feed.xml/route.ts      # Per-locale RSS feed
 │   │   ├── error.tsx              # Error boundary
 │   │   ├── not-found.tsx          # 404 page
 │   │   └── opengraph-image.tsx    # Dynamic OG image per locale
+│   ├── actions/contact.ts         # "use server" contact form action
+│   ├── api/resume/route.ts        # PDF export via Puppeteer
 │   ├── globals.css                # Tailwind v4 styles + CSS custom properties
 │   ├── manifest.ts                # Web app manifest generator
 │   ├── robots.ts                  # robots.txt generator
@@ -81,9 +90,11 @@ portofolio/
 │   │   ├── index.ts               # Content barrel export
 │   │   └── error-copy.ts          # Error boundary copy
 │   ├── locale.ts                  # Locale utilities and Accept-Language parser
+│   ├── blog.ts                    # MDX frontmatter loader (slug.<locale>.mdx)
 │   ├── hero-relief.ts             # 3D wave mathematics
 │   ├── relief-palette.ts          # Theme-aware 3D scene colors
 │   └── brand.ts                   # Brand tokens shared with manifest
+├── content/blog/                  # MDX articles (slug.en.mdx, slug.id.mdx)
 ├── middleware.ts                  # Locale detection and redirect
 ├── public/
 │   ├── sw.js                      # Service worker (offline shell)
@@ -150,17 +161,30 @@ This portfolio implements **locale-first routing** without any i18n library:
 
 ### Adding a new locale
 
-1. Add the locale code to `lib/locale.ts`:
+Adding a locale is a cross-file change with **two locale sets** in `lib/locale.ts`:
+
+1. Register the dictionary in the type universe:
    ```typescript
    export const locales = ["en", "id", "fr"] as const;
    ```
+   This is a compile error everywhere until every `Record<Locale, …>` mapping
+   gains the new key — the dictionary barrel (`lib/content/index.ts`), the
+   error copy, and the 404 boundary.
 
-2. Create `lib/content/fr.ts` implementing the `PortfolioContent` interface
+2. Create `lib/content/fr.ts` implementing `PortfolioContent` and register it
+   in `lib/content/index.ts`.
 
-3. The build will automatically:
-   - Generate routes for `/fr`
-   - Add `hreflang="fr"` to all pages
-   - Include `/fr` URLs in the sitemap
+3. **Ship it last**: move the locale into the routing set. Nothing renders,
+   gets linked, or is advertised to crawlers until this line changes:
+   ```typescript
+   export const publishedLocales = ["en", "id", "fr"] as const satisfies readonly Locale[];
+   ```
+   A locale with a dictionary but no `publishedLocales` entry has no routes —
+   `ja` currently sits in exactly that state.
+
+Once published, `generateStaticParams`, `hreflang`, the sitemap, and the
+middleware accept the locale automatically. Run `pnpm run typecheck` before
+considering the locale ready.
 
 ## Design System
 
@@ -222,7 +246,8 @@ The mathematics live in `lib/hero-relief.ts` and are unit-tested as pure functio
 
 ### Test Suites
 ```bash
-pnpm test              # Run all Playwright tests
+pnpm test:unit         # Vitest unit tests (lib/*.test.ts)
+pnpm test              # All Playwright tests (against the production build)
 pnpm test:install      # Install Chromium (once per machine)
 ```
 

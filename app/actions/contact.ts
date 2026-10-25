@@ -3,8 +3,8 @@
 import { z } from "zod";
 import { Resend } from "resend";
 import { headers } from "next/headers";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { renderContactEmail } from "@/lib/contact-email";
+import { consumeRateLimit, hasDurableRateLimitStore } from "@/lib/rate-limit";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -14,46 +14,39 @@ const contactSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
+/** One message per minute per address, counted in a store every instance shares. */
+const RATE_LIMIT = { limit: 1, windowMs: 60_000 } as const;
+
+let warnedAboutMemoryOnlyLimiting = false;
+
 /**
- * In-memory rate limiter. Production would use Redis with a sliding window.
- * Maps IP address to timestamp of last request.
+ * The Resend client is built per send rather than at module scope.
+ *
+ * `new Resend()` throws when the key is missing, and a module-scope throw turns
+ * a missing environment variable into an action module that cannot load at all.
+ * Reading it here makes the failure a message the visitor (and the log) can see.
  */
-const rateLimitMap = new Map<string, number>();
-const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
-
-function getRealIP(headersList: Headers): string {
-  // Vercel provides the real IP in x-real-ip and x-forwarded-for
-  const xRealIP = headersList.get("x-real-ip");
-  if (xRealIP) return xRealIP;
-
-  const xForwardedFor = headersList.get("x-forwarded-for");
-  if (xForwardedFor) {
-    // x-forwarded-for can be a comma-separated list; take the first
-    return xForwardedFor.split(",")[0]?.trim() ?? "unknown";
-  }
-
-  // Fallback for local dev
-  return "unknown";
+function readResendClient(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  return apiKey ? new Resend(apiKey) : null;
 }
 
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const lastRequest = rateLimitMap.get(ip);
+/**
+ * The visitor's address, from the headers the platform sets.
+ *
+ * `x-real-ip` is written by the hosting proxy; `x-forwarded-for` is a fallback
+ * whose first entry is the client. Both are read-only here — nothing in this
+ * action sets them, so a visitor cannot choose the bucket by sending their own
+ * header on a deployment that overwrites them.
+ */
+function getRealIP(headersList: Headers): string {
+  const realIp = headersList.get("x-real-ip");
+  if (realIp) return realIp.trim();
 
-  if (lastRequest && now - lastRequest < RATE_LIMIT_WINDOW_MS) {
-    return false; // Rate limited
-  }
+  const forwardedFor = headersList.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0]?.trim() ?? "unknown";
 
-  rateLimitMap.set(ip, now);
-
-  // Clean up old entries to prevent memory leak
-  for (const [key, timestamp] of rateLimitMap.entries()) {
-    if (now - timestamp > RATE_LIMIT_WINDOW_MS) {
-      rateLimitMap.delete(key);
-    }
-  }
-
-  return true;
+  return "unknown";
 }
 
 export type ContactFormState = {
@@ -67,29 +60,33 @@ export type ContactFormState = {
 };
 
 export async function submitContactForm(
-  _prevState: ContactFormState,
+  _previousState: ContactFormState,
   formData: FormData,
 ): Promise<ContactFormState> {
   try {
-    // Rate limiting
     const headersList = await headers();
-    const ip = getRealIP(headersList);
+    const visitorIp = getRealIP(headersList);
 
-    if (!checkRateLimit(ip)) {
+    if (!hasDurableRateLimitStore() && !warnedAboutMemoryOnlyLimiting) {
+      warnedAboutMemoryOnlyLimiting = true;
+      console.warn(
+        "UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set: contact rate limiting is per-instance only.",
+      );
+    }
+
+    const rateLimit = await consumeRateLimit("contact", visitorIp, RATE_LIMIT);
+    if (!rateLimit.allowed) {
       return {
         success: false,
-        error: "Too many requests. Please wait a minute before trying again.",
+        error: `Too many requests. Please wait ${rateLimit.retryAfterSeconds} seconds and try again.`,
       };
     }
 
-    // Validate input
-    const rawData = {
+    const validationResult = contactSchema.safeParse({
       name: formData.get("name"),
       email: formData.get("email"),
       message: formData.get("message"),
-    };
-
-    const validationResult = contactSchema.safeParse(rawData);
+    });
 
     if (!validationResult.success) {
       return {
@@ -98,31 +95,29 @@ export async function submitContactForm(
       };
     }
 
-    const data: ContactFormData = validationResult.data;
+    const message: ContactFormData = validationResult.data;
 
-    // Check for required env var
-    if (!process.env.CONTACT_EMAIL) {
-      console.error("CONTACT_EMAIL environment variable is not set");
+    const resendClient = readResendClient();
+    const contactEmail = process.env.CONTACT_EMAIL?.trim();
+    if (!resendClient || !contactEmail) {
+      console.error(
+        `Contact form is not configured: ${
+          resendClient ? "CONTACT_EMAIL" : "RESEND_API_KEY"
+        } is missing.`,
+      );
       return {
         success: false,
         error: "Service configuration error. Please try again later.",
       };
     }
 
-    // Send email via Resend
-    const { error: sendError } = await resend.emails.send({
+    const { error: sendError } = await resendClient.emails.send({
       from: "Portfolio Contact <onboarding@resend.dev>",
-      to: process.env.CONTACT_EMAIL,
-      replyTo: data.email,
-      subject: `New contact from ${data.name}`,
-      text: `Name: ${data.name}\nEmail: ${data.email}\n\nMessage:\n${data.message}`,
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a></p>
-        <p><strong>Message:</strong></p>
-        <p>${data.message.replace(/\n/g, "<br>")}</p>
-      `,
+      to: contactEmail,
+      replyTo: message.email,
+      /* Subject, text and HTML are rendered by `lib/contact-email`, which
+         escapes the HTML part and flattens header-injecting newlines. */
+      ...renderContactEmail(message),
     });
 
     if (sendError) {

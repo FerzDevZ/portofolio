@@ -14,7 +14,9 @@
  */
 export const canvasHex = {
   dark: "#050709",
-  light: "#f1f4f8",
+  /* The light canvas is the "day paper" token `oklch(0.963 0.009 85)`,
+     sampled through Chromium's own conversion — see the method note above. */
+  light: "#f5f2ec",
 } as const;
 
 /** The `localStorage` key holding the visitor's explicit theme choice. */

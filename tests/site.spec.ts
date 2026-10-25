@@ -163,6 +163,90 @@ test.describe("accessibility", () => {
         "blocking axe violations",
       ).toEqual([]);
     });
+
+    /* The axe pass above runs on the default (dark) palette. The light
+       theme re-points every token, which is the moment contrast regresses —
+       the pre-paint script reads the stored choice, so writing the same key
+       the toggle writes exercises exactly what a visitor gets. */
+    test(`/${locale} light theme has no serious or critical axe violations`, async ({ page }) => {
+      await page.goto(`/${locale}`);
+      await page.evaluate(() =>
+        localStorage.setItem("portfolio-theme", "light"),
+      );
+      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze();
+      const blocking = results.violations.filter((v) =>
+        ["serious", "critical"].includes(v.impact ?? ""),
+      );
+      expect(
+        blocking.map((v) => `${v.id}: ${v.help} (${v.nodes.length} nodes)`),
+        "blocking axe violations (light theme)",
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("theme contrast", () => {
+  /* The accent is not only a decoration: the featured-work eyebrow renders
+     it as 11px text. The ratio is measured, not assumed — Chromium keeps
+     `oklch()` verbatim in getComputedStyle, so both colours are painted onto
+     a 1×1 canvas and read back as sRGB, the same sampling the site itself
+     uses for the viewport metadata. */
+  for (const theme of ["dark", "light"] as const) {
+    test(`accent-as-text keeps AA contrast on the ${theme} canvas`, async ({ page }) => {
+      await page.goto("/en");
+      await page.evaluate((themeName) => {
+        localStorage.setItem("portfolio-theme", themeName);
+      }, theme);
+      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+
+      const ratio = await page.evaluate(() => {
+        const sample = (colorValue: string) => {
+          const probe = document.createElement("canvas");
+          probe.width = 1;
+          probe.height = 1;
+          const context = probe.getContext("2d");
+          if (!context) return null;
+          context.fillStyle = colorValue;
+          context.fillRect(0, 0, 1, 1);
+          const [red = 0, green = 0, blue = 0] = context.getImageData(0, 0, 1, 1).data;
+          return [red, green, blue] as const;
+        };
+        const luminance = (channels: readonly number[]) => {
+          const channel = (value: number) => {
+            const normalized = value / 255;
+            return normalized <= 0.03928
+              ? normalized / 12.92
+              : ((normalized + 0.055) / 1.055) ** 2.4;
+          };
+          return (
+            0.2126 * channel(channels[0] ?? 0) +
+            0.7152 * channel(channels[1] ?? 0) +
+            0.0722 * channel(channels[2] ?? 0)
+          );
+        };
+
+        const accentElement = document.querySelector<HTMLElement>(".text-accent");
+        if (!accentElement) return null;
+        const accentChannels = sample(getComputedStyle(accentElement).color);
+        const canvasChannels = sample(
+          getComputedStyle(document.body).backgroundColor,
+        );
+        if (!accentChannels || !canvasChannels) return null;
+        const accentLuminance = luminance(accentChannels);
+        const canvasLuminance = luminance(canvasChannels);
+        return (
+          (Math.max(accentLuminance, canvasLuminance) + 0.05) /
+          (Math.min(accentLuminance, canvasLuminance) + 0.05)
+        );
+      });
+
+      expect(ratio, "accent used as small text must keep 4.5:1").toBeGreaterThanOrEqual(4.5);
+    });
   }
 });
 
@@ -477,6 +561,131 @@ test.describe("frosted surfaces survive the minifier", () => {
 /* silently dead: both existed in the code and neither ever ran.       */
 /* The field now listens on `window` and reads the frame's rect.        */
 /* ------------------------------------------------------------------ */
+
+test.describe("deferred integrations", () => {
+  /* Registering the service worker and mounting the analytics scripts during
+     idle put four to six extra 50–200ms tasks inside Lighthouse's
+     total-blocking-time window (measured: median TBT ~570ms). They are
+     non-essential, so the contract is now: nothing loads until the visitor
+     acts. The wait below is longer than the old idle fallback, so a
+     regression to idle mounting fails here instead of quietly spending the
+     performance budget. */
+  test("service worker and analytics wait for the first gesture", async ({
+    page,
+  }) => {
+    const loadWindowRequests: string[] = [];
+    page.on("request", (request) => {
+      const requestUrl = request.url();
+      if (
+        requestUrl.endsWith("/sw.js") ||
+        requestUrl.includes("/_vercel/insights/script.js")
+      ) {
+        loadWindowRequests.push(requestUrl);
+      }
+    });
+
+    await page.goto("/en");
+    /* 2.5s is past the idle deadline the old policy used. */
+    await page.waitForTimeout(2500);
+    expect(
+      loadWindowRequests,
+      "no enhancement may load during the page-load window",
+    ).toEqual([]);
+
+    /* A harmless gesture: Shift activates nothing on the page. */
+    await page.keyboard.press("Shift");
+
+    /* The registration itself is asserted through the API rather than a
+       request event: the browser fetches `/sw.js` outside the page's network
+       contexts, so a `page.on("request")` wait for it never resolves. */
+    await expect
+      .poll(
+        () =>
+          page.evaluate(
+            async () => (await navigator.serviceWorker.getRegistrations()).length,
+          ),
+        { timeout: 10_000 },
+      )
+      .toBeGreaterThan(0);
+
+    await expect
+      .poll(
+        () =>
+          loadWindowRequests.some((requestUrl) =>
+            requestUrl.includes("/_vercel/insights/script.js"),
+          ),
+        { timeout: 10_000 },
+      )
+      .toBe(true);
+  });
+});
+
+test.describe("site navigation", () => {
+  test("the footer links to the blog, contact, and resume pages", async ({ page }) => {
+    await page.goto("/en");
+    const footer = page.locator("footer");
+    await expect(footer.getByRole("link", { name: "Blog" })).toHaveAttribute(
+      "href",
+      "/en/blog",
+    );
+    await expect(footer.getByRole("link", { name: "Contact" })).toHaveAttribute(
+      "href",
+      "/en/contact",
+    );
+    await expect(footer.getByRole("link", { name: "Resume" })).toHaveAttribute(
+      "href",
+      "/en/resume",
+    );
+  });
+
+  test("the footer links stay inside the active locale", async ({ page }) => {
+    await page.goto("/id");
+    const footer = page.locator("footer");
+    await expect(footer.getByRole("link", { name: "Kontak" })).toHaveAttribute(
+      "href",
+      "/id/contact",
+    );
+    await expect(footer.getByRole("link", { name: "Blog" })).toHaveAttribute(
+      "href",
+      "/id/blog",
+    );
+  });
+
+  test("every page linked from the footer answers 200", async ({ request }) => {
+    for (const path of [
+      "/en/blog",
+      "/id/blog",
+      "/en/contact",
+      "/id/contact",
+      "/en/resume",
+      "/id/resume",
+    ]) {
+      expect((await request.get(path)).status(), path).toBe(200);
+    }
+  });
+
+  test("the resume back link never reaches the printed PDF", async ({ page }) => {
+    await page.goto("/en/resume");
+    const screenOnlyBar = page.locator(".resume-screen-only");
+    await expect(screenOnlyBar).toBeVisible();
+
+    /* `GET /api/resume` paginates this same document; navigation chrome would
+       be printed into the PDF. */
+    await page.emulateMedia({ media: "print" });
+    await expect(screenOnlyBar).toBeHidden();
+  });
+
+  test("the mobile panel lists the page routes", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto("/en");
+    await page.getByRole("button", { name: "Open menu" }).click();
+    const panel = page.locator("#mobile-nav");
+    await expect(panel.getByRole("link", { name: "Blog" })).toHaveAttribute(
+      "href",
+      "/en/blog",
+    );
+  });
+});
 
 test.describe("hero field pointer wiring", () => {
   test("a pointer over the hero reaches the field", async ({ page }) => {

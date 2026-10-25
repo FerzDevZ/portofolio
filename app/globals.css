@@ -136,66 +136,70 @@
      `data-theme` once it runs, so this block serves the no-script case and
      the instant before the script executes. */
   :root:not([data-theme]) {
-    /* Surfaces — paper for the page, white for raised content, so a card
-       still reads as lifted rather than pressed in. */
-    --color-canvas: oklch(0.965 0.006 258);
-    --color-panel: oklch(0.995 0.006 258);
-    --color-raised: oklch(0.999 0.007 258);
+    /* Surfaces — the light theme is "day paper": a warm, slightly yellow
+       sheet (hue 85) with near-white lifted content, so the two themes read
+       as night studio / day print rather than one palette inverted. */
+    --color-canvas: oklch(0.963 0.009 85);
+    --color-panel: oklch(0.99 0.006 85);
+    --color-raised: oklch(0.998 0.005 85);
 
     /* Hairlines flip from white alpha to ink alpha, or they vanish. */
-    --color-line: oklch(0.19 0.02 258 / 0.13);
-    --color-line-strong: oklch(0.19 0.02 258 / 0.26);
-    --color-line-hover: oklch(0.19 0.02 258 / 0.44);
-    /* 3.02:1 on paper — the same floor as the dark value. */
-    --color-control-line: oklch(0.19 0.02 258 / 0.46);
-    /* A tint of the paper rather than a shade of the night sky. */
-    --color-poster-wash-warm: oklch(0.88 0.035 252 / 0.6);
-    --color-poster-wash-cool: oklch(0.9 0.03 205 / 0.5);
+    --color-line: oklch(0.22 0.02 85 / 0.14);
+    --color-line-strong: oklch(0.22 0.02 85 / 0.27);
+    --color-line-hover: oklch(0.22 0.02 85 / 0.46);
+    /* Same floor as the dark value: a control outline must clear 3:1. */
+    --color-control-line: oklch(0.22 0.02 85 / 0.48);
+    /* Washes stay tints of the accent family, not shades of the paper. */
+    --color-poster-wash-warm: oklch(0.87 0.045 250 / 0.4);
+    --color-poster-wash-cool: oklch(0.9 0.035 205 / 0.45);
 
-    /* Ink ramp. `ink-faint` carries 11px uppercase labels, so its floor is
-       set by 4.5:1 against the canvas rather than by taste. */
-    --color-ink: oklch(0.21 0.02 258);
-    --color-ink-muted: oklch(0.44 0.02 258);
-    --color-ink-faint: oklch(0.52 0.016 258);
+    /* Ink ramp — dark roast on paper, not grey-on-grey. `ink-faint` carries
+       11px uppercase labels, so its floor is set by 4.5:1 against the canvas
+       (measured 5.17:1) rather than by taste. */
+    --color-ink: oklch(0.22 0.02 85);
+    --color-ink-muted: oklch(0.44 0.02 85);
+    --color-ink-faint: oklch(0.51 0.018 85);
 
-    /* Accent ramp — the dark values are tuned for a near-black surface and
-       lose their contrast on paper, so each one steps down in lightness.
-       `accent` is also the 11px "featured" label, where 0.55 measured 4.38:1
-       against the canvas; 0.53 clears the 4.5:1 AA floor for small text. */
+    /* Accent ramp — blue ink on cream paper, the classic print pairing, so
+       the accent family keeps its cool hue against the warm neutrals.
+       `accent` is also the 11px "featured" label: 0.53 measures 4.73:1 on
+       this canvas, above the 4.5:1 AA floor for small text. `live` darkens
+       to 0.48 (5.21:1) because hljs strings render it as code text, and
+       `signal` to 0.48 (6.13:1) because form errors are small text too. */
     --color-accent: oklch(0.53 0.16 250);
     --color-accent-strong: oklch(0.48 0.17 250);
     --color-accent-mid: oklch(0.58 0.1 205);
-    --color-live: oklch(0.55 0.15 158);
-    --color-signal: oklch(0.55 0.13 65);
+    --color-live: oklch(0.48 0.15 158);
+    --color-signal: oklch(0.48 0.14 50);
 
     /* Veil stack, inverted to ink alphas. */
-    --color-veil-soft: oklch(0.19 0.02 258 / 0.05);
-    --color-veil: oklch(0.19 0.02 258 / 0.07);
-    --color-veil-ring: oklch(0.19 0.02 258 / 0.1);
-    --color-grid-line: oklch(0.19 0.02 258 / 0.07);
-    /* A white specular glare is invisible on white paper, so light mode
+    --color-veil-soft: oklch(0.22 0.02 85 / 0.05);
+    --color-veil: oklch(0.22 0.02 85 / 0.07);
+    --color-veil-ring: oklch(0.22 0.02 85 / 0.1);
+    --color-grid-line: oklch(0.22 0.02 85 / 0.08);
+    /* A white specular glare is invisible on paper, so light mode
        reads the same highlight as a faint shade instead. */
-    --color-glare: oklch(0.19 0.02 258 / 0.06);
+    --color-glare: oklch(0.22 0.02 85 / 0.07);
 
     /* Blur backdrops. The nav pill becomes frosted paper, but the lightbox
        cannot: a white certificate on a near-white scrim has nothing to sit
-       against (backdrop vs canvas measured 1.03:1), so the light-mode scrim
-       is a grey veil that the photo and its shadow read as lifted on. */
-    --color-panel-translucent: oklch(0.995 0.006 258 / 0.82);
-    --color-backdrop: oklch(0.9 0.008 258 / 0.92);
+       against, so the light-mode scrim is a grey veil that the photo and
+       its shadow read as lifted on. */
+    --color-panel-translucent: oklch(0.99 0.006 85 / 0.82);
+    --color-backdrop: oklch(0.9 0.012 85 / 0.92);
 
-    /* Shadows turn into a wide, weak grey spread: same geometry, no black. */
-    --color-shadow-soft: oklch(0.45 0.03 258 / 0.18);
-    --color-shadow-deep: oklch(0.45 0.03 258 / 0.26);
+    /* Shadows turn into a wide, weak warm-grey spread: same geometry, no black. */
+    --color-shadow-soft: oklch(0.45 0.03 85 / 0.2);
+    --color-shadow-deep: oklch(0.45 0.03 85 / 0.28);
 
     /* The primary button inverts to ink-on-paper, so hovering walks it
        darker — toward more ink, not more light. */
-    --color-ink-hover: oklch(0.3 0.02 258);
-    --color-ink-active: oklch(0.38 0.02 258);
+    --color-ink-hover: oklch(0.3 0.02 85);
+    --color-ink-active: oklch(0.38 0.02 85);
 
     /* Selection inverts with the page: ink text on a pale accent wash. */
-    --color-selection-bg: oklch(0.86 0.06 250);
-    --color-selection-ink: oklch(0.2 0.02 258);
+    --color-selection-bg: oklch(0.85 0.06 250);
+    --color-selection-ink: oklch(0.2 0.02 85);
 
     /* The halo turns into an ink wash on paper — white light on white
        paper is invisible, and the accent blue would overstate. */
@@ -217,45 +221,45 @@
 
 :root[data-theme="light"] {
   color-scheme: light;
-  /* Surfaces */
-  --color-canvas: oklch(0.965 0.006 258);
-  --color-panel: oklch(0.995 0.006 258);
-  --color-raised: oklch(0.999 0.007 258);
+  /* Surfaces — the warm "day paper" palette; see the media block above. */
+  --color-canvas: oklch(0.963 0.009 85);
+  --color-panel: oklch(0.99 0.006 85);
+  --color-raised: oklch(0.998 0.005 85);
   /* Hairlines */
-  --color-line: oklch(0.19 0.02 258 / 0.13);
-  --color-line-strong: oklch(0.19 0.02 258 / 0.26);
-  --color-line-hover: oklch(0.19 0.02 258 / 0.44);
-  --color-control-line: oklch(0.19 0.02 258 / 0.46);
-  --color-poster-wash-warm: oklch(0.88 0.035 252 / 0.6);
-  --color-poster-wash-cool: oklch(0.9 0.03 205 / 0.5);
+  --color-line: oklch(0.22 0.02 85 / 0.14);
+  --color-line-strong: oklch(0.22 0.02 85 / 0.27);
+  --color-line-hover: oklch(0.22 0.02 85 / 0.46);
+  --color-control-line: oklch(0.22 0.02 85 / 0.48);
+  --color-poster-wash-warm: oklch(0.87 0.045 250 / 0.4);
+  --color-poster-wash-cool: oklch(0.9 0.035 205 / 0.45);
   /* Ink ramp */
-  --color-ink: oklch(0.21 0.02 258);
-  --color-ink-muted: oklch(0.44 0.02 258);
-  --color-ink-faint: oklch(0.52 0.016 258);
+  --color-ink: oklch(0.22 0.02 85);
+  --color-ink-muted: oklch(0.44 0.02 85);
+  --color-ink-faint: oklch(0.51 0.018 85);
   /* Accent ramp */
   --color-accent: oklch(0.53 0.16 250);
   --color-accent-strong: oklch(0.48 0.17 250);
   --color-accent-mid: oklch(0.58 0.1 205);
-  --color-live: oklch(0.55 0.15 158);
-  --color-signal: oklch(0.55 0.13 65);
+  --color-live: oklch(0.48 0.15 158);
+  --color-signal: oklch(0.48 0.14 50);
   /* Veil stack */
-  --color-veil-soft: oklch(0.19 0.02 258 / 0.05);
-  --color-veil: oklch(0.19 0.02 258 / 0.07);
-  --color-veil-ring: oklch(0.19 0.02 258 / 0.1);
-  --color-grid-line: oklch(0.19 0.02 258 / 0.07);
-  --color-glare: oklch(0.19 0.02 258 / 0.06);
+  --color-veil-soft: oklch(0.22 0.02 85 / 0.05);
+  --color-veil: oklch(0.22 0.02 85 / 0.07);
+  --color-veil-ring: oklch(0.22 0.02 85 / 0.1);
+  --color-grid-line: oklch(0.22 0.02 85 / 0.08);
+  --color-glare: oklch(0.22 0.02 85 / 0.07);
   /* Blur backdrops */
-  --color-panel-translucent: oklch(0.995 0.006 258 / 0.82);
-  --color-backdrop: oklch(0.9 0.008 258 / 0.92);
+  --color-panel-translucent: oklch(0.99 0.006 85 / 0.82);
+  --color-backdrop: oklch(0.9 0.012 85 / 0.92);
   /* Shadows */
-  --color-shadow-soft: oklch(0.45 0.03 258 / 0.18);
-  --color-shadow-deep: oklch(0.45 0.03 258 / 0.26);
+  --color-shadow-soft: oklch(0.45 0.03 85 / 0.2);
+  --color-shadow-deep: oklch(0.45 0.03 85 / 0.28);
   /* Button endpoints */
-  --color-ink-hover: oklch(0.3 0.02 258);
-  --color-ink-active: oklch(0.38 0.02 258);
+  --color-ink-hover: oklch(0.3 0.02 85);
+  --color-ink-active: oklch(0.38 0.02 85);
   /* Selection */
-  --color-selection-bg: oklch(0.86 0.06 250);
-  --color-selection-ink: oklch(0.2 0.02 258);
+  --color-selection-bg: oklch(0.85 0.06 250);
+  --color-selection-ink: oklch(0.2 0.02 85);
   /* Spotlight (light theme twin) */
 }
 
@@ -264,6 +268,25 @@
    preference while the page paints dark. */
 :root[data-theme="dark"] {
   color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cross-document view transitions                                     */
+/*                                                                     */
+/* The project titles already carry `view-transition-name`, so enabling  */
+/* MPA navigation lets a case-study click morph the title into place    */
+/* instead of cutting. Unsupported browsers ignore the block entirely;  */
+/* reduced motion keeps the instant cut — the morph is decorative.      */
+/* ------------------------------------------------------------------ */
+
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
 }
 
 @layer base {
@@ -323,6 +346,15 @@
     color: var(--color-selection-ink);
   }
 
+  /* Headlines balance their rag; the browser spreads the last line instead
+     of leaving a stranded word. Harmless where unsupported. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 3px;
@@ -344,15 +376,9 @@
     /* Scroll-driven animations must be removed, not just shortened.
        `animation-duration: 0.01ms` does nothing to a view() timeline: the
        progress comes from the scroll position, so the section stays frozen
-       at its `from` state and the content never appears.
-
-       Removing the animation is not enough either: `.reveal-section--armed`
-       carries `opacity: 0` as a plain declaration, and in a view()-capable
-       browser it is the animation (not the class) that reveals the section.
-       With the animation gone that rule wins and every section below the fold
-       stays invisible. So the armed hiding state is neutralised here, the
-       same way the print stylesheet does it. */
-    .reveal-section--armed,
+       at its `from` state and the content never appears. Removing the
+       animation restores the base state, which is fully visible. */
+    .reveal-section,
     .case-title-rise {
       animation: none !important;
       opacity: 1 !important;
@@ -460,26 +486,12 @@
   background-size: 100% 1px;
 }
 
-/* Section reveal — IntersectionObserver-driven, transform/opacity only.
-   Base state is fully visible (no-JS safe); "armed" hides it only after
-   hydration, and "in" plays the entrance once and stays. */
+/* Section reveal — scroll-driven, transform/opacity only, and no JS.
+   The base state is fully visible, so a client without the scroll timeline
+   (or without JS at all) never sees hidden content. The entrance itself is
+   `scroll-reveal-in`, attached in the @supports block further down. */
 .reveal-section {
   opacity: 1;
-}
-
-.reveal-section--armed {
-  opacity: 0;
-  transform: translateY(22px);
-  will-change: transform, opacity;
-}
-
-.reveal-section--in {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 680ms cubic-bezier(0.22, 0.7, 0.3, 1),
-    transform 680ms cubic-bezier(0.22, 0.7, 0.3, 1);
-  transition-delay: var(--reveal-delay, 0ms);
 }
 
 /* Pointer-tracking tilt only where hover exists; taps should not trigger it. */
@@ -661,6 +673,35 @@
   pointer-events: none;
 }
 
+/* Where scroll-driven animations exist, the progress bar becomes pure CSS:
+   the timeline drives `transform` on the compositor and the header's rAF
+   writes for it stop mattering (a CSS animation wins over inline style).
+   The JS path stays as the fallback everywhere else. Reduced-motion removes
+   the animation rather than shortening it — a scroll timeline ignores
+   `animation-duration`, so the bar would freeze at its `from` state forever
+   instead of falling back to the JS writes. */
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    animation: scroll-progress-x linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes scroll-progress-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress {
+    animation: none !important;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Section counter — rides beside the progress hairline                */
 /*                                                                     */
@@ -838,16 +879,12 @@
 }
 
 @supports (animation-timeline: view()) {
-  /* Only the armed state hands its animation over to the scroll timeline:
-     the base class stays "visible without JS" as before. */
-  .reveal-section--armed {
+  /* The section starts fading as it enters the scrollport and is fully in by
+     12% of its entry range. `both` holds the `to` state once past the range,
+     so a section above the viewport is never left transparent. */
+  .reveal-section {
     animation: scroll-reveal-in linear both;
     animation-timeline: view();
-    /* The range ends exactly where the component's observer fires (12%). The
-       component drops `--armed` at that point, which cancels this animation —
-       so the two numbers are one decision: if the range were longer, the
-       entrance would be cut off part-way and the 680ms transition would take
-       over from a half-faded state. */
     animation-range: entry 0% entry 12%;
   }
 }
@@ -1189,6 +1226,7 @@
   }
   .reveal-section,
   .enter {
+    animation: none !important;
     opacity: 1 !important;
     transform: none !important;
   }
@@ -1213,6 +1251,34 @@
 /* ------------------------------------------------------------------ */
 /* Resume print styles — clean black-on-white layout for PDF export   */
 /* ------------------------------------------------------------------ */
+
+/* The resume page is linked from the footer, so it carries a way back. The
+   same document is what `GET /api/resume` paginates into a PDF, so the bar is
+   screen-only and must never reach the printed page. */
+.resume-screen-only {
+  margin-bottom: 1.5rem;
+}
+
+.resume-back-link {
+  display: inline-flex;
+  min-height: 1.5rem;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.resume-back-link:hover {
+  color: var(--color-ink);
+}
+
+@media print {
+  .resume-screen-only {
+    display: none !important;
+  }
+}
 
 .resume-document {
   max-width: 8.5in;
@@ -1343,6 +1409,249 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Blog article body — MDX styled with the site's own tokens          */
+/*                                                                     */
+/* A `prose` wrapper used to do this job, but no typography plugin is  */
+/* installed, so the class matched nothing and every article rendered   */
+/* as unstyled body text. These are element selectors on purpose: the  */
+/* MDX carries no classes of its own, and the rules are scoped to      */
+/* `.post-body` so they cannot reach the rest of the page.             */
+/* ------------------------------------------------------------------ */
+
+.post-body {
+  color: var(--color-ink-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.post-body > * + * {
+  margin-top: 1.25rem;
+}
+
+/* Prose paragraphs fall to `pretty`, which only breaks before a final
+   orphaned word — a smaller intervention than `balance` on body text. */
+.post-body p {
+  text-wrap: pretty;
+}
+
+.post-body h2,
+.post-body h3,
+.post-body h4 {
+  color: var(--color-ink);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.post-body h2 {
+  margin-top: 2.75rem;
+  font-size: var(--text-section);
+  letter-spacing: var(--text-section--letter-spacing);
+}
+
+.post-body h3 {
+  margin-top: 2rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.post-body h4 {
+  margin-top: 1.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.post-body strong {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.post-body a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--color-line-strong);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 150ms ease;
+}
+
+.post-body a:hover,
+.post-body a:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+.post-body ul,
+.post-body ol {
+  padding-left: 1.25rem;
+}
+
+.post-body ul {
+  list-style: disc;
+}
+
+.post-body ol {
+  list-style: decimal;
+}
+
+.post-body li + li {
+  margin-top: 0.4rem;
+}
+
+.post-body li::marker {
+  color: var(--color-ink-faint);
+}
+
+.post-body blockquote {
+  border-left: 1px solid var(--color-line-strong);
+  padding-left: 1rem;
+  color: var(--color-ink-muted);
+  font-style: italic;
+}
+
+.post-body hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+/* Code shares the panel surface, so a sample reads as a lifted object rather
+   than as a change of typeface. */
+.post-body code {
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  background: var(--color-panel);
+  padding: 0.1em 0.35em;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--color-ink);
+}
+
+.post-body pre {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-panel);
+  padding: 1rem 1.25rem;
+}
+
+.post-body pre code {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+/* Syntax tokens, as emitted by rehype-highlight. Every colour is a site
+   token, so a code sample re-tints with the theme instead of carrying a
+   foreign palette — the first article shipped without these rules, and its
+   token classes matched nothing. */
+.post-body .hljs-comment,
+.post-body .hljs-quote {
+  color: var(--color-ink-faint);
+  font-style: italic;
+}
+
+.post-body .hljs-keyword,
+.post-body .hljs-selector-tag,
+.post-body .hljs-selector-class,
+.post-body .hljs-selector-id,
+.post-body .hljs-selector-pseudo,
+.post-body .hljs-selector-attr,
+.post-body .hljs-doctag,
+.post-body .hljs-template-tag,
+.post-body .hljs-meta .hljs-keyword {
+  color: var(--color-accent);
+}
+
+.post-body .hljs-string,
+.post-body .hljs-regexp,
+.post-body .hljs-meta .hljs-string {
+  color: var(--color-live);
+}
+
+.post-body .hljs-number,
+.post-body .hljs-symbol,
+.post-body .hljs-bullet,
+.post-body .hljs-literal {
+  color: var(--color-signal);
+}
+
+.post-body .hljs-title,
+.post-body .hljs-title.function_,
+.post-body .hljs-title.class_,
+.post-body .hljs-built_in,
+.post-body .hljs-type {
+  color: var(--color-accent-strong);
+}
+
+.post-body .hljs-attr,
+.post-body .hljs-attribute,
+.post-body .hljs-variable,
+.post-body .hljs-variable.language_,
+.post-body .hljs-variable.constant_,
+.post-body .hljs-template-variable,
+.post-body .hljs-property,
+.post-body .hljs-params {
+  color: var(--color-ink);
+}
+
+.post-body .hljs-tag,
+.post-body .hljs-name,
+.post-body .hljs-tag .hljs-name {
+  color: var(--color-accent-mid);
+}
+
+.post-body .hljs-link {
+  color: var(--color-live);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.post-body .hljs-deletion {
+  color: var(--color-signal);
+}
+.post-body .hljs-addition {
+  color: var(--color-live);
+}
+
+.post-body .hljs-emphasis {
+  font-style: italic;
+}
+.post-body .hljs-strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.post-body img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+}
+
+.post-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.post-body th,
+.post-body td {
+  border-bottom: 1px solid var(--color-line);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.post-body th {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ */
 /* Case-study headline: the title's block rises into place as it      */
 /* enters the viewport. The base state is fully visible; the scroll-  */
 /* timeline animation is only attached where the browser supports it. */
@@ -1411,4 +1720,68 @@
    canvas that is somehow mounted is hidden rather than left running. */
 .motion-3d-off .hero-scene-frame {
   display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Touch counterpart of the hover preview                              */
+/*                                                                     */
+/* The gutter preview only exists for a fine pointer at a wide viewport */
+/* (see `.row-preview` above), so a phone had no preview at all. Under  */
+/* `(hover: none)` the same screenshot renders as a small inline block  */
+/* under the row's description — static, never animated, never a touch  */
+/* target of its own (the whole row already links to the case study).   */
+/* ------------------------------------------------------------------ */
+
+.row-preview-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .row-preview-touch {
+    display: block;
+    margin-top: 0.75rem;
+    max-width: 288px;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Forced colors (Windows High Contrast) and extra-contrast preference  */
+/*                                                                     */
+/* Forced colors re-paints the page with the OS palette, so anything    */
+/* whose only job is colour or shine stops contributing and gets out   */
+/* of the way; content keeps its DOM order. `prefers-contrast: more`   */
+/* strengthens the hairlines and the faint ink ramp per theme — the    */
+/* head script always writes `data-theme`, so the attribute selectors  */
+/* cover every scripted visitor; the no-script system case keeps the   */
+/* base values.                                                        */
+/* ------------------------------------------------------------------ */
+
+@media (forced-colors: active) {
+  .nav-active-pill,
+  .scroll-progress,
+  .tilt-glare,
+  .tilt-panel-glare,
+  .cursor-label,
+  .parallax-grid,
+  .hero-scene-poster,
+  .row-preview {
+    display: none !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root[data-theme="dark"] {
+    --color-line: oklch(0.999 0.001 258 / 0.2);
+    --color-line-strong: oklch(0.999 0.001 258 / 0.34);
+    --color-ink-faint: oklch(0.66 0.012 258);
+  }
+
+  :root[data-theme="light"] {
+    --color-line: oklch(0.22 0.02 85 / 0.28);
+    --color-line-strong: oklch(0.22 0.02 85 / 0.42);
+    --color-ink-faint: oklch(0.42 0.02 85);
+  }
 }
