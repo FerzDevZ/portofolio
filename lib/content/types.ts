@@ -52,6 +52,8 @@ export type Project = {
   role: string;
   description: string;
   year: string;
+  /** A verified state line: live deployment, release tag, or test suite. */
+  proof?: string;
   stack: string[];
   /** In-site case study route, without the locale prefix. */
   href: string;

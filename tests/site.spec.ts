@@ -154,6 +154,10 @@ test.describe("layout", () => {
     const work = page.locator("#work");
     await expect(work.locator("article a").first()).toBeVisible();
     await expect(work.locator("[data-cursor-label]")).toHaveCount(7);
+    /* Every project states one verified fact — live, release, tests — read from
+       the GitHub API rather than from ambition. */
+    await expect(work.getByText("Live · release app-v1.0.1")).toBeVisible();
+    await expect(work.getByText("Release v0.5.110-aegisx.1 · CI")).toBeVisible();
   });
 });
 

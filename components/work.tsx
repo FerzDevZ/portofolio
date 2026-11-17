@@ -39,6 +39,11 @@ function ProjectRow({
           <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
             {project.role}
           </span>
+          {project.proof ? (
+            <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+              {project.proof}
+            </span>
+          ) : null}
         </span>
 
         <span className="text-sm leading-relaxed text-ink-muted sm:col-span-4">
@@ -159,6 +164,11 @@ export function Work({ content }: { content: PortfolioContent }) {
           <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
             {featuredProject.role}
           </p>
+          {featuredProject.proof ? (
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+              {featuredProject.proof}
+            </p>
+          ) : null}
           <p className="mt-5 max-w-lg text-base leading-relaxed text-ink-muted">
             {featuredProject.description}
           </p>
