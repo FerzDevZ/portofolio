@@ -153,7 +153,7 @@ test.describe("layout", () => {
     await page.goto("/en");
     const work = page.locator("#work");
     await expect(work.locator("article a").first()).toBeVisible();
-    await expect(work.locator("[data-cursor-label]")).toHaveCount(5);
+    await expect(work.locator("[data-cursor-label]")).toHaveCount(7);
   });
 });
 
@@ -288,16 +288,16 @@ test.describe("theme contrast", () => {
 
 test.describe("case-study metrics", () => {
   test("count-up runs from the scrolled-into-view moment, not from mount", async ({ page }) => {
-    await page.goto("/en/projects/aegisx");
+    await page.goto("/en/projects/9router-aegisx");
     await page.waitForTimeout(1500);
-    const metric = page.locator("dl dd span", { hasText: /^768$/ });
+    const metric = page.locator("dl dd span", { hasText: /^40\+$/ });
 
     /* Record every distinct text value the metric shows, from the moment it
        scrolls into view, for the length of the tween. Recording happens in
        the page so no frame is missed by the test runner's round-trips. */
     await page.evaluate(() => {
       const element = [...document.querySelectorAll("dl dd span")].find(
-        (node) => node.textContent?.trim() === "768",
+        (node) => node.textContent?.trim() === "40+",
       ) as HTMLElement;
       const seen: string[] = [];
       (window as unknown as { __countSamples: string[] }).__countSamples = seen;
@@ -315,12 +315,12 @@ test.describe("case-study metrics", () => {
     const samples = await page.evaluate(
       () => (window as unknown as { __countSamples: string[] }).__countSamples,
     );
-    /* The server renders the final value (768), so the first sample is
-       already 768. What proves the tween is the number of distinct values
+    /* The server renders the final value (40+), so the first sample is
+       already 40+. What proves the tween is the number of distinct values
        in between: a static metric would produce a single sample. */
-    const intermediate = samples.filter((value) => value !== "768");
+    const intermediate = samples.filter((value) => value !== "40+");
     expect(intermediate.length, `intermediate values: ${samples.join(", ")}`).toBeGreaterThan(5);
-    await expect(metric).toHaveText("768");
+    await expect(metric).toHaveText("40+");
   });
 });
 

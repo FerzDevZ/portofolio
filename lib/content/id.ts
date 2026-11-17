@@ -86,91 +86,175 @@ export const content: PortfolioContent = {
     id: "jasakite",
     index: "01",
     title: "JASAKITE",
-    role: "Full-stack · proyek pribadi",
+    role: "Bangun full-stack · proyek pribadi",
     description:
-      "Marketplace jasa lokal untuk Indonesia: katalog dengan filter, checkout multi-item, papan pesanan untuk penyedia, dan konsol admin — di atas Next.js 15 dan Prisma.",
+      "Marketplace jasa lokal untuk Indonesia: katalog dengan filter, checkout multi-item, papan pesanan penyedia, dan konsol admin, dengan uang QRIS ditahan dalam escrow sampai pekerjaan selesai.",
     year: "2026",
     stack: ["Next.js 15", "Prisma", "MongoDB", "NextAuth v5"],
     href: "/projects/jasakite",
     repoUrl: "https://github.com/FerzDevZ/jasakite",
-    liveUrl: null,
+    liveUrl: "https://jasakite.vercel.app",
     preview: null,
     caseStudy: {
       context:
-        "Pembeli dan penyedia jasa lokal butuh satu tempat untuk mencari, memesan, dan membayar. Sebuah pesanan melewati beberapa orang sebelum selesai, jadi setiap peran harus melihat langkah berikutnya dari pesanan itu.",
+        "Pembeli dan penyedia jasa lokal butuh satu tempat untuk mencari, memesan, dan membayar pekerjaan. Uang melewati beberapa pihak sebelum pekerjaan selesai, jadi setiap peran harus melihat pesanan yang sama pada langkah yang sama.",
       approach: [
         {
-          title: "Tiga peran, satu model pesanan",
+          title: "Empat peran, satu model pesanan",
           detail:
-            "Pelanggan, penyedia, dan admin memakai siklus pesanan yang sama — diterima, dikerjakan, selesai, dibatalkan — dengan linimasa berstempel waktu untuk setiap langkah.",
+            "Customer, provider, admin, dan super admin memakai satu siklus: diterima, dikerjakan, selesai, dibatalkan, masing-masing dengan linimasa berstempel waktu.",
         },
         {
-          title: "Checkout tiga langkah",
+          title: "Escrow sebelum penyerahan",
           detail:
-            "Alamat, jadwal, lalu pembayaran, menghasilkan satu grup pesanan dari keranjang multi-item. Potongan voucher dihitung ulang di server, tidak pernah diambil dari klien.",
+            "Pembayaran QRIS ditahan terhadap pesanan dan dilepas saat selesai, masuk ke dompet yang bisa ditarik penyedia. Langganan yang menjaga penyedia tetap terdaftar dipotong dari saldo itu.",
         },
         {
           title: "Diuji di dua lapisan",
           detail:
-            "Vitest menguji logika unit, dan Playwright menjalankan alur end-to-end di Chromium serta profil mobile 320px.",
+            "Vitest menguji aturan harga dan pesanan; Playwright menjalankan alurnya di Chromium dan pada profil mobile 320px.",
         },
       ],
       outcome:
-        "Alur lengkap dari katalog sampai ulasan berjalan di repositori, dengan akun demo untuk setiap peran. Pembayaran berupa langkah simulasi, dan README menyebut batas itu dengan jelas.",
+        "Alur dari katalog sampai ulasan berjalan utuh di repositori, dengan akun demo untuk keempat peran dan panduan operator. Pembayaran QRIS masih simulasi, dan README menyatakannya.",
       metrics: [
-        { value: "3", label: "peran dalam satu aplikasi" },
-        { value: "6", label: "langkah dari katalog ke ulasan" },
-        { value: "320px", label: "profil E2E mobile" },
+        { value: "4", label: "peran dalam satu aplikasi" },
+        { value: "Escrow", label: "dana QRIS ditahan sampai selesai" },
+        { value: "Rp10.000", label: "langganan penyedia per bulan" },
       ],
     },
   },
 
   projects: [
     {
-      id: "aegisx",
+      id: "webpos-apotek",
       index: "02",
-      title: "AegisX-Mini",
-      role: "Machine learning · proyek pribadi",
+      title: "WebPOS Apotek",
+      role: "Bangun full-stack · proyek pribadi",
       description:
-        "Model keamanan siber ±30M parameter yang dilatih dari nol; hanya menjawab dari korpusnya sendiri dan jujur saat tidak ada dukungan.",
+        "Sistem kasir dan stok apotek untuk toko Indonesia: penjualan per batch dengan FEFO, resep dengan signa, satuan jual ganda, dan laba dihitung dari batch yang benar-benar keluar.",
       year: "2026",
-      stack: ["Python", "Gradio", "BM25"],
-      href: "/projects/aegisx",
-      repoUrl: "https://github.com/FerzDevZ/AegisX",
+      stack: ["Next.js 16", "Prisma", "SQLite", "Tailwind CSS v4"],
+      href: "/projects/webpos-apotek",
+      repoUrl: "https://github.com/FerzDevZ/webpos-apotek",
       liveUrl: null,
-    preview: null,
+      preview: null,
       caseStudy: {
         context:
-          "Chatbot keamanan kecil sering menjawab dengan yakin dari ingatannya. Untuk belajar bug bounty, jawaban yang salah lebih mahal daripada tidak menjawab, jadi model harus berpijak pada korpus dan jujur tentang celahnya.",
+          "Apotek Indonesia menjual dari batch yang masing-masing punya tanggal kadaluarsa, dan item yang sama dijual sebagai box, strip, atau tablet. Kasir generik mencatat penjualan tapi bukan batch-nya, jadi stok dan laba melenceng.",
         approach: [
           {
-            title: "Dilatih dari nol",
+            title: "FEFO diputuskan di server",
             detail:
-              "Tokenizer byte-level BPE berukuran 8.192 token dan transformer decoder-only, dijalankan lewat pre-training, supervised fine-tuning, dan DPO dalam satu notebook Colab.",
+              "Kasir tidak pernah memilih batch. Alokasi berjalan first-expiry-first-out di dalam server action, dan setiap pergerakan ditulis ke ledger stok, sehingga HPP berasal dari batch yang benar-benar keluar.",
           },
           {
-            title: "Retrieval tanpa dependensi",
+            title: "Sesi tanpa vendor auth",
             detail:
-              "BM25 atas potongan per bagian menyediakan jawaban. Setiap jawaban mencantumkan sumbernya; pertanyaan di luar korpus dijawab dengan \"tidak tahu\".",
+              "Sesi cookie ditandatangani HMAC, password di-hash scrypt, dan pemeriksaan peran ada di proxy maupun server action. Pengguna yang dinonaktifkan terkunci walau cookie-nya masih hidup.",
           },
           {
-            title: "Lapisan agent dengan gerbang manusia",
+            title: "Offline sejak desain",
             detail:
-              "Loop ReAct dibungkus gerbang otorisasi dan log audit, dan setiap tindakan menunggu konfirmasi manual.",
+              "Prisma di atas SQLite menaruh seluruh sistem di laptop toko. Berjalan tanpa internet, karena itulah kondisi yang jadi sasarannya.",
           },
         ],
         outcome:
-          "Pipeline berjalan dari ujung ke ujung dari satu notebook. Suite tes lulus 133 dari 133, dan model disajikan sebagai aplikasi Gradio di Hugging Face Space dengan kuantisasi int8 dan output streaming.",
+          "Repositori memuat kasir, master item, penerimaan faktur, stok dan kadaluarsa, resep, laporan, pelanggan, struk, dan akses berbasis peran. Struk ditata untuk kertas termal 58mm dan dicetak dari browser.",
         metrics: [
-          { value: "~30M", label: "parameter, dilatih dari nol" },
-          { value: "133/133", label: "tes lulus" },
-          { value: "768", label: "token konteks" },
+          { value: "FEFO", label: "alokasi batch di server" },
+          { value: "58mm", label: "tata letak struk termal" },
+          { value: "0", label: "dependensi auth eksternal" },
+        ],
+      },
+    },
+    {
+      id: "9router-aegisx",
+      index: "03",
+      title: "9Router AegisX",
+      role: "Platform · fork yang dirawat",
+      description:
+        "Gateway AI self-hosted antara alat coding dan 40+ penyedia: satu endpoint kompatibel OpenAI, rantai fallback lintas akun dan tier, serta token saver yang melaporkan apa yang dihapus.",
+      year: "2026",
+      stack: ["TypeScript", "SolidJS", "SQLite", "Node.js"],
+      href: "/projects/9router-aegisx",
+      repoUrl: "https://github.com/FerzDevZ/9router-aegisx",
+      liveUrl: null,
+      preview: null,
+      caseStudy: {
+        context:
+          "Asisten coding yang terikat satu penyedia berhenti begitu penyedia itu membatasi laju atau mereset kuota. Merutekan lintas akun dan tier secara manual berarti mengonfigurasi setiap klien satu per satu.",
+        approach: [
+          {
+            title: "Satu endpoint, empat format",
+            detail:
+              "Gateway menerima bentuk OpenAI, Responses, Anthropic, dan Gemini lalu menerjemahkannya, sehingga belasan klien menunjuk URL lokal yang sama dan memilih lewat id provider serta model.",
+          },
+          {
+            title: "Fallback sebagai kebijakan",
+            detail:
+              "Combo merangkai tier langganan, murah, dan gratis dengan perutean berurutan, round-robin, sadar cache, atau fusi paralel, dipilih per model, bukan per klien.",
+          },
+          {
+            title: "Pengeluaran yang bisa diaudit",
+            detail:
+              "Akuntansi token dan biaya per penyedia, model, dan kunci, dengan cache-hit rate, pelacakan kuota, dan papan skor penghematan tiap token saver.",
+          },
+        ],
+        outcome:
+          "Kredensial tersimpan di database SQLite lokal. Fork ini menjaga suite unit upstream tetap hijau (4.100+ tes), menambah hardening keamanan dan akuntansi token yang jujur, serta mencatat selisihnya di changelog.",
+        metrics: [
+          { value: "40+", label: "eksekutor penyedia" },
+          { value: "4.100+", label: "tes unit di CI" },
+          { value: "1", label: "endpoint untuk semua klien" },
+        ],
+      },
+    },
+    {
+      id: "ferzdb",
+      index: "04",
+      title: "FerzDB",
+      role: "Bangun sistem · proyek pribadi",
+      description:
+        "Mesin database SQL dalam Rust untuk pemakaian embedded dan offline-first: indeks B-tree, write-ahead log, dan format penyimpanan yang cukup kecil untuk diperiksa manual.",
+      year: "2026",
+      stack: ["Rust", "B-Tree", "WAL"],
+      href: "/projects/ferzdb",
+      repoUrl: "https://github.com/FerzDevZ/ferzdb",
+      liveUrl: null,
+      preview: null,
+      caseStudy: {
+        context:
+          "SQLite adalah jawaban default untuk database embedded, tapi format halamannya praktis buram. Menulis mesinnya sendiri adalah satu-satunya cara memiliki format penyimpanan, batas transaksi, dan perilaku saat gagal.",
+        approach: [
+          {
+            title: "B-tree sungguhan",
+            detail:
+              "Halaman indeks membentuk B-tree, jadi point lookup dan range scan menelusuri struktur, bukan memfilter berkas.",
+          },
+          {
+            title: "Write-ahead log",
+            detail:
+              "Perubahan ditambahkan ke WAL dan diputar ulang saat dibuka. Itu yang mengubah halaman setengah tertulis menjadi keadaan yang bisa dipulihkan, bukan berkas rusak.",
+          },
+          {
+            title: "Dua bentuk deployment",
+            detail:
+              "Mesin yang sama berjalan embedded sebagai library atau di belakang mode client-server, tanpa mengubah lapisan query.",
+          },
+        ],
+        outcome:
+          "Transaksi ACID, berkas penyimpanan transparan, dan pesan galat yang menyebut apa yang gagal. Konsol web di repositori memeriksa tabel tanpa klien terpisah.",
+        metrics: [
+          { value: "B-Tree", label: "struktur indeks" },
+          { value: "WAL", label: "pemulihan setelah crash" },
+          { value: "2", label: "mode embedded dan server" },
         ],
       },
     },
     {
       id: "ftrack",
-      index: "03",
+      index: "05",
       title: "ftrack",
       role: "Tool sistem · proyek pribadi",
       description:
@@ -180,7 +264,7 @@ export const content: PortfolioContent = {
       href: "/projects/ftrack",
       repoUrl: "https://github.com/FerzDevZ/ftrack",
       liveUrl: null,
-    preview: null,
+      preview: null,
       caseStudy: {
         context:
           "Mengarsipkan situs untuk audit atau preservasi lebih dari sekadar unduhan rekursif. Situs modern dirender dengan JavaScript, dan hasilnya harus mengikuti standar yang bisa dibaca alat preservasi lain.",
@@ -211,60 +295,18 @@ export const content: PortfolioContent = {
       },
     },
     {
-      id: "dhybrid",
-      index: "04",
-      title: "dhybrid-agent",
-      role: "Tool CLI · proyek pribadi",
-      description:
-        "Agent coding di terminal yang mengirim langkah rutin ke model murah dan penalaran berat ke model besar, dengan mode plan yang memblokir setiap penulisan.",
-      year: "2026",
-      stack: ["Python 3.12", "CLI", "LLM routing"],
-      href: "/projects/dhybrid",
-      repoUrl: "https://github.com/FerzDevZ/dhybrid-agent",
-      liveUrl: null,
-    preview: null,
-      caseStudy: {
-        context:
-          "Agent coding yang memakai satu model besar untuk setiap langkah menghabiskan anggaran untuk membaca berkas dan menjalankan tes. Penggunanya juga perlu tahu apa yang boleh diubah sebelum agent mengubah apa pun.",
-        approach: [
-          {
-            title: "Routing per langkah",
-            detail:
-              "Pekerjaan rutin — membaca berkas, menjalankan tes, edit kecil — masuk ke model cepat. Perencanaan dan debugging sulit dinaikkan ke model besar, dan eskalasi harus disetujui.",
-          },
-          {
-            title: "Mode plan hanya baca",
-            detail:
-              "Di mode plan setiap write, patch, commit, serta aksi issue atau PR diblokir, dan perintah terminal dibatasi ke perintah baca saja.",
-          },
-          {
-            title: "Data tetap lokal",
-            detail:
-              "Semua data disimpan di ~/.dhybrid/, tanpa server dan tanpa telemetri.",
-          },
-        ],
-        outcome:
-          "Bisa dipasang lewat pip, berlisensi MIT, dan berstatus Beta. Biaya token diukur per sesi lewat perintah /tokens.",
-        metrics: [
-          { value: "2", label: "mode: plan dan build" },
-          { value: "0", label: "telemetri yang dikirim" },
-          { value: "MIT", label: "lisensi, status Beta" },
-        ],
-      },
-    },
-    {
       id: "oauth",
-      index: "05",
+      index: "06",
       title: "Sistem OAuth",
       role: "Autentikasi · proyek pribadi",
       description:
-        "Login Google dan GitHub yang ditulis tangan di Next.js — PKCE, sesi yang bisa dicabut, rate limit, dan log audit, tanpa library auth.",
+        "Login Google dan GitHub yang ditulis tangan di Next.js: PKCE, sesi yang bisa dicabut, rate limit, dan log audit, tanpa library auth.",
       year: "2026",
       stack: ["Next.js", "SQLite", "PKCE"],
       href: "/projects/oauth",
       repoUrl: "https://github.com/FerzDevZ/oauth-system",
       liveUrl: null,
-    preview: null,
+      preview: null,
       caseStudy: {
         context:
           "Library auth menyembunyikan keputusan yang penting: di mana verifier PKCE disimpan, bagaimana sesi dicabut, dan di mana login gagal dicatat. Menulis alurnya sendiri membuat keputusan itu terlihat.",
@@ -295,8 +337,50 @@ export const content: PortfolioContent = {
       },
     },
     {
+      id: "nanotok",
+      index: "07",
+      title: "nanotok",
+      role: "Tooling · proyek pribadi",
+      description:
+        "Kompresor token deterministik dan offline untuk prompt serta log agen: pipeline enam tahap yang menjaga identifier, path, dan literal galat tetap utuh.",
+      year: "2026",
+      stack: ["Python", "CLI", "Standard library saja"],
+      href: "/projects/nanotok",
+      repoUrl: "https://github.com/FerzDevZ/nanotok",
+      liveUrl: null,
+      preview: null,
+      caseStudy: {
+        context:
+          "Sesi agen menghabiskan sebagian besar konteksnya pada log berulang, dump berkas, dan boilerplate. Memangkasnya manual menghilangkan literal persis yang dibutuhkan model untuk bertindak benar.",
+        approach: [
+          {
+            title: "Span yang dilindungi",
+            detail:
+              "Path, flag, identifier, angka, dan literal galat ditandai sebelum kompresi dan dipulihkan sesudahnya, sehingga token yang mengubah makna tidak pernah ditulis ulang.",
+          },
+          {
+            title: "Enam tahap, urutan tetap",
+            detail:
+              "Setiap tahap punya kontrak sendiri dan melaporkan penghematannya sendiri, sehingga keputusan kompresi bisa ditelusuri, bukan dipercaya.",
+          },
+          {
+            title: "Tanpa dependensi, tanpa jaringan",
+            detail:
+              "Hanya standard library Python. Masukan yang sama menghasilkan keluaran yang sama, itulah yang membuatnya aman dipakai di hook CI.",
+          },
+        ],
+        outcome:
+          "Dirilis sebagai CLI dengan integrasi AgentSkills untuk agen coding, bagian benchmark terukur, dan target desain yang dipisahkan dari penghematan nyata.",
+        metrics: [
+          { value: "6", label: "lapisan pipeline" },
+          { value: "0", label: "dependensi runtime" },
+          { value: "Lokal", label: "deterministik dan offline" },
+        ],
+      },
+    },
+    {
       id: "fcopier",
-      index: "06",
+      index: "08",
       title: "FCopier",
       role: "Tooling · proyek pribadi",
       description:
@@ -398,8 +482,8 @@ export const content: PortfolioContent = {
   experience: {
     heading: "03 — Pengalaman",
     span: "2024 — sekarang",
-    /* Hanya tonggak yang bisa dibuktikan repositori ini: enam studi kasus dan
-       tiga sertifikat. Riwayat kerja sengaja tidak dicantumkan — tidak ada
+    /* Hanya tonggak yang bisa dibuktikan repositori ini: delapan studi kasus
+       dan tiga sertifikat. Riwayat kerja sengaja tidak dicantumkan — tidak ada
        sumber yang bisa diverifikasi, dan nama perusahaan yang tidak terbukti
        lebih buruk daripada tidak ada baris pengalaman sama sekali. */
     items: [
@@ -408,7 +492,7 @@ export const content: PortfolioContent = {
         role: "Pembangun independen",
         company: "Proyek pribadi",
         description:
-          "Enam proyek yang sudah dirilis di halaman ini — marketplace jasa, model keamanan, pengarsip Rust, agen CLI, sistem OAuth, dan cloner Playwright — masing-masing dengan tautan repositori sumbernya.",
+          "Delapan proyek yang sudah dirilis di halaman ini: marketplace jasa, kasir apotek, gateway AI, mesin database, pengarsip web, sistem OAuth, kompresor token, dan penyalin situs. Masing-masing tertaut ke repositori sumbernya.",
       },
       {
         period: "2024 — 2026",

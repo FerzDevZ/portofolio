@@ -87,99 +87,183 @@ export const content: PortfolioContent = {
     title: "JASAKITE",
     role: "Full-stack build · personal project",
     description:
-      "Local services marketplace for Indonesia: a filterable catalog, multi-item checkout, a provider order board, and an admin console — on Next.js 15 and Prisma.",
+      "Local services marketplace for Indonesia: a filterable catalog, multi-item checkout, a provider board, and an admin console, with QRIS money held in escrow until the job is done.",
     year: "2026",
     stack: ["Next.js 15", "Prisma", "MongoDB", "NextAuth v5"],
     href: "/projects/jasakite",
     repoUrl: "https://github.com/FerzDevZ/jasakite",
-    liveUrl: null,
+    liveUrl: "https://jasakite.vercel.app",
     preview: null,
     caseStudy: {
       context:
-        "Buyers and local service providers need one place to find, book, and pay for work. An order passes through several people before it is finished, so every role has to see that order's next step.",
+        "Buyers and local providers need one place to find, book, and pay for work. Money passes through several people before a job is finished, so every role has to see the same order at the same step.",
       approach: [
         {
-          title: "Three roles, one order model",
+          title: "Four roles, one order model",
           detail:
-            "Customer, provider, and admin share one order lifecycle — received, in progress, completed, cancelled — with a timestamped timeline for each step.",
+            "Customer, provider, admin, and super admin share one lifecycle: received, in progress, completed, cancelled, each with a timestamped timeline.",
         },
         {
-          title: "Checkout in three steps",
+          title: "Escrow before delivery",
           detail:
-            "Address, schedule, then payment, producing one order group from a multi-item cart. Voucher discounts are recalculated on the server, never taken from the client.",
+            "QRIS payment is held against the order and released on completion, into a wallet the provider can withdraw from. The subscription that keeps a provider listed is deducted from that balance.",
         },
         {
           title: "Tested in two layers",
           detail:
-            "Vitest covers the unit logic, and Playwright runs the end-to-end flows in Chromium plus a 320px mobile profile.",
+            "Vitest covers the pricing and order rules; Playwright runs the flows in Chromium and on a 320px mobile profile.",
         },
       ],
       outcome:
-        "The full flow from catalog to review runs in the repository, with seeded demo accounts for each role. Payment is a simulated step, and the README states that limit plainly.",
+        "Catalog to review runs end to end in the repository, with seeded demo accounts for all four roles and an operator guide. Payment is a simulated QRIS step, and the README states that limit.",
       metrics: [
-        { value: "3", label: "roles in one application" },
-        { value: "6", label: "steps from catalog to review" },
-        { value: "320px", label: "mobile E2E profile" },
+        { value: "4", label: "roles in one application" },
+        { value: "Escrow", label: "QRIS funds held until completion" },
+        { value: "Rp10.000", label: "monthly provider subscription" },
       ],
     },
   },
 
   projects: [
     {
-      id: "aegisx",
+      id: "webpos-apotek",
       index: "02",
-      title: "AegisX-Mini",
-      role: "Machine learning · personal project",
+      title: "WebPOS Apotek",
+      role: "Full-stack build · personal project",
       description:
-        "A ~30M-parameter security model trained from scratch, answering only from its own corpus and saying so when it has no support.",
+        "A pharmacy point-of-sale and stock system for Indonesian shops: batch-level FEFO dispensing, prescriptions with signa, multi-unit selling, and profit counted from the batch that actually left the shelf.",
       year: "2026",
-      stack: ["Python", "Gradio", "BM25"],
-      href: "/projects/aegisx",
-      repoUrl: "https://github.com/FerzDevZ/AegisX",
+      stack: ["Next.js 16", "Prisma", "SQLite", "Tailwind CSS v4"],
+      href: "/projects/webpos-apotek",
+      repoUrl: "https://github.com/FerzDevZ/webpos-apotek",
       liveUrl: null,
-    preview: null,
+      preview: null,
       caseStudy: {
         context:
-          "Small security chatbots answer confidently from memory. For bug-bounty study a wrong answer costs more than no answer, so the model had to be grounded in a corpus and honest about its gaps.",
+          "An Indonesian pharmacy dispenses from batches that each carry an expiry date, and sells the same item as a box, a strip, or a tablet. A generic till records the sale but not the batch, so stock and profit drift apart.",
         approach: [
           {
-            title: "Trained from zero",
+            title: "FEFO decided on the server",
             detail:
-              "A byte-level BPE tokenizer with 8,192 tokens and a decoder-only transformer, run through pre-training, supervised fine-tuning, and DPO alignment in one Colab notebook.",
+              "The cashier never picks a batch. Allocation runs first-expiry-first-out inside the server action, and every movement is written to a stock ledger, so cost of goods comes from the batch that was really dispensed.",
           },
           {
-            title: "Retrieval without dependencies",
+            title: "Sessions without an auth vendor",
             detail:
-              "BM25 over per-section chunks supplies the answer. Each answer cites its source, and a question the corpus does not cover gets an honest \"I don't know\".",
+              "Cookie sessions signed with HMAC, scrypt password hashes, and role checks in both the proxy and the server action. A disabled user is locked out even while holding a live cookie.",
           },
           {
-            title: "Agent layer with a human gate",
+            title: "Offline by construction",
             detail:
-              "A ReAct loop wraps the model behind an authorization gate and an audit log, and any action waits for manual confirmation.",
+              "Prisma on SQLite keeps the whole system on the shop laptop. It runs with no internet, which is the condition it was built for.",
           },
         ],
         outcome:
-          "The pipeline runs end to end from one notebook. The test suite passes 133 of 133, and the model is served as a Gradio app on a Hugging Face Space with int8 quantization and streaming output.",
+          "The repository ships cashier, master items, invoice intake, stock and expiry, prescriptions, reports, customers, receipts, and role-based access. Receipts are laid out for 58mm thermal paper and printed from the browser.",
         metrics: [
-          { value: "~30M", label: "parameters, trained from scratch" },
-          { value: "133/133", label: "tests passing" },
-          { value: "768", label: "token context window" },
+          { value: "FEFO", label: "batch allocation on the server" },
+          { value: "58mm", label: "thermal receipt layout" },
+          { value: "0", label: "external auth dependencies" },
+        ],
+      },
+    },
+    {
+      id: "9router-aegisx",
+      index: "03",
+      title: "9Router AegisX",
+      role: "Platform build · maintained fork",
+      description:
+        "A self-hosted AI gateway between coding tools and 40+ providers: one OpenAI-compatible endpoint, fallback chains across accounts and tiers, and token savers that report what they removed.",
+      year: "2026",
+      stack: ["TypeScript", "SolidJS", "SQLite", "Node.js"],
+      href: "/projects/9router-aegisx",
+      repoUrl: "https://github.com/FerzDevZ/9router-aegisx",
+      liveUrl: null,
+      preview: null,
+      caseStudy: {
+        context:
+          "A coding assistant bound to one provider stops the moment that provider rate-limits or resets quota. Routing across accounts and tiers by hand means configuring every client separately.",
+        approach: [
+          {
+            title: "One endpoint, four wire formats",
+            detail:
+              "The gateway accepts OpenAI, Responses, Anthropic, and Gemini shapes and translates between them, so a dozen clients point at the same local URL and route by provider and model id.",
+          },
+          {
+            title: "Fallback as a policy",
+            detail:
+              "Combos chain subscription, cheap, and free tiers with sequential, round-robin, cache-aware, or parallel-fusion routing, chosen per model rather than per client.",
+          },
+          {
+            title: "Spend you can audit",
+            detail:
+              "Token and cost accounting per provider, model, and key, with cache-hit rate, quota tracking, and a scoreboard of what each token saver removed.",
+          },
+        ],
+        outcome:
+          "Credentials stay in a local SQLite database. The fork keeps the upstream unit suite green (4,100+ tests), adds security hardening and honest token accounting, and records its delta in a changelog.",
+        metrics: [
+          { value: "40+", label: "provider executors" },
+          { value: "4,100+", label: "unit tests in CI" },
+          { value: "1", label: "endpoint for every client" },
+        ],
+      },
+    },
+    {
+      id: "ferzdb",
+      index: "04",
+      title: "FerzDB",
+      role: "Systems build · personal project",
+      description:
+        "A SQL database engine in Rust for embedded and offline-first use: B-tree indexes, write-ahead logging, and a storage format small enough to inspect by hand.",
+      year: "2026",
+      stack: ["Rust", "B-Tree", "WAL"],
+      href: "/projects/ferzdb",
+      repoUrl: "https://github.com/FerzDevZ/ferzdb",
+      liveUrl: null,
+      preview: null,
+      caseStudy: {
+        context:
+          "SQLite is the default answer for an embedded database, but its page format is effectively opaque. Writing the engine is the only way to own the storage format, the transaction boundary, and the failure behaviour.",
+        approach: [
+          {
+            title: "A real B-tree",
+            detail:
+              "Index pages form a B-tree, so point lookups and range scans walk a structure instead of filtering a file.",
+          },
+          {
+            title: "Write-ahead log",
+            detail:
+              "Changes are appended to a WAL and replayed on open. That is what turns a half-written page into a recoverable state rather than a corrupt file.",
+          },
+          {
+            title: "Two deployment shapes",
+            detail:
+              "The same engine runs embedded as a library or behind a client-server mode, with the query layer unchanged.",
+          },
+        ],
+        outcome:
+          "ACID transactions, transparent storage files, and errors that name what failed. A web console in the repository inspects tables without a separate client.",
+        metrics: [
+          { value: "B-Tree", label: "index structure" },
+          { value: "WAL", label: "crash recovery" },
+          { value: "2", label: "embedded and server modes" },
         ],
       },
     },
     {
       id: "ftrack",
-      index: "03",
+      index: "05",
       title: "ftrack",
       role: "Systems tool · personal project",
       description:
-        "A web archiver in Rust that crawls URLs in parallel, writes WARC archives, and flags leaked secrets and API endpoints.",
+        "A web archiver and OSINT mapper in Rust that crawls URLs in parallel, writes WARC archives, and flags leaked secrets and API endpoints.",
       year: "2026",
       stack: ["Rust", "Tokio", "SQLite", "Chromium"],
       href: "/projects/ftrack",
       repoUrl: "https://github.com/FerzDevZ/ftrack",
       liveUrl: null,
-    preview: null,
+      preview: null,
       caseStudy: {
         context:
           "Archiving a site for audit or preservation takes more than a recursive download. Modern sites render in JavaScript, and the output has to follow a standard other preservation tools can read.",
@@ -197,11 +281,11 @@ export const content: PortfolioContent = {
           {
             title: "Detection rules as data",
             detail:
-              "Secret and endpoint signatures live in YAML files, so they can change without recompiling the tool.",
+              "Secret and endpoint signatures live in YAML files, so they change without recompiling the tool.",
           },
         ],
         outcome:
-          "Archives follow ISO 28500 (WARC) for interoperability with other preservation tools. Crawl state is kept in SQLite, so later runs proceed incrementally.",
+          "Archives follow ISO 28500 (WARC) for interoperability with other preservation tools. Crawl state is kept in SQLite, so later runs proceed incrementally, and a passive scan reports the credentials it finds.",
         metrics: [
           { value: "WARC", label: "ISO 28500 archive format" },
           { value: "Tokio", label: "async parallel crawling" },
@@ -210,60 +294,18 @@ export const content: PortfolioContent = {
       },
     },
     {
-      id: "dhybrid",
-      index: "04",
-      title: "dhybrid-agent",
-      role: "CLI tool · personal project",
-      description:
-        "A terminal coding agent that sends routine steps to a cheap model and hard reasoning to a large one, with a plan mode that blocks every write.",
-      year: "2026",
-      stack: ["Python 3.12", "CLI", "LLM routing"],
-      href: "/projects/dhybrid",
-      repoUrl: "https://github.com/FerzDevZ/dhybrid-agent",
-      liveUrl: null,
-    preview: null,
-      caseStudy: {
-        context:
-          "A coding agent that uses one large model for every step spends budget on file reads and test runs. Its user also needs to know what it may change before it changes anything.",
-        approach: [
-          {
-            title: "Routing per step",
-            detail:
-              "Routine work — reading files, running tests, small edits — goes to a fast model. Planning and hard debugging escalate to a large one, and escalation needs explicit approval.",
-          },
-          {
-            title: "Plan mode is read-only",
-            detail:
-              "In plan mode every write, patch, commit, and issue or PR action is blocked, and terminal commands are limited to read-only ones.",
-          },
-          {
-            title: "State stays local",
-            detail:
-              "All data is kept in ~/.dhybrid/, with no server and no telemetry.",
-          },
-        ],
-        outcome:
-          "Installable with pip, released under the MIT license, and marked Beta. Token cost is measured per session through a /tokens command.",
-        metrics: [
-          { value: "2", label: "modes: plan and build" },
-          { value: "0", label: "telemetry sent" },
-          { value: "MIT", label: "license, Beta status" },
-        ],
-      },
-    },
-    {
       id: "oauth",
-      index: "05",
+      index: "06",
       title: "OAuth system",
       role: "Authentication · personal project",
       description:
-        "Google and GitHub sign-in written by hand in Next.js — PKCE, revocable sessions, rate limits, and an audit log, with no auth library.",
+        "Google and GitHub sign-in written by hand in Next.js: PKCE, revocable sessions, rate limits, and an audit log, with no auth library.",
       year: "2026",
       stack: ["Next.js", "SQLite", "PKCE"],
       href: "/projects/oauth",
       repoUrl: "https://github.com/FerzDevZ/oauth-system",
       liveUrl: null,
-    preview: null,
+      preview: null,
       caseStudy: {
         context:
           "Auth libraries hide the decisions that matter: where the PKCE verifier lives, how a session is revoked, and where a failed login is recorded. Writing the flow by hand makes those decisions visible.",
@@ -294,8 +336,50 @@ export const content: PortfolioContent = {
       },
     },
     {
+      id: "nanotok",
+      index: "07",
+      title: "nanotok",
+      role: "Tooling · personal project",
+      description:
+        "A deterministic, offline token compressor for agent prompts and logs: a six-stage pipeline that keeps identifiers, paths, and error literals intact.",
+      year: "2026",
+      stack: ["Python", "CLI", "Standard library only"],
+      href: "/projects/nanotok",
+      repoUrl: "https://github.com/FerzDevZ/nanotok",
+      liveUrl: null,
+      preview: null,
+      caseStudy: {
+        context:
+          "Agent sessions spend most of their context on repeated logs, file dumps, and boilerplate. Trimming that by hand loses the exact literals the model needs to act correctly.",
+        approach: [
+          {
+            title: "Protected spans",
+            detail:
+              "Paths, flags, identifiers, numbers, and error literals are marked before compression and restored after, so a token that changes meaning is never rewritten.",
+          },
+          {
+            title: "Six stages, fixed order",
+            detail:
+              "Each stage has its own contract and reports its own savings, so a compression choice can be traced instead of trusted.",
+          },
+          {
+            title: "No dependencies, no network",
+            detail:
+              "Python standard library only. The same input produces the same output, which is what makes it safe inside a CI hook.",
+          },
+        ],
+        outcome:
+          "Ships as a CLI with an AgentSkills integration for coding agents, a measured benchmark section, and design targets stated separately from realized savings.",
+        metrics: [
+          { value: "6", label: "pipeline layers" },
+          { value: "0", label: "runtime dependencies" },
+          { value: "Local", label: "deterministic and offline" },
+        ],
+      },
+    },
+    {
       id: "fcopier",
-      index: "06",
+      index: "08",
       title: "FCopier",
       role: "Tooling · personal project",
       description:
@@ -407,7 +491,7 @@ export const content: PortfolioContent = {
         role: "Independent builder",
         company: "Personal projects",
         description:
-          "Six shipped projects on this page — a services marketplace, a security model, a Rust archiver, a CLI agent, an OAuth system, and a Playwright cloner — each with its source repository linked.",
+          "Eight shipped projects on this page: a services marketplace, a pharmacy POS, an AI gateway, a database engine, a web archiver, an OAuth system, a token compressor, and a site cloner. Each links to its source repository.",
       },
       {
         period: "2024 — 2026",

@@ -34,7 +34,7 @@ test.describe("static rendering", () => {
   });
 
   test("a case study names its share card", async ({ request }) => {
-    const html = await (await request.get("/en/projects/aegisx")).text();
+    const html = await (await request.get("/en/projects/ferzdb")).text();
     /* The page-level `openGraph` object replaces the layout's, which is how the
        file-convention image stopped being inherited and the most shareable
        pages ended up with no `og:image` at all. */
@@ -57,11 +57,11 @@ test.describe("static rendering", () => {
 
   test("the sitemap lists every route in both locales", async ({ request }) => {
     const xml = await (await request.get("/sitemap.xml")).text();
-    /* 10 dictionary/footer paths × 2 locales, plus one article per locale.
-       The featured case study fell out of this list once because the sitemap
-       read a different array than `generateStaticParams`. */
-    expect((xml.match(/<loc>/g) ?? []).length).toBe(22);
-    expect((xml.match(/hreflang=/g) ?? []).length).toBe(66);
+    /* 13 routes per locale: home, the 8 case studies, blog, contact, resume,
+       and one article. The featured case study fell out of this list once
+       because the sitemap read a different array than `generateStaticParams`. */
+    expect((xml.match(/<loc>/g) ?? []).length).toBe(26);
+    expect((xml.match(/hreflang=/g) ?? []).length).toBe(78);
 
     /* Every page reachable from the footer is advertised in both locales. */
     for (const path of [
