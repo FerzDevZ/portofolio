@@ -110,7 +110,7 @@ export function LanguageSwitch({
         onClick={onNavigate}
         aria-label={actionLabel}
         title={actionLabel}
-        className="inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-line bg-panel/60 px-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink"
+        className="hit-area-44 inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-line bg-panel/60 px-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink"
       >
         {firstOtherLocale}
       </Link>
@@ -122,7 +122,7 @@ export function LanguageSwitch({
           aria-label={formatTemplate(ui.languageSwitchTemplate, {
             language: furtherLocale,
           })}
-          className="inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-line bg-panel/60 px-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink"
+          className="hit-area-44 inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-line bg-panel/60 px-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink"
         >
           {furtherLocale}
         </Link>

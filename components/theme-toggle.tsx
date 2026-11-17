@@ -185,7 +185,7 @@ export function ThemeToggle({ labels }: { labels: ThemeToggleLabels }) {
     <button
       type="button"
       onClick={cycleTheme}
-      className="flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-full border border-line bg-panel/60 px-2 text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink sm:px-2.5"
+      className="hit-area-44 flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-full border border-line bg-panel/60 px-2 text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink sm:px-2.5"
       aria-label={currentThemeLabel}
       title={`${currentThemeLabel} — ${labels.themeHint}`}
     >

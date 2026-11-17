@@ -27,7 +27,7 @@ export const content: PortfolioContent = {
     portrait: "/profile/portrait.webp",
     portraitAlt: "Foto Ferdinand Dero Saputra",
     description:
-      "Portofolio Ferdinand Dero Saputra — frontend engineer yang fokus pada design system, performa, dan antarmuka dengan pengekangan editorial.",
+      "Portofolio Ferdinand Dero Saputra, frontend engineer yang fokus pada design system, performa, dan antarmuka dengan pengekangan editorial.",
   },
 
   hero: {

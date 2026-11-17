@@ -13,6 +13,13 @@ export default defineConfig({
       "**/node_modules/**",
       "**/dist/**",
       "tests/**/*.spec.ts",
+      /* The agent skill libraries carry example suites (Pact consumer tests,
+         Playwright fixtures, service templates). They are reference material,
+         not this project's tests: collecting them made `test:unit` fail with
+         ECONNREFUSED on suites that expect an external server. */
+      ".agents/**",
+      ".freebuff/**",
+      ".freebuff-snapshots/**",
     ],
     coverage: {
       provider: "v8",

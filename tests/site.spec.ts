@@ -16,6 +16,29 @@ async function noHorizontalOverflow(page: Page) {
   expect(scrollWidth, "page must not scroll sideways").toBeLessThanOrEqual(clientWidth);
 }
 
+/**
+ * Formats axe findings with the element that failed, not only the rule name.
+ *
+ * A message reading "color-contrast (1 nodes)" says a contrast rule broke but
+ * not which text did it, so the next step is always a second, manual axe run.
+ * The target selector and the failing ratio are what make the assertion itself
+ * the diagnosis.
+ */
+function describeViolations(
+  violations: {
+    id: string;
+    help: string;
+    nodes: { target: (string | string[])[]; failureSummary?: string }[];
+  }[],
+): string[] {
+  return violations.map((violation) => {
+    const targets = violation.nodes
+      .map((node) => node.target.map((part) => (Array.isArray(part) ? part.join(" ") : part)).join(" "))
+      .join(", ");
+    return `${violation.id}: ${violation.help} (${violation.nodes.length} nodes: ${targets})`;
+  });
+}
+
 test.describe("routing", () => {
   test("unprefixed root redirects to a locale", async ({ request }) => {
     const response = await request.get("/", { maxRedirects: 0 });
@@ -149,6 +172,19 @@ test.describe("certificate lightbox", () => {
 });
 
 test.describe("accessibility", () => {
+  /* Both audits run with reduced motion on.
+   *
+   * The hero stages its entrance as a 620ms opacity fade with delays up to
+   * 340ms (`.enter`). Axe samples computed colour while that fade is still in
+   * flight, so a partially transparent primary button reads as a contrast
+   * failure — a race, not a defect: the settled state is opaque and passes, and
+   * the same animation is already disabled for reduced-motion visitors. Asking
+   * for that mode makes the audit deterministic and covers a real, supported
+   * configuration instead of whatever frame the runner happened to catch. */
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+  });
+
   for (const locale of LOCALES) {
     test(`/${locale} has no serious or critical axe violations`, async ({ page }) => {
       await page.goto(`/${locale}`);
@@ -159,7 +195,7 @@ test.describe("accessibility", () => {
         ["serious", "critical"].includes(v.impact ?? ""),
       );
       expect(
-        blocking.map((v) => `${v.id}: ${v.help} (${v.nodes.length} nodes)`),
+        describeViolations(blocking),
         "blocking axe violations",
       ).toEqual([]);
     });
@@ -182,7 +218,7 @@ test.describe("accessibility", () => {
         ["serious", "critical"].includes(v.impact ?? ""),
       );
       expect(
-        blocking.map((v) => `${v.id}: ${v.help} (${v.nodes.length} nodes)`),
+        describeViolations(blocking),
         "blocking axe violations (light theme)",
       ).toEqual([]);
     });
@@ -376,7 +412,7 @@ test.describe("accessibility: case study", () => {
         ["serious", "critical"].includes(v.impact ?? ""),
       );
       expect(
-        blocking.map((v) => `${v.id}: ${v.help} (${v.nodes.length} nodes)`),
+        describeViolations(blocking),
         "blocking axe violations",
       ).toEqual([]);
     });

@@ -213,7 +213,7 @@ export function Work({ content }: { content: PortfolioContent }) {
             />
             <div
               aria-hidden="true"
-              className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent/10 blur-3xl"
+              className="tilt-accent-light"
             />
             <div className="relative flex w-full items-end justify-between">
               <AnimatedMetric

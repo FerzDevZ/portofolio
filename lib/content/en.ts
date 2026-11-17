@@ -26,7 +26,7 @@ export const content: PortfolioContent = {
     portrait: "/profile/portrait.webp",
     portraitAlt: "Portrait of Ferdinand Dero Saputra",
     description:
-      "Portfolio of Ferdinand Dero Saputra — frontend engineer focused on design systems, performance, and interfaces with editorial restraint.",
+      "Portfolio of Ferdinand Dero Saputra, a frontend engineer focused on design systems, performance, and interfaces with editorial restraint.",
   },
 
   hero: {

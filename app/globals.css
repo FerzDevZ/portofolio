@@ -400,6 +400,9 @@
      the same row were 2px apart in height. */
   border: 1px solid transparent;
   border-radius: 6px;
+  /* 44px: the smallest target the craft lock accepts, and the height the
+     10px/18px padding almost reached on its own. */
+  min-height: 2.75rem;
   padding: 0.625rem 1.125rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -441,6 +444,27 @@
 .btn-ghost:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* Icon controls keep their 32px visual box; the pointer target is 44px.
+   A 6px inset per side reaches it without overlapping the neighbouring
+   control, and `border-radius: inherit` keeps the target round like the
+   control it belongs to. */
+.hit-area-44 {
+  position: relative;
+}
+.hit-area-44::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+}
+
+/* Nav links sit 4px apart, so they grow vertically only. */
+.hit-area-y::after {
+  content: "";
+  position: absolute;
+  inset: -7px 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1016,6 +1040,28 @@
     transform: none !important;
   }
   .tilt-panel-glare {
+    display: none;
+  }
+}
+
+/* The panel's practical light. It is anchored to the same --tilt-gx/-gy
+   the glare uses, so the accent falloff travels with the plane it is
+   supposed to illuminate. Flat and motionless, it would just be a blur
+   orb; on touch and reduced-motion there is no plane, so there is none. */
+.tilt-accent-light {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    260px circle at var(--tilt-gx, 82%) var(--tilt-gy, 18%),
+    color-mix(in oklab, var(--color-accent) 9%, transparent),
+    transparent 74%
+  );
+  transition: opacity 260ms ease;
+}
+
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .tilt-accent-light {
     display: none;
   }
 }

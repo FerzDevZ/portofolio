@@ -10,7 +10,22 @@ const compat = new FlatCompat({ baseDirectory: here });
 
 const eslintConfig = [
   {
-    ignores: [".next/**", "node_modules/**", "next-env.d.ts", "playwright-report/**", "test-results/**"],
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "next-env.d.ts",
+      "playwright-report/**",
+      "test-results/**",
+      ".lighthouseci/**",
+      "coverage/**",
+      /* The agent skill libraries ship their own resource files — k6 scripts,
+         React templates, Playwright fixtures. They are tooling, not this site,
+         and linting them both fails the gate on files we never import and
+         hides real findings in our own source behind their noise. */
+      ".agents/**",
+      ".freebuff/**",
+      ".freebuff-snapshots/**",
+    ],
   },
   ...compat.extends("next/core-web-vitals"),
 ];

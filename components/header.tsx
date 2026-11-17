@@ -298,7 +298,7 @@ export function Header({ locale, nav, pageLinks, site, ui }: HeaderContent) {
                       ? "true"
                       : undefined
                   }
-                  className="nav-link"
+                  className="nav-link hit-area-y"
                 >
                   {navEntry.label}
                 </a>
@@ -341,7 +341,7 @@ export function Header({ locale, nav, pageLinks, site, ui }: HeaderContent) {
             <button
               ref={menuButtonRef}
               type="button"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-line bg-panel/60 text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink md:hidden"
+              className="hit-area-44 flex h-8 w-8 items-center justify-center rounded-full border border-line bg-panel/60 text-ink-muted transition-colors duration-150 hover:border-line-strong hover:text-ink md:hidden"
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
               aria-label={menuOpen ? ui.closeMenu : ui.openMenu}
