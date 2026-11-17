@@ -156,7 +156,7 @@ test.describe("layout", () => {
     await expect(work.locator("[data-cursor-label]")).toHaveCount(7);
     /* Every project states one verified fact — live, release, tests — read from
        the GitHub API rather than from ambition. */
-    await expect(work.getByText("Live · release app-v1.0.1")).toBeVisible();
+    await expect(work.getByText("Live · release app-v1.0.1 · MIT")).toBeVisible();
     await expect(work.getByText("Release v0.5.110-aegisx.1 · CI")).toBeVisible();
   });
 });
@@ -329,11 +329,21 @@ test.describe("case-study metrics", () => {
 });
 
 test.describe("project row preview", () => {
-  test("preview image for FCopier is served and decodes", async ({ page, request }) => {
-    // The asset itself must exist and be a PNG, regardless of viewport.
-    const asset = await request.get("/projects/fcopier-preview.png");
-    expect(asset.status()).toBe(200);
-    expect(asset.headers()["content-type"]).toContain("image/");
+  test("both project previews are served and decode", async ({ page, request }) => {
+    // The assets must exist and be images, regardless of viewport.
+    for (const assetPath of [
+      "/projects/fcopier-preview.webp",
+      "/projects/jasakite-preview.webp",
+    ]) {
+      const asset = await request.get(assetPath);
+      expect(asset.status(), assetPath).toBe(200);
+      expect(asset.headers()["content-type"]).toContain("image/");
+    }
+
+    /* Every capture is also published on its case-study page, where the
+       reader can check it without hovering. */
+    await page.goto("/en/projects/jasakite");
+    await expect(page.locator("figure img[alt*='JASAKITE']")).toBeVisible();
 
     // The gutter card only exists at >= 1800px (see globals.css), so the
     // hover check runs at that width.

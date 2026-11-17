@@ -90,11 +90,16 @@ export const content: PortfolioContent = {
       "Local services marketplace for Indonesia: a filterable catalog, multi-item checkout, a provider board, and an admin console, with QRIS money held in escrow until the job is done.",
     year: "2026",
     stack: ["Next.js 15", "Prisma", "MongoDB", "NextAuth v5"],
-    proof: "Live · release app-v1.0.1",
+    proof: "Live · release app-v1.0.1 · MIT",
     href: "/projects/jasakite",
     repoUrl: "https://github.com/FerzDevZ/jasakite",
     liveUrl: "https://jasakite.vercel.app",
-    preview: null,
+        preview: {
+      src: "/projects/jasakite-preview.webp",
+      alt: "JASAKITE marketplace homepage: a search field, service categories, and provider cards",
+      width: 1280,
+      height: 853,
+    },
     caseStudy: {
       context:
         "Buyers and local providers need one place to find, book, and pay for work. Money passes through several people before a job is finished, so every role has to see the same order at the same step.",
@@ -135,7 +140,7 @@ export const content: PortfolioContent = {
         "A pharmacy point-of-sale and stock system for Indonesian shops: batch-level FEFO dispensing, prescriptions with signa, multi-unit selling, and profit counted from the batch that actually left the shelf.",
       year: "2026",
       stack: ["Next.js 16", "Prisma", "SQLite", "Tailwind CSS v4"],
-      proof: "Early preview",
+      proof: "Early preview · 45 unit tests · MIT",
       href: "/projects/webpos-apotek",
       repoUrl: "https://github.com/FerzDevZ/webpos-apotek",
       liveUrl: null,
@@ -161,7 +166,7 @@ export const content: PortfolioContent = {
           },
         ],
         outcome:
-          "The repository contains cashier, master items, invoice intake, stock and expiry, prescriptions, reports, customers, receipts, and role-based access. Receipts are laid out for 58mm thermal paper and printed from the browser. The automated suite is not written yet, so the flows are verified by hand.",
+          "The repository contains cashier, master items, invoice intake, stock and expiry, prescriptions, reports, customers, receipts, and role-based access. Receipts are laid out for 58mm thermal paper and printed from the browser. The money and FEFO cores — integer rupiah arithmetic and first-expiry-first-out batch allocation — are covered by 45 unit tests; the rest of the flows are still verified by hand.",
         metrics: [
           { value: "FEFO", label: "batch allocation on the server" },
           { value: "58mm", label: "thermal receipt layout" },
@@ -221,7 +226,7 @@ export const content: PortfolioContent = {
         "A SQL database engine in Rust for embedded and offline-first use: B-tree indexes, write-ahead logging, and a storage format small enough to inspect by hand.",
       year: "2026",
       stack: ["Rust", "B-Tree", "WAL"],
-      proof: "In development",
+      proof: "In development · 16 tests · MIT",
       href: "/projects/ferzdb",
       repoUrl: "https://github.com/FerzDevZ/ferzdb",
       liveUrl: null,
@@ -247,7 +252,7 @@ export const content: PortfolioContent = {
           },
         ],
         outcome:
-          "ACID transactions, transparent storage files, and errors that name what failed. A web console in the repository inspects tables without a separate client. It is a working core, not yet a drop-in replacement for SQLite.",
+          "ACID transactions, transparent storage files, and errors that name what failed. A web console in the repository inspects tables without a separate client. It is a working core, not yet a drop-in replacement for SQLite. The suite also caught a durability bug: closing the database flushed nothing, so a reopened file had forgotten its tables. The pool now writes every dirty page on sync, and a test proves rows survive a reopen.",
         metrics: [
           { value: "B-Tree", label: "index structure" },
           { value: "WAL", label: "crash recovery" },
@@ -264,7 +269,7 @@ export const content: PortfolioContent = {
         "A web archiver and OSINT mapper in Rust that crawls URLs in parallel, writes WARC archives, and flags leaked secrets and API endpoints.",
       year: "2026",
       stack: ["Rust", "Tokio", "SQLite", "Chromium"],
-      proof: "In development",
+      proof: "In development · 10 tests · MIT",
       href: "/projects/ftrack",
       repoUrl: "https://github.com/FerzDevZ/ftrack",
       liveUrl: null,
@@ -290,7 +295,7 @@ export const content: PortfolioContent = {
           },
         ],
         outcome:
-          "Archives follow ISO 28500 (WARC) for interoperability with other preservation tools. Crawl state is kept in SQLite, so later runs proceed incrementally, and a passive scan reports the credentials it finds.",
+          "Archives follow ISO 28500 (WARC) for interoperability with other preservation tools. Crawl state is kept in SQLite, so later runs proceed incrementally, and a passive scan reports the credentials it finds. Ten unit tests pin the parsers: scheme filtering keeps `mailto:` and `javascript:` out of the queue, framework detection is case-insensitive, and an `import()` call for a chunk is recognised as an asset.",
         metrics: [
           { value: "WARC", label: "ISO 28500 archive format" },
           { value: "Tokio", label: "async parallel crawling" },
@@ -307,7 +312,7 @@ export const content: PortfolioContent = {
         "Google and GitHub sign-in written by hand in Next.js: PKCE, revocable sessions, rate limits, and an audit log, with no auth library.",
       year: "2026",
       stack: ["Next.js", "SQLite", "PKCE"],
-      proof: "Test suite included",
+      proof: "Test suite included · MIT",
       href: "/projects/oauth",
       repoUrl: "https://github.com/FerzDevZ/oauth-system",
       liveUrl: null,
@@ -350,7 +355,7 @@ export const content: PortfolioContent = {
         "A deterministic, offline token compressor for agent prompts and logs: a six-stage pipeline that keeps identifiers, paths, and error literals intact.",
       year: "2026",
       stack: ["Python", "CLI", "Standard library only"],
-      proof: "v3.0.0 · CI",
+      proof: "v3.0.0 · CI · MIT",
       href: "/projects/nanotok",
       repoUrl: "https://github.com/FerzDevZ/nanotok",
       liveUrl: null,
@@ -393,15 +398,15 @@ export const content: PortfolioContent = {
         "A Playwright-based website cloner with offline export, API recording, and a secret scanner over the assets it saves.",
       year: "2026",
       stack: ["JavaScript", "Playwright"],
-      proof: "Live docs",
+      proof: "Live docs · MIT",
       href: "/projects/fcopier",
       repoUrl: "https://github.com/FerzDevZ/fcopier",
       liveUrl: "https://ferzdevz.github.io/fcopier/",
       preview: {
-        src: "/projects/fcopier-preview.png",
-        alt: "FCopier documentation homepage, captured from the live demo",
+        src: "/projects/fcopier-preview.webp",
+        alt: "FCopier documentation: sidebar, installation section, and the pitch headline",
         width: 1280,
-        height: 577,
+        height: 569,
       },
       caseStudy: {
         context:

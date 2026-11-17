@@ -12,6 +12,8 @@ next-env.d.ts
 # of the site and nothing the app imports lives here.
 .freebuff/
 .freebuff-snapshots/
+# Vendored agent skill libraries (~16 MB). Kept locally, never in a clone.
+.agents/
 .vercel
 
 # Lighthouse CI output and Playwright artefacts (generated, never committed)

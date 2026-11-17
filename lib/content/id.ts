@@ -91,11 +91,16 @@ export const content: PortfolioContent = {
       "Marketplace jasa lokal untuk Indonesia: katalog dengan filter, checkout multi-item, papan pesanan penyedia, dan konsol admin, dengan uang QRIS ditahan dalam escrow sampai pekerjaan selesai.",
     year: "2026",
     stack: ["Next.js 15", "Prisma", "MongoDB", "NextAuth v5"],
-    proof: "Live · rilis app-v1.0.1",
+    proof: "Live · rilis app-v1.0.1 · MIT",
     href: "/projects/jasakite",
     repoUrl: "https://github.com/FerzDevZ/jasakite",
     liveUrl: "https://jasakite.vercel.app",
-    preview: null,
+        preview: {
+      src: "/projects/jasakite-preview.webp",
+      alt: "Beranda marketplace JASAKITE: kolom pencarian, kategori jasa, dan kartu penyedia",
+      width: 1280,
+      height: 853,
+    },
     caseStudy: {
       context:
         "Pembeli dan penyedia jasa lokal butuh satu tempat untuk mencari, memesan, dan membayar pekerjaan. Uang melewati beberapa pihak sebelum pekerjaan selesai, jadi setiap peran harus melihat pesanan yang sama pada langkah yang sama.",
@@ -136,7 +141,7 @@ export const content: PortfolioContent = {
         "Sistem kasir dan stok apotek untuk toko Indonesia: penjualan per batch dengan FEFO, resep dengan signa, satuan jual ganda, dan laba dihitung dari batch yang benar-benar keluar.",
       year: "2026",
       stack: ["Next.js 16", "Prisma", "SQLite", "Tailwind CSS v4"],
-      proof: "Pratinjau awal",
+      proof: "Pratinjau awal · 45 unit test · MIT",
       href: "/projects/webpos-apotek",
       repoUrl: "https://github.com/FerzDevZ/webpos-apotek",
       liveUrl: null,
@@ -162,7 +167,7 @@ export const content: PortfolioContent = {
           },
         ],
         outcome:
-          "Repositori memuat kasir, master item, penerimaan faktur, stok dan kadaluarsa, resep, laporan, pelanggan, struk, dan akses berbasis peran. Struk ditata untuk kertas termal 58mm dan dicetak dari browser.",
+          "Repositori memuat kasir, master item, penerimaan faktur, stok dan kadaluarsa, resep, laporan, pelanggan, struk, dan akses berbasis peran. Struk ditata untuk kertas termal 58mm dan dicetak dari browser. Inti uang dan FEFO — aritmetika rupiah integer dan alokasi batch first-expiry-first-out — ditutup 45 unit test; alur lainnya masih diverifikasi manual.",
         metrics: [
           { value: "FEFO", label: "alokasi batch di server" },
           { value: "58mm", label: "tata letak struk termal" },
@@ -222,7 +227,7 @@ export const content: PortfolioContent = {
         "Mesin database SQL dalam Rust untuk pemakaian embedded dan offline-first: indeks B-tree, write-ahead log, dan format penyimpanan yang cukup kecil untuk diperiksa manual.",
       year: "2026",
       stack: ["Rust", "B-Tree", "WAL"],
-      proof: "Sedang dikembangkan",
+      proof: "Sedang dikembangkan · 16 tes · MIT",
       href: "/projects/ferzdb",
       repoUrl: "https://github.com/FerzDevZ/ferzdb",
       liveUrl: null,
@@ -248,7 +253,7 @@ export const content: PortfolioContent = {
           },
         ],
         outcome:
-          "Transaksi ACID, berkas penyimpanan transparan, dan pesan galat yang menyebut apa yang gagal. Konsol web di repositori memeriksa tabel tanpa klien terpisah. Ini inti yang sudah bekerja, belum pengganti SQLite.",
+          "Transaksi ACID, berkas penyimpanan transparan, dan pesan galat yang menyebut apa yang gagal. Konsol web di repositori memeriksa tabel tanpa klien terpisah. Ini inti yang sudah bekerja, belum pengganti SQLite. Suite tesnya juga menemukan bug durabilitas: menutup basis data tidak menulis apa pun, sehingga berkas yang dibuka ulang lupa tabelnya. Kini seluruh halaman kotor ditulis saat sync, dan satu tes membuktikan baris bertahan setelah dibuka ulang.",
         metrics: [
           { value: "B-Tree", label: "struktur indeks" },
           { value: "WAL", label: "pemulihan setelah crash" },
@@ -265,7 +270,7 @@ export const content: PortfolioContent = {
         "Pengarsip web berbasis Rust yang merayapi URL secara paralel, menulis arsip WARC, dan menandai rahasia serta endpoint API yang bocor.",
       year: "2026",
       stack: ["Rust", "Tokio", "SQLite", "Chromium"],
-      proof: "Sedang dikembangkan",
+      proof: "Sedang dikembangkan · 10 tes · MIT",
       href: "/projects/ftrack",
       repoUrl: "https://github.com/FerzDevZ/ftrack",
       liveUrl: null,
@@ -291,7 +296,7 @@ export const content: PortfolioContent = {
           },
         ],
         outcome:
-          "Arsip mengikuti ISO 28500 (WARC) agar bisa dipakai bersama alat preservasi lain. Status perayapan disimpan di SQLite, sehingga eksekusi berikutnya berjalan inkremental.",
+          "Arsip mengikuti ISO 28500 (WARC) agar bisa dipakai bersama alat preservasi lain. Status perayapan disimpan di SQLite, sehingga eksekusi berikutnya berjalan inkremental. Sepuluh unit test mengunci parser: filter skema menahan `mailto:` dan `javascript:` dari antrean, deteksi framework tidak lagi peka huruf besar, dan an `import()` call for a chunk dikenali sebagai aset.",
         metrics: [
           { value: "WARC", label: "format arsip ISO 28500" },
           { value: "Tokio", label: "perayapan async paralel" },
@@ -308,7 +313,7 @@ export const content: PortfolioContent = {
         "Login Google dan GitHub yang ditulis tangan di Next.js: PKCE, sesi yang bisa dicabut, rate limit, dan log audit, tanpa library auth.",
       year: "2026",
       stack: ["Next.js", "SQLite", "PKCE"],
-      proof: "Suite tes tersedia",
+      proof: "Suite tes tersedia · MIT",
       href: "/projects/oauth",
       repoUrl: "https://github.com/FerzDevZ/oauth-system",
       liveUrl: null,
@@ -351,7 +356,7 @@ export const content: PortfolioContent = {
         "Kompresor token deterministik dan offline untuk prompt serta log agen: pipeline enam tahap yang menjaga identifier, path, dan literal galat tetap utuh.",
       year: "2026",
       stack: ["Python", "CLI", "Standard library saja"],
-      proof: "v3.0.0 · CI",
+      proof: "v3.0.0 · CI · MIT",
       href: "/projects/nanotok",
       repoUrl: "https://github.com/FerzDevZ/nanotok",
       liveUrl: null,
@@ -394,15 +399,15 @@ export const content: PortfolioContent = {
         "Penyalin situs berbasis Playwright dengan ekspor offline, rekaman API, dan pemindai rahasia pada aset yang disimpan.",
       year: "2026",
       stack: ["JavaScript", "Playwright"],
-      proof: "Dokumentasi live",
+      proof: "Dokumentasi live · MIT",
       href: "/projects/fcopier",
       repoUrl: "https://github.com/FerzDevZ/fcopier",
       liveUrl: "https://ferzdevz.github.io/fcopier/",
       preview: {
-        src: "/projects/fcopier-preview.png",
-        alt: "Beranda dokumentasi FCopier, diambil dari demo langsung",
+        src: "/projects/fcopier-preview.webp",
+        alt: "Dokumentasi FCopier: sidebar, bagian instalasi, dan judul utamanya",
         width: 1280,
-        height: 577,
+        height: 569,
       },
       caseStudy: {
         context:

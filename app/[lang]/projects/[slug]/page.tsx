@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -189,6 +190,22 @@ export default async function ProjectCaseStudyPage({
               </div>
             </dl>
           </header>
+
+          {/* A screenshot of the running product is the one piece of evidence a
+              reader can check without leaving the site, so it sits directly
+              under the title. Only projects with a real capture have one. */}
+          {project.preview ? (
+            <figure className="mt-12 overflow-hidden rounded-lg border border-line bg-panel">
+              <Image
+                src={project.preview.src}
+                alt={project.preview.alt}
+                width={project.preview.width}
+                height={project.preview.height}
+                sizes="(min-width: 1024px) 48rem, 100vw"
+                className="h-auto w-full"
+              />
+            </figure>
+          ) : null}
 
           <section className="mt-16">
             <h2 className="border-b border-line pb-4 font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">

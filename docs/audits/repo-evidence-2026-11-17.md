@@ -31,19 +31,19 @@ default branch.
 | Repository | Commits | Releases | Latest tag | Tests | CI | Docs | License | Live |
 |---|---|---|---|---|---|---|---|---|
 | `dhybrid-agent` | 158 | 4 | `v0.4.0` (manifest 0.9.6) | yes | yes | yes | MIT | — |
-| `jasakite` | 62 | 1 | `app-v1.0.1` | yes | yes | yes | — | **200** |
+| `jasakite` | 62 | 1 | `app-v1.0.1` | yes | yes | yes | MIT | **200** |
 | `freebuff-power` | 101 | 0 | — | no | no | yes | MIT | — |
 | `freebuff-proxy` | 85 | 0 | — | no | no | no | — | — |
 | `AegisX` | 41 | 0 | — | yes | no | no | — | — |
 | `ferzui` | 31 | 0 | 5 tags, `1.0.0` | no | yes | yes | MIT | — |
 | `9router-aegisx` | 24 | 1 | `v0.5.110-aegisx.1` | yes | yes | yes | MIT | — |
 | `GoVult` | 11 | 0 | — | no | yes | no | — | — |
-| `fcopier` | 4 | 0 | — | no | no | yes | — | **200** |
-| `ftrack` | 3 | 0 | — | no | no | no | — | — |
-| `oauth-system` | 3 | 0 | — | yes | no | no | — | — |
-| `webpos-apotek` | 2 | 0 | — | no | no | yes | — | — |
+| `fcopier` | 4 | 0 | — | no | no | yes | MIT | **200** |
+| `ftrack` | 4 | 0 | — | 10 | no | no | MIT | — |
+| `oauth-system` | 3 | 0 | — | yes | no | no | MIT | — |
+| `webpos-apotek` | 3 | 0 | — | 45 | no | yes | MIT | — |
 | `nanotok` | 2 | 0 | manifest `3.0.0` | yes | yes | no | MIT | — |
-| `ferzdb` | 1 | 0 | — | yes | no | no | — | — |
+| `ferzdb` | 2 | 0 | — | 16 | no | no | MIT | — |
 | `UsernameHunter` | 2 | 0 | — | no | no | no | — | — |
 
 ### Tiers
@@ -93,12 +93,28 @@ Anything beyond this list would be invented. If a client asks "who uses it", the
 answer is "nobody yet, here is the code and the deployment", which is a stronger position
 than an unverifiable claim that collapses under one GitHub search.
 
-## 5. Open items this audit cannot fix
+## 5. Closed after the first pass
 
-- `jasakite`, `webpos-apotek`, `ferzdb`, `ftrack`, `oauth-system`, `fcopier` have **no
-  license file**. A client who wants to evaluate or reuse code reads a missing license as
-  "all rights reserved" — add MIT where reuse is welcome.
-- `webpos-apotek`, `ferzdb`, `ftrack` have **no automated tests**. The portfolio now says so
-  instead of implying otherwise; closing the gap is the highest-value follow-up.
-- Six of eight case studies still have `preview: null`, so the work index has no screenshot
-  for them. `jasakite` and `fcopier` can be captured from their live URLs.
+- **Licenses.** MIT added to `jasakite`, `webpos-apotek`, `ferzdb`, `ftrack`,
+  `oauth-system`, `fcopier`, and to this portfolio. Six repositories that read as "all
+  rights reserved" now invite evaluation.
+- **Tests.** `webpos-apotek` gained 45 unit tests over its money and FEFO cores;
+  `ftrack` gained 10 over its parsers; `ferzdb` gained 5 behavioural tests. Suites:
+  webpos 45, ferzdb 16, ftrack 10.
+- **Bugs the tests found, fixed and pushed.**
+  `ferzdb` `sync()` was a stub and the buffer pool only reached disk on eviction, so a
+  reopened database forgot its tables — now every dirty page is flushed and a test proves
+  it. `ftrack` queued `mailto:` and `javascript:` links as pages, missed `React` because
+  matching was case-sensitive, and ignored `import("./chunk.js")`; all three fixed.
+- **Screenshots.** `jasakite` and `fcopier` previews are real captures of their live
+  deployments, wired into both dictionaries as `preview` and used by the hover card.
+
+## 6. Still open
+
+- Six of eight case studies share that gap: `webpos-apotek`, `9router-aegisx`, `ferzdb`,
+  `ftrack`, `oauth`, and `nanotok` have no deployment to capture. Running `webpos-apotek`
+  locally and screenshotting it is the cheapest next one.
+- `9router-aegisx`, `jasakite`, `oauth` and `fcopier` still lack a CI workflow beyond
+  `jasakite` and `9router`; `ferzdb` and `ftrack` have tests but no CI to run them.
+- No project has external adoption. Only `UsernameHunter` (★10, 3 forks) has been forked by
+  someone else, and it is a security tool with two commits and no documentation.
